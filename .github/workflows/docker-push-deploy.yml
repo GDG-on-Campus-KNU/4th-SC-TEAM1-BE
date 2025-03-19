@@ -47,12 +47,11 @@ jobs:
 
       - name: 🐋 Build and push Docker image
         run: |
-          docker build --build-arg APP_CONFIG="
-            secrets.REDIS_HOST=${{ secrets.REDIS_HOST }}
-            secrets.REDIS_PORT=${{ secrets.REDIS_PORT }}
-            secrets.REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-            secrets.SECRET_KEY=${{ secrets.SECRET_KEY }}" \
-            -t ${{ secrets.DOCKER_USERNAME }}/todak:latest .
+          docker build --build-arg REDIS_HOST=${{ secrets.REDIS_HOST }} \
+                       --build-arg REDIS_PORT=${{ secrets.REDIS_PORT }} \
+                       --build-arg REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
+                       --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} \
+                       -t ${{ secrets.DOCKER_USERNAME }}/todak:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/todak:latest
 
       - name: 🛠️ Set up kubectl
