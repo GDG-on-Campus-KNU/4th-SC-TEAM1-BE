@@ -11,9 +11,8 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 # 4. Gradle 빌드 후 생성된 JAR 파일을 컨테이너 내의 /app 디렉토리로 복사합니다.
 COPY build/libs/Todak-0.0.1-SNAPSHOT.jar /app/todak.jar
 
-# 5. 환경 변수로 받은 application-dev.properties를 파일로 복사합니다.
-ARG APP_CONFIG
-RUN echo -e "$APP_CONFIG" > /app/src/main/resources/application-dev.properties
+# 5. 디렉터리 생성 후 환경 변수로 받은 내용을 파일로 생성합니다.
+RUN mkdir -p /app/src/main/resources && echo -e "$APP_CONFIG" > /app/src/main/resources/application-dev.properties
 
 # 6. 애플리케이션을 실행하는 명령어를 설정합니다.
 CMD ["java", "-Duser.timezone=Asia/Seoul", "-jar", "todak.jar"]
