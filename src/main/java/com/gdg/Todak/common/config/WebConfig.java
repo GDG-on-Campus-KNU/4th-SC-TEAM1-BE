@@ -25,7 +25,9 @@ public class WebConfig implements WebMvcConfigurer {
             "/api/users/check-username",
             "/api/users/signup",
             "/api/users/login",
-            "/api/users/logout"
+            "/api/users/logout",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     );
 
     @Override
