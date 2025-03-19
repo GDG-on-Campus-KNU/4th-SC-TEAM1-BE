@@ -47,7 +47,7 @@ jobs:
 
       - name: 🐋 Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/todak:latest .
+          docker build --build-arg APP_CONFIG="${{ secrets.APPLICATION_DEV_PROPERTIES }}" -t ${{ secrets.DOCKER_USERNAME }}/todak:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/todak:latest
 
       - name: 🛠️ Set up kubectl
