@@ -1,4 +1,4 @@
-name: 🚀 Build and Push Docker Image 🐳
+name: 🚀 Build and Deploy to Kubernetes 🐳
 
 on:
   push:
@@ -18,15 +18,12 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          java-package: jdk
-          check-latest: false
 
       - name: 🛠️ Set up Gradle
         uses: gradle/wrapper-validation-action@v2
 
       - name: 🏗️ Build with Gradle
-        run: |
-          ./gradlew build -x test
+        run: ./gradlew build
 
       - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -47,11 +44,7 @@ jobs:
 
       - name: 🐋 Build and push Docker image
         run: |
-          docker build --build-arg REDIS_HOST=${{ secrets.REDIS_HOST }} \
-                       --build-arg REDIS_PORT=${{ secrets.REDIS_PORT }} \
-                       --build-arg REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
-                       --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} \
-                       -t ${{ secrets.DOCKER_USERNAME }}/todak:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/todak:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/todak:latest
 
       - name: 🛠️ Set up kubectl
@@ -63,6 +56,17 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "$KUBECONFIG" > ~/.kube/config
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
+      - name: 🔑 Create Kubernetes Secrets
+        run: |
+          kubectl create secret generic todak-secrets \
+            --from-literal=REDIS_HOST=${{ secrets.REDIS_HOST }} \
+            --from-literal=REDIS_PORT=${{ secrets.REDIS_PORT }} \
+            --from-literal=REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
+            --from-literal=SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            --dry-run=client -o yaml | kubectl apply -f -
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 

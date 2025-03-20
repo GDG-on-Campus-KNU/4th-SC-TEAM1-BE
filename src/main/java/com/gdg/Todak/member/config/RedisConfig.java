@@ -10,12 +10,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 public class RedisConfig {
 
-    @Value("${secrets.REDIS_HOST}")
+    @Value("${REDIS_HOST}")
     private String host;
-    @Value("${secrets.REDIS_PORT}")
+    @Value("${REDIS_PORT}")
     private int port;
-    @Value("${secrets.REDIS_PASSWORD}")
+    @Value("${REDIS_PASSWORD}")
     private String password;
+
     @Bean
     LettuceConnectionFactory connectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
