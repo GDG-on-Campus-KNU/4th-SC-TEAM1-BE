@@ -32,7 +32,7 @@ public class MemberControllerAdvice {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({BindException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler(BindException.class)
     public ApiResponse<Object> bindException(BindException e) {
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
