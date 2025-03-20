@@ -32,11 +32,20 @@ public class MemberControllerAdvice {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({BindException.class, DataIntegrityViolationException.class})
+    @ExceptionHandler(BindException.class)
     public ApiResponse<Object> bindException(BindException e) {
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
                 e.getBindingResult().getAllErrors().get(0).getDefaultMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ApiResponse<Object> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return ApiResponse.of(
+                HttpStatus.CONFLICT,
+                e.getMostSpecificCause().getMessage()
         );
     }
 }
