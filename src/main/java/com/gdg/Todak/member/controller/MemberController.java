@@ -13,6 +13,7 @@ import com.gdg.Todak.member.service.response.CheckUsernameServiceResponse;
 import com.gdg.Todak.member.service.response.LogoutResponse;
 import com.gdg.Todak.member.service.response.MeResponse;
 import com.gdg.Todak.member.service.response.MemberResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,28 +29,33 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/check-username")
+    @Operation(summary = "유저명 중복 체크", description = "유저명이 존재하는지 체크한다. 존재하면 True, 존재하지 않으면 False를 반환한다.")
     public ApiResponse<CheckUsernameServiceResponse> checkUsername(
             @RequestBody CheckUsernameRequest request) {
         return ApiResponse.ok(memberService.checkUsername(request.toServiceRequest()));
     }
 
     @PostMapping("/signup")
+    @Operation(summary = "회원가입", description = "유저명과 비밀번호로 회원가입한다. 유저명은 3글자 이상 20글자 이하, 비밀번호는 8글자 이상 16글자 이하이다.")
     public ApiResponse<MemberResponse> signup(@RequestBody @Validated SignupRequest request) {
         return ApiResponse.ok(memberService.signup(request.toServiceRequest()));
     }
 
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "유저명과 비밀번호로 로그인한다. 성공시 accessToken과 refreshToken이 반환된다.")
     public ApiResponse<Jwt> login(@RequestBody LoginRequest request) {
         return ApiResponse.ok(memberService.login(request.toServiceRequest()));
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "리프레시 토큰을 삭제하여 로그아웃한다.")
     public ApiResponse<LogoutResponse> logout(@Login AuthenticateUser user,
                                               @RequestBody LogoutRequest request) {
         return ApiResponse.ok(memberService.logout(user, request.toServiceRequest()));
     }
 
     @PostMapping("/me")
+    @Operation(summary = "마이페이지", description = "로그인이 된 상태유저명과 프로필 사진 Url을 반환한다.")
     public ApiResponse<MeResponse> me(@Login AuthenticateUser user) {
         return ApiResponse.ok(memberService.me(user));
     }
