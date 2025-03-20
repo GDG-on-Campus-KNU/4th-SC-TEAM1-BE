@@ -64,17 +64,6 @@ jobs:
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
-      - name: 🔑 Create Kubernetes Secrets
-        run: |
-          kubectl create secret generic todak-secrets \
-            --from-literal=REDIS_HOST=${{ secrets.REDIS_HOST }} \
-            --from-literal=REDIS_PORT=${{ secrets.REDIS_PORT }} \
-            --from-literal=REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
-            --from-literal=SECRET_KEY=${{ secrets.SECRET_KEY }} \
-            --dry-run=client -o yaml | kubectl apply -f -
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
       - name: 🚀 Apply Kubernetes Deployment
         run: |
           envsubst < ./k8s/deployment.yaml.template > deployment.yaml
