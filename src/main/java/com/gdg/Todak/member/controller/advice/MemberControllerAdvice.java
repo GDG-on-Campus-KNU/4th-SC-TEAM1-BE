@@ -3,6 +3,7 @@ package com.gdg.Todak.member.controller.advice;
 import com.gdg.Todak.common.domain.ApiResponse;
 import com.gdg.Todak.member.exception.EncryptionException;
 import com.gdg.Todak.member.exception.UnauthorizedException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,6 +37,15 @@ public class MemberControllerAdvice {
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
                 e.getBindingResult().getAllErrors().get(0).getDefaultMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ApiResponse<Object> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return ApiResponse.of(
+                HttpStatus.CONFLICT,
+                e.getMostSpecificCause().getMessage()
         );
     }
 }

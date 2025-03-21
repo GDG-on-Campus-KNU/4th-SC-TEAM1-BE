@@ -36,7 +36,7 @@ class AuthControllerTest extends ControllerTestSupport {
 
         // then
         mockMvc.perform(
-                        post("/api/auth/refresh")
+                        post("/api/v1/auth/refresh")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
