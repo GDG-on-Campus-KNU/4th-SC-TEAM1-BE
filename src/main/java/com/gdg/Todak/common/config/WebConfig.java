@@ -22,10 +22,10 @@ public class WebConfig implements WebMvcConfigurer {
     private final LoginMemberArgumentResolver loginMemberArgumentResolver;
 
     List<String> whiteList = List.of(
-            "/api/users/check-username",
-            "/api/users/signup",
-            "/api/users/login",
-            "/api/users/logout",
+            "/api/v1/users/check-username",
+            "/api/v1/users/signup",
+            "/api/v1/users/login",
+            "/api/v1/users/logout",
             "/swagger-ui/**",
             "/v3/api-docs/**"
     );
