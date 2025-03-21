@@ -35,7 +35,7 @@ class MemberControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(
-                        post("/api/users/signup")
+                        post("/api/v1/users/signup")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -60,7 +60,7 @@ class MemberControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(
-                        post("/api/users/signup")
+                        post("/api/v1/users/signup")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -84,7 +84,7 @@ class MemberControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(
-                        post("/api/users/signup")
+                        post("/api/v1/users/signup")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -105,7 +105,7 @@ class MemberControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(
-                        post("/api/users/login")
+                        post("/api/v1/users/login")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )

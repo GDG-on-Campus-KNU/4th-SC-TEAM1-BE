@@ -5,6 +5,7 @@ import com.gdg.Todak.member.controller.request.UpdateAccessTokenRequest;
 import com.gdg.Todak.member.domain.Jwt;
 import com.gdg.Todak.member.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RestController
+@Tag(name = "인증", description = "인증 관련 API")
 public class AuthController {
 
     private final AuthService authService;
