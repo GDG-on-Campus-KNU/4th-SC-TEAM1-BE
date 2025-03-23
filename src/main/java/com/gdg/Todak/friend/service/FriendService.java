@@ -8,6 +8,7 @@ import com.gdg.Todak.friend.dto.FriendResponse;
 import com.gdg.Todak.friend.entity.Friend;
 import com.gdg.Todak.friend.exception.BadRequestException;
 import com.gdg.Todak.friend.exception.NotFoundException;
+import com.gdg.Todak.friend.exception.UnauthorizedException;
 import com.gdg.Todak.friend.repository.FriendRepository;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
@@ -109,7 +110,7 @@ public class FriendService {
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
 
         if (friendRequest.checkMemberIsNotAccepter(member)) {
-            throw new BadRequestException("친구 요청을 수락할 권한이 없습니다. 요청받은 사람만 수락할 수 있습니다.");
+            throw new UnauthorizedException("친구 요청을 수락할 권한이 없습니다. 요청받은 사람만 수락할 수 있습니다.");
         }
 
         friendRequest.acceptFriendRequest();
@@ -124,7 +125,7 @@ public class FriendService {
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
 
         if (friendRequest.checkMemberIsNotAccepter(member)) {
-            throw new BadRequestException("친구 요청을 수락할 권한이 없습니다. 요청받은 사람만 수락할 수 있습니다.");
+            throw new UnauthorizedException("친구 요청을 수락할 권한이 없습니다. 요청받은 사람만 수락할 수 있습니다.");
         }
 
         friendRequest.declinedFriendRequest();
@@ -139,7 +140,7 @@ public class FriendService {
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
 
         if (friendRequest.checkMemberIsNotRequester(member) && friendRequest.checkMemberIsNotAccepter(member)) {
-            throw new BadRequestException("친구를 삭제할 권한이 없습니다. 당사자들만 삭제할 수 있습니다.");
+            throw new UnauthorizedException("친구를 삭제할 권한이 없습니다. 당사자들만 삭제할 수 있습니다.");
         }
 
         friendRepository.deleteById(friendRequestId);
