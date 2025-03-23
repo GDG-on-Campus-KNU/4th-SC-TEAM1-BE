@@ -1,28 +1,51 @@
 package com.gdg.Todak.diary.service;
 
+import com.gdg.Todak.diary.dto.DiaryDetailResponse;
 import com.gdg.Todak.diary.dto.DiaryRequest;
-import com.gdg.Todak.diary.dto.DiaryResponse;
-import com.gdg.Todak.diary.dto.EmotionRequest;
+import com.gdg.Todak.diary.dto.DiarySummaryResponse;
 import com.gdg.Todak.diary.entity.Diary;
+import com.gdg.Todak.diary.exception.BadRequestException;
+import com.gdg.Todak.diary.exception.NotFoundException;
+import com.gdg.Todak.diary.exception.UnauthorizedException;
 import com.gdg.Todak.diary.repository.DiaryRepository;
+import com.gdg.Todak.friend.FriendStatus;
+import com.gdg.Todak.friend.entity.Friend;
+import com.gdg.Todak.friend.repository.FriendRepository;
+import com.gdg.Todak.member.domain.Member;
+import com.gdg.Todak.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
+    private final MemberRepository memberRepository;
+    private final FriendRepository friendRepository;
 
     @Transactional
-    public void writeDiary(DiaryRequest diaryRequest) {
-        // 멤버 도메인 완성 후 검증, 이미 금일 작성된 일기가 있는지 확인 로직 추가 예정
+    public void writeDiary(String memberName, DiaryRequest diaryRequest) {
+        Member member = memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+
+        LocalDate today = LocalDate.now();
+        Instant startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant endOfDay = today.atTime(23, 59, 59, 99).atZone(ZoneId.systemDefault()).toInstant();
+
+        if (diaryRepository.existsByMemberAndCreatedAtBetween(member, startOfDay, endOfDay)) {
+            throw new BadRequestException("오늘 이미 작성된 일기 또는 감정이 있습니다. 삭제 후 재작성하거나 작성된 일기를 수정해주세요.");
+        }
 
         Diary diary = Diary.builder()
-                .title(diaryRequest.title())
+                .member(member)
                 .content(diaryRequest.content())
                 .emotion(diaryRequest.emotion())
                 .build();
@@ -31,47 +54,124 @@ public class DiaryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DiaryResponse> readAllDiary(Pageable pageable) {
-        return diaryRepository.findAll(pageable)
-                .map(Diary -> new DiaryResponse(
-                        Diary.getId(),
-                        Diary.getTitle(),
-                        Diary.getContent(),
-                        Diary.getEmotion()
-                ));
+    public List<DiarySummaryResponse> getOwnSummaryByYearAndMonth(String memberName, int year, int month) {
+        Member member = memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+
+        if (month < 1 || month > 12) {
+            throw new BadRequestException("month의 범위는 1~12 입니다.");
+        }
+
+        List<Diary> diaries = getDiariesByYearAndMonth(year, month, member);
+
+        if (!diaries.isEmpty() && !diaries.getFirst().isWriter(member)) {
+            throw new UnauthorizedException("일기 작성자가 아닙니다.");
+        }
+
+        return diaries.stream()
+                .map(diary -> new DiarySummaryResponse(
+                        diary.getId(),
+                        diary.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate(),
+                        diary.getEmotion()
+                )).toList();
     }
 
     @Transactional(readOnly = true)
-    public DiaryResponse readDiary(Long diaryId) {
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new RuntimeException("diary id에 해당하는 일기가 없습니다."));
+    public List<DiarySummaryResponse> getFriendSummaryByYearAndMonth(String memberName, String friendName, int year, int month) {
+        Member friendMember = memberRepository.findByUsername(friendName)
+                .orElseThrow(() -> new NotFoundException("friendName에 해당하는 멤버가 없습니다."));
 
-        return new DiaryResponse(diary.getId(), diary.getTitle(), diary.getContent(), diary.getEmotion());
+        if (month < 1 || month > 12) {
+            throw new BadRequestException("month의 범위는 1~12 입니다.");
+        }
+
+        List<Member> acceptedMembers = getFriendMembers(memberName);
+
+        if (!acceptedMembers.contains(friendMember)) {
+            throw new UnauthorizedException("친구만 조회 가능합니다.");
+        }
+
+        List<Diary> diaries = getDiariesByYearAndMonth(year, month, friendMember);
+
+        return diaries.stream()
+                .map(diary -> new DiarySummaryResponse(
+                        diary.getId(),
+                        diary.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDate(),
+                        diary.getEmotion()
+                )).toList();
+    }
+
+    private List<Member> getFriendMembers(String memberName) {
+        Member member = memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+
+        List<Friend> acceptedFriends = friendRepository.findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus(
+                memberName, FriendStatus.ACCEPTED, memberName, FriendStatus.ACCEPTED);
+
+        return acceptedFriends.stream()
+                .map(friend -> friend.getAccepter().equals(member) ? friend.getRequester() : friend.getAccepter())
+                .toList();
+    }
+
+    private List<Diary> getDiariesByYearAndMonth(int year, int month, Member member) {
+        LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0, 0);
+        LocalDateTime endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(99);
+
+        Instant startInstant = startOfMonth.atZone(ZoneId.systemDefault()).toInstant();
+        Instant endInstant = endOfMonth.atZone(ZoneId.systemDefault()).toInstant();
+
+        return diaryRepository.findByMemberAndCreatedAtBetween(member, startInstant, endInstant);
+    }
+
+    @Transactional(readOnly = true)
+    public DiaryDetailResponse readDiary(String memberName, Long diaryId) {
+        Member member = memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new NotFoundException("diary id에 해당하는 일기가 없습니다."));
+
+        LocalDateTime createdAt = diary.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        if (diary.isWriter(member)) {
+            return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), true);
+        }
+
+        List<Member> acceptedMembers = getFriendMembers(diary.getMember().getUsername());
+
+        if (!acceptedMembers.contains(member)) {
+            throw new UnauthorizedException("작성자 또는 작성자의 친구만 일기 조회가 가능합니다.");
+        }
+
+        return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), false);
     }
 
     @Transactional
-    public void updateDiary(Long diaryId, DiaryRequest diaryRequest) {
-        //멤버 도메인 추가 후 수정권한 검증 로직 추가 예정 및 글로벌 어드바이스 추가 전 RuntimeException으로 임시 작성
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new RuntimeException("diary id에 해당하는 일기가 없습니다."));
+    public void updateDiary(String memberName, Long diaryId, DiaryRequest diaryRequest) {
+        Member member = memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
 
-        diary.updateDiary(diaryRequest.title(), diaryRequest.content(), diaryRequest.emotion());
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new NotFoundException("diary id에 해당하는 일기가 없습니다."));
+
+        if (!diary.isWriter(member)) {
+            throw new UnauthorizedException("일기 작성자가 아닙니다.");
+        }
+
+        diary.updateDiary(diaryRequest.content(), diaryRequest.emotion());
     }
 
     @Transactional
-    public void updateDiaryEmotion(Long diaryId, EmotionRequest emotionRequest) {
-        //멤버 도메인 추가 후 수정권한 검증 로직 추가 예정 및 글로벌 어드바이스 추가 전 RuntimeException으로 임시 작성
+    public void deleteDiary(String memberName, Long diaryId) {
+        Member member = memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("diary id에 해당하는 일기가 없습니다."));
 
-        diary.setEmotion(emotionRequest.emotion());
-    }
-
-    @Transactional
-    public void deleteDiary(Long diaryId) {
-        //멤버 도메인 추가 후 수정권한 검증 로직 추가 예정 및 글로벌 어드바이스 추가 전 RuntimeException으로 임시 작성
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new RuntimeException("diary id에 해당하는 일기가 없습니다."));
+        if (!diary.isWriter(member)) {
+            throw new UnauthorizedException("일기 작성자가 아닙니다.");
+        }
 
         diaryRepository.delete(diary);
     }

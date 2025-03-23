@@ -1,12 +1,17 @@
 package com.gdg.Todak.diary.repository;
 
 import com.gdg.Todak.diary.entity.Diary;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.gdg.Todak.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
+import java.util.List;
+
 @Repository
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
-    Page<Diary> findAll(Pageable pageable);
+
+    List<Diary> findByMemberAndCreatedAtBetween(Member member, Instant startPoint, Instant endPoint);
+
+    boolean existsByMemberAndCreatedAtBetween(Member member, Instant startOfDay, Instant endOfDay);
 }

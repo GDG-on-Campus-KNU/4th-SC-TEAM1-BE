@@ -1,17 +1,17 @@
-package com.gdg.Todak.friend.controller.advice;
+package com.gdg.Todak.diary.controller.advice;
 
 import com.gdg.Todak.common.domain.ApiResponse;
-import com.gdg.Todak.friend.exception.BadRequestException;
-import com.gdg.Todak.friend.exception.NotFoundException;
-import com.gdg.Todak.friend.exception.UnauthorizedException;
+import com.gdg.Todak.diary.exception.BadRequestException;
+import com.gdg.Todak.diary.exception.NotFoundException;
+import com.gdg.Todak.diary.exception.UnauthorizedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(basePackages = "com.gdg.Todak.friend")
-public class FriendControllerAdvice {
+@RestControllerAdvice(basePackages = "com.gdg.Todak.diary")
+public class DiaryControllerAdvice {
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
