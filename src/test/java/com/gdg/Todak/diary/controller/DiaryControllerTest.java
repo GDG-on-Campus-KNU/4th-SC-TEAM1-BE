@@ -18,8 +18,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,8 +47,6 @@ class DiaryControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private WebApplicationContext context;
     @MockitoBean
     private LoginCheckInterceptor loginCheckInterceptor;
 
@@ -66,10 +62,6 @@ class DiaryControllerTest {
 
         when(loginMemberArgumentResolver.supportsParameter(any())).thenReturn(true);
         when(loginMemberArgumentResolver.resolveArgument(any(), any(), any(), any())).thenReturn(authenticateUser);
-
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .build();
     }
 
     @Test
