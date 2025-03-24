@@ -47,6 +47,8 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     // Test Dependencies
+    runtimeOnly 'com.h2database:h2'
+    testImplementation 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 

@@ -26,6 +26,7 @@ public class DiaryController {
 
     @PostMapping
     @Operation(summary = "일기 작성 / 감정 등록", description = "일기를 작성한다. 감정만 등록하기도 가능. 감정은 HAPPY, SAD, ANGRY, EXCITED, NEUTRAL")
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Void> writeDiary(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @RequestBody DiaryRequest diaryRequest) {
         diaryService.writeDiary(authenticateUser.getUsername(), diaryRequest);
         return ApiResponse.of(HttpStatus.CREATED, "작성되었습니다.");

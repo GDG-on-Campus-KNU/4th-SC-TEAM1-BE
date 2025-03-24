@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FriendRepository extends JpaRepository<Friend, Long> {
@@ -22,4 +23,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     @Query("SELECT COUNT(f) FROM Friend f WHERE f.accepter = :member AND f.friendStatus IN :statuses")
     long countByAccepterAndStatusIn(@Param("member") Member member, @Param("statuses") List<FriendStatus> statuses);
+
+    Optional<Friend> findByRequesterAndAccepter(Member requester, Member accepter);
 }

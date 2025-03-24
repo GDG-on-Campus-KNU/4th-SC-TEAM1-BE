@@ -27,6 +27,7 @@ public class FriendController {
 
     @Operation(summary = "친구 요청 보내기", description = "친구의 이름을 기반으로 친구요청합니다.")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Void> sendFriendRequest(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @RequestBody FriendNameRequest friendNameRequest) {
         friendService.makeFriendRequest(authenticateUser.getUsername(), friendNameRequest);
         return ApiResponse.of(HttpStatus.CREATED, "친구 요청이 생성되었습니다.");
