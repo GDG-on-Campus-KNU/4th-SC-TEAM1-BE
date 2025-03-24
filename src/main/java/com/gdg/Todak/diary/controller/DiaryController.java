@@ -3,6 +3,7 @@ package com.gdg.Todak.diary.controller;
 import com.gdg.Todak.common.domain.ApiResponse;
 import com.gdg.Todak.diary.dto.DiaryDetailResponse;
 import com.gdg.Todak.diary.dto.DiaryRequest;
+import com.gdg.Todak.diary.dto.DiarySearchRequest;
 import com.gdg.Todak.diary.dto.DiarySummaryResponse;
 import com.gdg.Todak.diary.service.DiaryService;
 import com.gdg.Todak.member.domain.AuthenticateUser;
@@ -35,14 +36,16 @@ public class DiaryController {
     @GetMapping("/me/{year}/{month}")
     @Operation(summary = "본인의 년/월에 해당하는 모든 일기 불러오기", description = "본인이 작성한 일기 중 year, month에 해당하는 모든 일기를 불러온다.")
     public ApiResponse<List<DiarySummaryResponse>> getMyAllDiary(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("year") int year, @PathVariable("month") int month) {
-        List<DiarySummaryResponse> diaryResponses = diaryService.getMySummaryByYearAndMonth(authenticateUser.getUsername(), year, month);
+        DiarySearchRequest diarySearchRequest = new DiarySearchRequest(year, month);
+        List<DiarySummaryResponse> diaryResponses = diaryService.getMySummaryByYearAndMonth(authenticateUser.getUsername(), diarySearchRequest);
         return ApiResponse.ok(diaryResponses);
     }
 
     @GetMapping("/friend/{friendName}/{year}/{month}")
     @Operation(summary = "친구의 년/월에 해당하는 모든 일기 불러오기", description = "친구가 작성한 일기 중 year, month에 해당하는 모든 일기를 불러온다.")
     public ApiResponse<List<DiarySummaryResponse>> getAllDiaryByFriend(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("friendName") String friendName, @PathVariable("year") int year, @PathVariable("month") int month) {
-        List<DiarySummaryResponse> diaryResponses = diaryService.getFriendSummaryByYearAndMonth(authenticateUser.getUsername(), friendName, year, month);
+        DiarySearchRequest diarySearchRequest = new DiarySearchRequest(year, month);
+        List<DiarySummaryResponse> diaryResponses = diaryService.getFriendSummaryByYearAndMonth(authenticateUser.getUsername(), friendName, diarySearchRequest);
         return ApiResponse.ok(diaryResponses);
     }
 

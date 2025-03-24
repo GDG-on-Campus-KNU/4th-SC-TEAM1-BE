@@ -90,7 +90,7 @@ class DiaryControllerTest {
                 new DiarySummaryResponse(1L, LocalDate.of(2025, 3, 1), Emotion.HAPPY),
                 new DiarySummaryResponse(2L, LocalDate.of(2025, 3, 2), Emotion.SAD)
         );
-        when(diaryService.getMySummaryByYearAndMonth(anyString(), anyInt(), anyInt())).thenReturn(responses);
+        when(diaryService.getMySummaryByYearAndMonth(anyString(), any())).thenReturn(responses);
 
         // when
         mockMvc.perform(get("/api/v1/diary/me/2025/3")
@@ -114,7 +114,7 @@ class DiaryControllerTest {
                 new DiarySummaryResponse(1L, LocalDate.of(2025, 3, 1), Emotion.HAPPY),
                 new DiarySummaryResponse(2L, LocalDate.of(2025, 3, 2), Emotion.SAD)
         );
-        when(diaryService.getFriendSummaryByYearAndMonth(anyString(), anyString(), anyInt(), anyInt())).thenReturn(responses);
+        when(diaryService.getFriendSummaryByYearAndMonth(anyString(), anyString(), any())).thenReturn(responses);
 
         // when
         mockMvc.perform(get("/api/v1/diary/friend/friendName/2025/3")

@@ -2,6 +2,7 @@ package com.gdg.Todak.diary.service;
 
 import com.gdg.Todak.diary.Emotion;
 import com.gdg.Todak.diary.dto.DiaryRequest;
+import com.gdg.Todak.diary.dto.DiarySearchRequest;
 import com.gdg.Todak.diary.dto.DiarySummaryResponse;
 import com.gdg.Todak.diary.entity.Diary;
 import com.gdg.Todak.diary.exception.BadRequestException;
@@ -124,6 +125,7 @@ class DiaryServiceTest {
         Instant now = Instant.now();
         int year = now.atZone(ZoneId.systemDefault()).getYear();
         int month = now.atZone(ZoneId.systemDefault()).getMonthValue();
+        DiarySearchRequest diarySearchRequest = new DiarySearchRequest(year, month);
 
         Diary diary1 = diaryRepository.save(Diary.builder()
                 .member(writer)
@@ -142,7 +144,7 @@ class DiaryServiceTest {
 
 
         // when
-        List<DiarySummaryResponse> summaries = diaryService.getMySummaryByYearAndMonth(writer.getUsername(), year, month);
+        List<DiarySummaryResponse> summaries = diaryService.getMySummaryByYearAndMonth(writer.getUsername(), diarySearchRequest);
 
         // then
         assertThat(summaries).hasSize(2);
@@ -157,6 +159,7 @@ class DiaryServiceTest {
         Instant now = Instant.now();
         int year = now.atZone(ZoneId.systemDefault()).getYear();
         int month = now.atZone(ZoneId.systemDefault()).getMonthValue();
+        DiarySearchRequest diarySearchRequest = new DiarySearchRequest(year, month);
 
         // 회원과 친구에 해당하는 일기 데이터 생성
         Diary diary1 = diaryRepository.save(Diary.builder()
@@ -175,7 +178,7 @@ class DiaryServiceTest {
         ReflectionTestUtils.setField(diary2, "createdAt", Instant.now());
 
         // when
-        List<DiarySummaryResponse> summaries = diaryService.getFriendSummaryByYearAndMonth(writer.getUsername(), nonWriter.getUsername(), year, month);
+        List<DiarySummaryResponse> summaries = diaryService.getFriendSummaryByYearAndMonth(writer.getUsername(), nonWriter.getUsername(), diarySearchRequest);
 
         // then
         assertThat(summaries).hasSize(2);

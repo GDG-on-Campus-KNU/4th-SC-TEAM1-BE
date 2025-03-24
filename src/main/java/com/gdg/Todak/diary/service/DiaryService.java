@@ -2,6 +2,7 @@ package com.gdg.Todak.diary.service;
 
 import com.gdg.Todak.diary.dto.DiaryDetailResponse;
 import com.gdg.Todak.diary.dto.DiaryRequest;
+import com.gdg.Todak.diary.dto.DiarySearchRequest;
 import com.gdg.Todak.diary.dto.DiarySummaryResponse;
 import com.gdg.Todak.diary.entity.Diary;
 import com.gdg.Todak.diary.exception.BadRequestException;
@@ -53,8 +54,11 @@ public class DiaryService {
         diaryRepository.save(diary);
     }
 
-    public List<DiarySummaryResponse> getMySummaryByYearAndMonth(String memberName, int year, int month) {
+    public List<DiarySummaryResponse> getMySummaryByYearAndMonth(String memberName, DiarySearchRequest diarySearchRequest) {
         Member member = getMember(memberName);
+
+        int year = diarySearchRequest.year();
+        int month = diarySearchRequest.month();
 
         if (month < 1 || month > 12) {
             throw new BadRequestException("month의 범위는 1~12 입니다.");
@@ -74,9 +78,12 @@ public class DiaryService {
                 )).toList();
     }
 
-    public List<DiarySummaryResponse> getFriendSummaryByYearAndMonth(String memberName, String friendName, int year, int month) {
+    public List<DiarySummaryResponse> getFriendSummaryByYearAndMonth(String memberName, String friendName, DiarySearchRequest diarySearchRequest) {
         Member friendMember = memberRepository.findByUsername(friendName)
                 .orElseThrow(() -> new NotFoundException("friendName에 해당하는 멤버가 없습니다."));
+
+        int year = diarySearchRequest.year();
+        int month = diarySearchRequest.month();
 
         if (month < 1 || month > 12) {
             throw new BadRequestException("month의 범위는 1~12 입니다.");
