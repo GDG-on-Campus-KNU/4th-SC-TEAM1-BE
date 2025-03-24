@@ -124,4 +124,66 @@ class FriendServiceTest {
         Optional<Friend> deletedFriend = friendRepository.findById(friend.getId());
         assertThat(deletedFriend).isEmpty();
     }
+
+    @Test
+    @DisplayName("친구 요청 개수를 초과한 경우 예외 발생")
+    void exceedFriendRequestLimitTest() {
+        // given
+        FriendNameRequest request = new FriendNameRequest(accepter.getUsername());
+
+        for (int i = 0; i < 20; i++) {
+            Member accepterMember = Member.builder()
+                    .username("accepter" + i)
+                    .password("password")
+                    .salt("salt")
+                    .imageUrl("imageUrl")
+                    .build();
+
+            memberRepository.save(accepterMember);
+
+            Friend friendRequest = Friend.builder()
+                    .requester(requester)
+                    .accepter(accepterMember)
+                    .friendStatus(FriendStatus.PENDING)
+                    .build();
+
+            friendRepository.save(friendRequest);
+        }
+
+        // when & then
+        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUsername(), request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("친구 요청 개수를 초과하였습니다. (최대 20개)");
+    }
+
+    @Test
+    @DisplayName("상대방이 더 이상 친구 요청을 받을 수 없을 경우 예외 발생")
+    void exceedAccepterFriendRequestLimitTest() {
+        // given
+        FriendNameRequest request = new FriendNameRequest(accepter.getUsername());
+
+        for (int i = 0; i < 20; i++) {
+            Member requesterMember = Member.builder()
+                    .username("requester" + i)
+                    .password("password")
+                    .salt("salt")
+                    .imageUrl("imageUrl")
+                    .build();
+
+            memberRepository.save(requesterMember);
+
+            Friend friendRequest = Friend.builder()
+                    .requester(requesterMember)
+                    .accepter(accepter)
+                    .friendStatus(FriendStatus.PENDING)
+                    .build();
+
+            friendRepository.save(friendRequest);
+        }
+
+        // when & then
+        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUsername(), request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("상대방이 더 이상 친구 요청을 받을 수 없습니다. (최대 20개)");
+    }
 }

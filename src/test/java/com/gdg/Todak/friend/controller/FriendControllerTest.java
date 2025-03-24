@@ -8,7 +8,6 @@ import com.gdg.Todak.friend.dto.FriendRequestResponse;
 import com.gdg.Todak.friend.dto.FriendResponse;
 import com.gdg.Todak.friend.service.FriendService;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
-import com.gdg.Todak.member.controller.TestWebConfig;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Role;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FriendController.class)
-@Import(TestWebConfig.class)
 class FriendControllerTest {
 
     private final String token = "testToken";
@@ -74,9 +71,11 @@ class FriendControllerTest {
     @Test
     @DisplayName("친구 요청 보내기 테스트")
     void sendFriendRequestTest() throws Exception {
+        // given
         FriendNameRequest request = new FriendNameRequest("friendName");
         doNothing().when(friendService).makeFriendRequest(anyString(), any(FriendNameRequest.class));
 
+        // when & then
         mockMvc.perform(post("/api/v1/friend")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,12 +87,14 @@ class FriendControllerTest {
     @Test
     @DisplayName("친구 목록 조회 테스트")
     void getAllFriendsTest() throws Exception {
+        // given
         List<FriendResponse> responses = Arrays.asList(
                 new FriendResponse(1L, "friend1"),
                 new FriendResponse(2L, "friend2")
         );
         when(friendService.getAllFriend(anyString())).thenReturn(responses);
 
+        // when & then
         mockMvc.perform(get("/api/v1/friend")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -104,12 +105,14 @@ class FriendControllerTest {
     @Test
     @DisplayName("대기중인 친구 요청 조회 테스트")
     void getAllPendingFriendRequestTest() throws Exception {
+        // given
         List<FriendRequestResponse> responses = Arrays.asList(
                 new FriendRequestResponse(1L, "requester1", "profile1"),
                 new FriendRequestResponse(2L, "requester2", "profile2")
         );
         when(friendService.getAllFriendRequests(anyString())).thenReturn(responses);
 
+        // when & then
         mockMvc.perform(get("/api/v1/friend/pending")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -120,12 +123,14 @@ class FriendControllerTest {
     @Test
     @DisplayName("거절한 친구 요청 조회 테스트")
     void getAllDeclinedFriendRequestTest() throws Exception {
+        // given
         List<FriendRequestResponse> responses = Arrays.asList(
                 new FriendRequestResponse(1L, "decliner1", "profile1"),
                 new FriendRequestResponse(2L, "decliner2", "profile2")
         );
         when(friendService.getAllDeclinedFriends(anyString())).thenReturn(responses);
 
+        // when & then
         mockMvc.perform(get("/api/v1/friend/declined")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -136,9 +141,11 @@ class FriendControllerTest {
     @Test
     @DisplayName("친구 요청 수락 테스트")
     void acceptFriendRequestTest() throws Exception {
+        // given
         Long friendRequestId = 1L;
         doNothing().when(friendService).acceptFriendRequest(anyString(), anyLong());
 
+        // when & then
         mockMvc.perform(put("/api/v1/friend/accept/" + friendRequestId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -148,9 +155,11 @@ class FriendControllerTest {
     @Test
     @DisplayName("친구 요청 거절 테스트")
     void declineFriendRequestTest() throws Exception {
+        // given
         Long friendRequestId = 1L;
         doNothing().when(friendService).declineFriendRequest(anyString(), anyLong());
 
+        // when & then
         mockMvc.perform(put("/api/v1/friend/decline/" + friendRequestId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -160,9 +169,11 @@ class FriendControllerTest {
     @Test
     @DisplayName("친구 삭제 테스트")
     void deleteFriendTest() throws Exception {
+        // given
         Long friendRequestId = 1L;
         doNothing().when(friendService).deleteFriend(anyString(), anyLong());
 
+        // when & then
         mockMvc.perform(delete("/api/v1/friend/" + friendRequestId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -172,12 +183,14 @@ class FriendControllerTest {
     @Test
     @DisplayName("친구요청수 및 친구수 확인 테스트")
     void getOwnFriendCountTest() throws Exception {
+        // given
         List<FriendCountResponse> responses = Arrays.asList(
                 new FriendCountResponse(FriendStatus.PENDING, 5L),
                 new FriendCountResponse(FriendStatus.ACCEPTED, 10L)
         );
         when(friendService.getOwnFriendCountByStatus(anyString())).thenReturn(responses);
 
+        // when & then
         mockMvc.perform(get("/api/v1/friend/count")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
