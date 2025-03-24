@@ -25,6 +25,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
@@ -33,8 +34,7 @@ public class DiaryService {
 
     @Transactional
     public void writeDiary(String memberName, DiaryRequest diaryRequest) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         LocalDate today = LocalDate.now();
         Instant startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -53,10 +53,8 @@ public class DiaryService {
         diaryRepository.save(diary);
     }
 
-    @Transactional(readOnly = true)
-    public List<DiarySummaryResponse> getOwnSummaryByYearAndMonth(String memberName, int year, int month) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+    public List<DiarySummaryResponse> getMySummaryByYearAndMonth(String memberName, int year, int month) {
+        Member member = getMember(memberName);
 
         if (month < 1 || month > 12) {
             throw new BadRequestException("month의 범위는 1~12 입니다.");
@@ -76,7 +74,6 @@ public class DiaryService {
                 )).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<DiarySummaryResponse> getFriendSummaryByYearAndMonth(String memberName, String friendName, int year, int month) {
         Member friendMember = memberRepository.findByUsername(friendName)
                 .orElseThrow(() -> new NotFoundException("friendName에 해당하는 멤버가 없습니다."));
@@ -102,8 +99,7 @@ public class DiaryService {
     }
 
     private List<Member> getFriendMembers(String memberName) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         List<Friend> acceptedFriends = friendRepository.findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus(
                 memberName, FriendStatus.ACCEPTED, memberName, FriendStatus.ACCEPTED);
@@ -123,10 +119,8 @@ public class DiaryService {
         return diaryRepository.findByMemberAndCreatedAtBetween(member, startInstant, endInstant);
     }
 
-    @Transactional(readOnly = true)
     public DiaryDetailResponse readDiary(String memberName, Long diaryId) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new NotFoundException("diary id에 해당하는 일기가 없습니다."));
@@ -148,8 +142,7 @@ public class DiaryService {
 
     @Transactional
     public void updateDiary(String memberName, Long diaryId, DiaryRequest diaryRequest) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new NotFoundException("diary id에 해당하는 일기가 없습니다."));
@@ -163,8 +156,7 @@ public class DiaryService {
 
     @Transactional
     public void deleteDiary(String memberName, Long diaryId) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("diary id에 해당하는 일기가 없습니다."));
@@ -174,5 +166,10 @@ public class DiaryService {
         }
 
         diaryRepository.delete(diary);
+    }
+
+    private Member getMember(String memberName) {
+        return memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
     }
 }

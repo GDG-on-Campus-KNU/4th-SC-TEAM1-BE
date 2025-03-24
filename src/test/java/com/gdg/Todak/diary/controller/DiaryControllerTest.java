@@ -98,10 +98,10 @@ class DiaryControllerTest {
                 new DiarySummaryResponse(1L, LocalDate.of(2025, 3, 1), Emotion.HAPPY),
                 new DiarySummaryResponse(2L, LocalDate.of(2025, 3, 2), Emotion.SAD)
         );
-        when(diaryService.getOwnSummaryByYearAndMonth(anyString(), anyInt(), anyInt())).thenReturn(responses);
+        when(diaryService.getMySummaryByYearAndMonth(anyString(), anyInt(), anyInt())).thenReturn(responses);
 
         // when
-        mockMvc.perform(get("/api/v1/diary/own/2025/3")
+        mockMvc.perform(get("/api/v1/diary/me/2025/3")
                         .header("Authorization", "Bearer " + token))
 
                 // then

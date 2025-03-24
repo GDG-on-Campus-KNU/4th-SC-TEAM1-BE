@@ -32,10 +32,10 @@ public class DiaryController {
         return ApiResponse.of(HttpStatus.CREATED, "작성되었습니다.");
     }
 
-    @GetMapping("/own/{year}/{month}")
+    @GetMapping("/me/{year}/{month}")
     @Operation(summary = "본인의 년/월에 해당하는 모든 일기 불러오기", description = "본인이 작성한 일기 중 year, month에 해당하는 모든 일기를 불러온다.")
-    public ApiResponse<List<DiarySummaryResponse>> getOwnAllDiary(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("year") int year, @PathVariable("month") int month) {
-        List<DiarySummaryResponse> diaryResponses = diaryService.getOwnSummaryByYearAndMonth(authenticateUser.getUsername(), year, month);
+    public ApiResponse<List<DiarySummaryResponse>> getMyAllDiary(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("year") int year, @PathVariable("month") int month) {
+        List<DiarySummaryResponse> diaryResponses = diaryService.getMySummaryByYearAndMonth(authenticateUser.getUsername(), year, month);
         return ApiResponse.ok(diaryResponses);
     }
 

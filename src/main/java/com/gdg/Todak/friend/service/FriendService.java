@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FriendService {
 
     private final FriendRepository friendRepository;
@@ -28,8 +29,7 @@ public class FriendService {
 
     @Transactional
     public void makeFriendRequest(String memberName, FriendNameRequest friendNameRequest) {
-        Member requesterMember = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member requesterMember = getMember(memberName);
         Member accepterMember = memberRepository.findByUsername(friendNameRequest.friendName())
                 .orElseThrow(() -> new NotFoundException("friendName에 해당하는 멤버가 없습니다."));
 
@@ -58,7 +58,6 @@ public class FriendService {
                 .build());
     }
 
-    @Transactional(readOnly = true)
     public List<FriendResponse> getAllFriend(String memberName) {
         return friendRepository.findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus(memberName, FriendStatus.ACCEPTED, memberName, FriendStatus.ACCEPTED)
                 .stream().map(friend -> {
@@ -77,7 +76,6 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<FriendRequestResponse> getAllDeclinedFriends(String memberName) {
         return friendRepository.findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus(memberName, FriendStatus.DECLINED, memberName, FriendStatus.DECLINED)
                 .stream().map(
@@ -89,7 +87,6 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<FriendRequestResponse> getAllFriendRequests(String memberName) {
         return friendRepository.findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus(memberName, FriendStatus.PENDING, memberName, FriendStatus.PENDING)
                 .stream().map(
@@ -103,8 +100,7 @@ public class FriendService {
 
     @Transactional
     public void acceptFriendRequest(String memberName, Long friendRequestId) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         Friend friendRequest = friendRepository.findById(friendRequestId)
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
@@ -118,14 +114,13 @@ public class FriendService {
 
     @Transactional
     public void declineFriendRequest(String memberName, Long friendRequestId) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         Friend friendRequest = friendRepository.findById(friendRequestId)
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
 
         if (friendRequest.checkMemberIsNotAccepter(member)) {
-            throw new UnauthorizedException("친구 요청을 수락할 권한이 없습니다. 요청받은 사람만 수락할 수 있습니다.");
+            throw new UnauthorizedException("친구 요청을 거절할 권한이 없습니다. 요청받은 사람만 거절할 수 있습니다.");
         }
 
         friendRequest.declinedFriendRequest();
@@ -133,8 +128,7 @@ public class FriendService {
 
     @Transactional
     public void deleteFriend(String memberName, Long friendRequestId) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+        Member member = getMember(memberName);
 
         Friend friendRequest = friendRepository.findById(friendRequestId)
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
@@ -146,10 +140,8 @@ public class FriendService {
         friendRepository.deleteById(friendRequestId);
     }
 
-    @Transactional(readOnly = true)
-    public List<FriendCountResponse> getOwnFriendCountByStatus(String memberName) {
-        Member member = memberRepository.findByUsername(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+    public List<FriendCountResponse> getMyFriendCountByStatus(String memberName) {
+        Member member = getMember(memberName);
 
         long PendingFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.PENDING));
         long AcceptedFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.ACCEPTED))
@@ -159,5 +151,10 @@ public class FriendService {
                 new FriendCountResponse(FriendStatus.PENDING, PendingFriendCount),
                 new FriendCountResponse(FriendStatus.ACCEPTED, AcceptedFriendCount)
         );
+    }
+
+    private Member getMember(String memberName) {
+        return memberRepository.findByUsername(memberName)
+                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
     }
 }

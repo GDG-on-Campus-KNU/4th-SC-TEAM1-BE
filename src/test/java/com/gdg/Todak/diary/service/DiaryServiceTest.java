@@ -142,7 +142,7 @@ class DiaryServiceTest {
 
 
         // when
-        List<DiarySummaryResponse> summaries = diaryService.getOwnSummaryByYearAndMonth(writer.getUsername(), year, month);
+        List<DiarySummaryResponse> summaries = diaryService.getMySummaryByYearAndMonth(writer.getUsername(), year, month);
 
         // then
         assertThat(summaries).hasSize(2);

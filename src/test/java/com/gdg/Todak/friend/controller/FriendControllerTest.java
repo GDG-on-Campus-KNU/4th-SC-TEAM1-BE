@@ -182,13 +182,13 @@ class FriendControllerTest {
 
     @Test
     @DisplayName("친구요청수 및 친구수 확인 테스트")
-    void getOwnFriendCountTest() throws Exception {
+    void getMyFriendCountTest() throws Exception {
         // given
         List<FriendCountResponse> responses = Arrays.asList(
                 new FriendCountResponse(FriendStatus.PENDING, 5L),
                 new FriendCountResponse(FriendStatus.ACCEPTED, 10L)
         );
-        when(friendService.getOwnFriendCountByStatus(anyString())).thenReturn(responses);
+        when(friendService.getMyFriendCountByStatus(anyString())).thenReturn(responses);
 
         // when & then
         mockMvc.perform(get("/api/v1/friend/count")

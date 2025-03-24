@@ -77,8 +77,8 @@ public class FriendController {
 
     @Operation(summary = "친구요청수, 친구수 확인", description = "본인이 요청한 친구요청의 수, 본인의 친구의 수를 확인합니다.")
     @GetMapping("/count")
-    public ApiResponse<List<FriendCountResponse>> getOwnFriendCount(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
-        List<FriendCountResponse> friendCountResponses = friendService.getOwnFriendCountByStatus(authenticateUser.getUsername());
+    public ApiResponse<List<FriendCountResponse>> getMyFriendCount(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
+        List<FriendCountResponse> friendCountResponses = friendService.getMyFriendCountByStatus(authenticateUser.getUsername());
         return ApiResponse.ok(friendCountResponses);
     }
 }
