@@ -4,6 +4,7 @@ import com.gdg.Todak.common.domain.BaseEntity;
 import com.gdg.Todak.diary.Emotion;
 import com.gdg.Todak.member.domain.Member;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -29,6 +30,7 @@ public class Diary extends BaseEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
     @NotNull
+    @NotEmpty
     private String storageUUID;
 
     public void updateDiary(String content, Emotion emotion) {

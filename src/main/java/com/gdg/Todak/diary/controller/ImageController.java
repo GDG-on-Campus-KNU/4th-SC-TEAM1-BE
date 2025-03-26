@@ -11,6 +11,7 @@ import com.gdg.Todak.member.resolver.Login;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,7 +28,7 @@ public class ImageController {
 
     @PostMapping(value = "/api/v1/images/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이미지 업로드(png, jpeg 그리고 10MB 까지 업로드 가능)", description = "로그인 필요, 파일 필수, storageUUID 필수")
-    public ApiResponse<UrlResponse> getImageUrl(@ModelAttribute ImageUploadRequest request,
+    public ApiResponse<UrlResponse> getImageUrl(@ModelAttribute @Valid ImageUploadRequest request,
                                                 @Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
         UrlResponse urlResponse = imageService.uploadImage(request.file(), request.storageUUID(), authenticateUser.getUsername());
         return ApiResponse.ok(urlResponse);
@@ -35,7 +36,7 @@ public class ImageController {
 
     @PostMapping("/api/v1/images/delete")
     @Operation(summary = "이미지 제거(업로드 API를 통해 받는 url을 body에)", description = "로그인 필요, url 필수")
-    public ApiResponse<Void> deleteImage(@RequestBody ImageDeleteRequest request,
+    public ApiResponse<Void> deleteImage(@RequestBody @Valid ImageDeleteRequest request,
                                          @Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
         imageService.deleteImage(request.url(), authenticateUser.getUsername());
         return ApiResponse.of(HttpStatus.OK, "제거가 완료되었습니다.");
