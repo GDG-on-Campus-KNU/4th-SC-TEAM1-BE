@@ -20,6 +20,7 @@ class DiaryTest {
                 .content("오늘 하루도 힘들었다.")
                 .emotion(Emotion.SAD)
                 .member(member)
+                .storageUUID("testUUID")
                 .build();
     }
 
@@ -30,6 +31,7 @@ class DiaryTest {
         assertThat(diary.getContent()).isEqualTo("오늘 하루도 힘들었다.");
         assertThat(diary.getEmotion()).isEqualTo(Emotion.SAD);
         assertThat(diary.getMember()).isEqualTo(member);
+        assertThat(diary.getStorageUUID()).isEqualTo("testUUID");
     }
 
     @DisplayName("일기를 수정하면 내용과 감정 상태가 변경되어야 한다")

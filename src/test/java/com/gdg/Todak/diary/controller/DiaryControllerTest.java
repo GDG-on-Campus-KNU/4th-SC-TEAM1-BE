@@ -5,6 +5,7 @@ import com.gdg.Todak.diary.Emotion;
 import com.gdg.Todak.diary.dto.DiaryDetailResponse;
 import com.gdg.Todak.diary.dto.DiaryRequest;
 import com.gdg.Todak.diary.dto.DiarySummaryResponse;
+import com.gdg.Todak.diary.dto.DiaryUpdateRequest;
 import com.gdg.Todak.diary.service.DiaryService;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.domain.AuthenticateUser;
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class DiaryControllerTest {
 
     private final String token = "testToken";
+    private final String storageUUID = "testUUID";
 
     @MockitoBean
     private DiaryService diaryService;
@@ -68,7 +70,7 @@ class DiaryControllerTest {
     @DisplayName("일기 작성 테스트")
     void writeDiaryTest() throws Exception {
         // given
-        DiaryRequest request = new DiaryRequest("오늘은 좋은 하루였다.", Emotion.HAPPY);
+        DiaryRequest request = new DiaryRequest("오늘은 좋은 하루였다.", Emotion.HAPPY, storageUUID);
         doNothing().when(diaryService).writeDiary(anyString(), any(DiaryRequest.class));
 
         // when
@@ -134,7 +136,7 @@ class DiaryControllerTest {
     @DisplayName("일기 상세보기 테스트")
     void getDiaryTest() throws Exception {
         // given
-        DiaryDetailResponse response = new DiaryDetailResponse(1L, LocalDateTime.of(2025, 3, 1, 12, 12, 0, 0), "오늘은 기쁜 날이다", Emotion.HAPPY, true);
+        DiaryDetailResponse response = new DiaryDetailResponse(1L, LocalDateTime.of(2025, 3, 1, 12, 12, 0, 0), "오늘은 기쁜 날이다", Emotion.HAPPY, storageUUID,true);
         when(diaryService.readDiary(anyString(), anyLong())).thenReturn(response);
 
         // when
@@ -155,8 +157,8 @@ class DiaryControllerTest {
     @DisplayName("일기 수정 테스트")
     void updateDiaryTest() throws Exception {
         // given
-        DiaryRequest request = new DiaryRequest("오늘은 슬펐다.", Emotion.SAD);
-        doNothing().when(diaryService).updateDiary(anyString(), anyLong(), any(DiaryRequest.class));
+        DiaryUpdateRequest request = new DiaryUpdateRequest("오늘은 슬펐다.", Emotion.SAD);
+        doNothing().when(diaryService).updateDiary(anyString(), anyLong(), any(DiaryUpdateRequest.class));
 
         // when
         mockMvc.perform(put("/api/v1/diary/1")

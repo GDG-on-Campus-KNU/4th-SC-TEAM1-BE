@@ -4,6 +4,7 @@ import com.gdg.Todak.diary.Emotion;
 import com.gdg.Todak.diary.dto.DiaryRequest;
 import com.gdg.Todak.diary.dto.DiarySearchRequest;
 import com.gdg.Todak.diary.dto.DiarySummaryResponse;
+import com.gdg.Todak.diary.dto.DiaryUpdateRequest;
 import com.gdg.Todak.diary.entity.Diary;
 import com.gdg.Todak.diary.exception.BadRequestException;
 import com.gdg.Todak.diary.exception.NotFoundException;
@@ -61,7 +62,7 @@ class DiaryServiceTest {
     @DisplayName("일기 작성 성공")
     void writeDiarySuccessfullyTest() {
         // given
-        DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY);
+        DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY, "testUUID");
 
         // when
         diaryService.writeDiary(writer.getUsername(), diaryRequest);
@@ -71,13 +72,14 @@ class DiaryServiceTest {
         assertThat(diary).isPresent();
         assertThat(diary.get().getContent()).isEqualTo("오늘은 기분이 좋다.");
         assertThat(diary.get().getEmotion()).isEqualTo(Emotion.HAPPY);
+        assertThat(diary.get().getStorageUUID()).isEqualTo("testUUID");
     }
 
     @Test
     @DisplayName("하루에 이미 작성된 일기 존재 시 작성 불가")
     void cannotWriteDiaryIfAlreadyExistsTest() {
         // given
-        DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY);
+        DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY, "testUUID");
         diaryService.writeDiary(writer.getUsername(), diaryRequest);
 
         // when & then
@@ -90,7 +92,7 @@ class DiaryServiceTest {
     @DisplayName("존재하지 않는 회원에 대한 일기 작성 시 예외 발생")
     void writeDiaryForNonExistingMemberTest() {
         // given
-        DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY);
+        DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY, "testUUID");
 
         // when & then
         assertThatThrownBy(() -> diaryService.writeDiary("nonExistentUser", diaryRequest))
@@ -106,6 +108,7 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("오늘은 기분이 좋다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
 
         // when
@@ -115,6 +118,7 @@ class DiaryServiceTest {
         assertThat(diaryDetail).isNotNull();
         assertThat(diaryDetail.content()).isEqualTo("오늘은 기분이 좋다.");
         assertThat(diaryDetail.emotion()).isEqualTo(Emotion.HAPPY);
+        assertThat(diaryDetail.storageUUID()).isEqualTo("testUUID");
         assertThat(diaryDetail.isWriter()).isTrue();
     }
 
@@ -131,6 +135,7 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("자신의 3월 첫 번째 일기")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
         ReflectionTestUtils.setField(diary1, "createdAt", Instant.now());
 
@@ -139,6 +144,7 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("자신의 3월 두 번째 일기")
                 .emotion(Emotion.SAD)
+                .storageUUID("testUUID")
                 .build());
         ReflectionTestUtils.setField(diary2, "createdAt", Instant.now());
 
@@ -166,6 +172,7 @@ class DiaryServiceTest {
                 .member(nonWriter)
                 .content("친구의 3월 첫 번째 일기")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
         ReflectionTestUtils.setField(diary1, "createdAt", Instant.now());
 
@@ -174,6 +181,7 @@ class DiaryServiceTest {
                 .member(nonWriter)
                 .content("친구의 3월 두 번째 일기")
                 .emotion(Emotion.SAD)
+                .storageUUID("testUUID")
                 .build());
         ReflectionTestUtils.setField(diary2, "createdAt", Instant.now());
 
@@ -194,6 +202,7 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("오늘은 기분이 좋다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
 
         // when
@@ -214,6 +223,7 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("오늘은 기분이 좋다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
 
         Member newMember = memberRepository.save(Member.builder()
@@ -237,9 +247,10 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("오늘은 기분이 좋다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
 
-        DiaryRequest updateRequest = new DiaryRequest("오늘은 기분이 매우 좋다.", Emotion.HAPPY);
+        DiaryUpdateRequest updateRequest = new DiaryUpdateRequest("오늘은 기분이 매우 좋다.", Emotion.HAPPY);
 
         // when
         diaryService.updateDiary(writer.getUsername(), diary.getId(), updateRequest);
@@ -259,9 +270,10 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("오늘은 기분이 좋다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
 
-        DiaryRequest updateRequest = new DiaryRequest("오늘은 기분이 별로다.", Emotion.SAD);
+        DiaryUpdateRequest updateRequest = new DiaryUpdateRequest("오늘은 기분이 별로다.", Emotion.SAD);
 
         // when & then
         assertThatThrownBy(() -> diaryService.updateDiary(nonWriter.getUsername(), diary.getId(), updateRequest))
@@ -277,6 +289,7 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("오늘은 기분이 좋다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
 
         // when
@@ -295,6 +308,7 @@ class DiaryServiceTest {
                 .member(writer)
                 .content("오늘은 기분이 좋다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build());
 
         // when & then
