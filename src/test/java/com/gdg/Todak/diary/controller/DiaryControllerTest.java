@@ -136,7 +136,7 @@ class DiaryControllerTest {
     @DisplayName("일기 상세보기 테스트")
     void getDiaryTest() throws Exception {
         // given
-        DiaryDetailResponse response = new DiaryDetailResponse(1L, LocalDateTime.of(2025, 3, 1, 12, 12, 0, 0), "오늘은 기쁜 날이다", Emotion.HAPPY, storageUUID,true);
+        DiaryDetailResponse response = new DiaryDetailResponse(1L, LocalDateTime.of(2025, 3, 1, 12, 12, 0, 0), "오늘은 기쁜 날이다", Emotion.HAPPY, storageUUID, true);
         when(diaryService.readDiary(anyString(), anyLong())).thenReturn(response);
 
         // when
