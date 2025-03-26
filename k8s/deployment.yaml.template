@@ -44,6 +44,13 @@ spec:
             initialDelaySeconds: 40
             periodSeconds: 20
             failureThreshold: 3
+          volumeMounts:
+            - name: nfs-volume
+              mountPath: /usr/storage
+      volumes:
+        - name: nfs-volume
+          persistentVolumeClaim:
+            claimName: nfs-pvc
   strategy:
     type: RollingUpdate
     rollingUpdate:

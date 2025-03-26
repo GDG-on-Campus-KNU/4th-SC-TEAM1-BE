@@ -28,6 +28,8 @@ public class Diary extends BaseEntity {
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
+    @NotNull
+    private String storageUUID;
 
     public void updateDiary(String content, Emotion emotion) {
         this.content = content;

@@ -2,6 +2,7 @@ package com.gdg.Todak.diary.controller.advice;
 
 import com.gdg.Todak.common.domain.ApiResponse;
 import com.gdg.Todak.diary.exception.BadRequestException;
+import com.gdg.Todak.diary.exception.ConflictException;
 import com.gdg.Todak.diary.exception.NotFoundException;
 import com.gdg.Todak.diary.exception.UnauthorizedException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,7 +16,7 @@ public class DiaryControllerAdvice {
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
-    public ApiResponse<Exception> loginFailed(UnauthorizedException e) {
+    public ApiResponse<Exception> handleUnauthorizedException(UnauthorizedException e) {
         return ApiResponse.of(
                 HttpStatus.UNAUTHORIZED,
                 e.getMessage()
@@ -24,7 +25,7 @@ public class DiaryControllerAdvice {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
-    public ApiResponse<Exception> encryptionFailed(NotFoundException e) {
+    public ApiResponse<Exception> handleNotFoundException(NotFoundException e) {
         return ApiResponse.of(
                 HttpStatus.NOT_FOUND,
                 e.getMessage()
@@ -33,7 +34,7 @@ public class DiaryControllerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
-    public ApiResponse<Object> bindException(BadRequestException e) {
+    public ApiResponse<Object> handleBadRequestException(BadRequestException e) {
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
                 e.getMessage()
@@ -46,6 +47,15 @@ public class DiaryControllerAdvice {
         return ApiResponse.of(
                 HttpStatus.CONFLICT,
                 e.getMostSpecificCause().getMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(ConflictException.class)
+    public ApiResponse<Exception> handleConflictException(ConflictException e) {
+        return ApiResponse.of(
+                HttpStatus.CONFLICT,
+                e.getMessage()
         );
     }
 }

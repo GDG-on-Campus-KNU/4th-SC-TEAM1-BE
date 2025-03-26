@@ -9,6 +9,7 @@ public record DiaryDetailResponse(
         LocalDateTime createdAt,
         String content,
         Emotion emotion,
+        String storageUUID,
         boolean isWriter
 ) {
 }
