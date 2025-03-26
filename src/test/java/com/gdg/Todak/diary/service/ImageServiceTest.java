@@ -2,7 +2,7 @@ package com.gdg.Todak.diary.service;
 
 import com.gdg.Todak.diary.dto.UrlResponse;
 import com.gdg.Todak.diary.exception.BadRequestException;
-import com.gdg.Todak.diary.exception.ConflictException;
+import com.gdg.Todak.diary.exception.FileException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -138,7 +138,7 @@ class ImageServiceTest {
 
         // when & then
         assertThatThrownBy(() -> imageService.deleteImage(fileUrl, "testUser"))
-                .isInstanceOf(ConflictException.class)
+                .isInstanceOf(FileException.class)
                 .hasMessageContaining("이미지 삭제를 실패하였습니다");
     }
 

@@ -3,7 +3,7 @@ package com.gdg.Todak.diary.service;
 
 import com.gdg.Todak.diary.dto.UrlResponse;
 import com.gdg.Todak.diary.exception.BadRequestException;
-import com.gdg.Todak.diary.exception.ConflictException;
+import com.gdg.Todak.diary.exception.FileException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class ImageService {
                 Files.createDirectories(directoryPath);
             }
         } catch (IOException e) {
-            throw new ConflictException("이미지 업로드를 실패하였습니다.");
+            throw new FileException("이미지 업로드를 실패하였습니다.");
         }
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         File destinationFile = new File(uploadFolder + subDirectory + "/" + fileName);
@@ -59,7 +59,7 @@ public class ImageService {
             file.transferTo(destinationFile);
             return new UrlResponse(imageUrl + subDirectory + "/" + fileName);
         } catch (IOException e) {
-            throw new ConflictException("이미지 업로드를 실패하였습니다.");
+            throw new FileException("이미지 업로드를 실패하였습니다.");
         }
     }
 
@@ -71,7 +71,7 @@ public class ImageService {
         String filename = parts[5];
 
         File targetFile = new File(uploadFolder + userName + "/" + storageUUID + "/" + filename);
-        if (!targetFile.delete()) throw new ConflictException("이미지 삭제를 실패하였습니다.");
+        if (!targetFile.delete()) throw new FileException("이미지 삭제를 실패하였습니다.");
     }
 
     public void deleteAllImagesInStorageUUID(String userName, String storageUUID) {
@@ -86,10 +86,10 @@ public class ImageService {
         if (images != null) {
             for (File image : images) {
                 if (!image.delete()) {
-                    throw new ConflictException("이미지 삭제를 실패하였습니다.");
+                    throw new FileException("이미지 삭제를 실패하였습니다.");
                 }
             }
         }
-        if (!directory.delete()) throw new ConflictException("이미지 삭제를 실패하였습니다.");
+        if (!directory.delete()) throw new FileException("이미지 삭제를 실패하였습니다.");
     }
 }

@@ -2,7 +2,7 @@ package com.gdg.Todak.diary.controller.advice;
 
 import com.gdg.Todak.common.domain.ApiResponse;
 import com.gdg.Todak.diary.exception.BadRequestException;
-import com.gdg.Todak.diary.exception.ConflictException;
+import com.gdg.Todak.diary.exception.FileException;
 import com.gdg.Todak.diary.exception.NotFoundException;
 import com.gdg.Todak.diary.exception.UnauthorizedException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -52,8 +52,8 @@ public class DiaryControllerAdvice {
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(ConflictException.class)
-    public ApiResponse<Exception> handleConflictException(ConflictException e) {
+    @ExceptionHandler(FileException.class)
+    public ApiResponse<Exception> handleFileUploadException(FileException e) {
         return ApiResponse.of(
                 HttpStatus.CONFLICT,
                 e.getMessage()
