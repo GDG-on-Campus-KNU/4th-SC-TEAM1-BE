@@ -1,10 +1,7 @@
 package com.gdg.Todak.diary.controller;
 
 import com.gdg.Todak.common.domain.ApiResponse;
-import com.gdg.Todak.diary.dto.DiaryDetailResponse;
-import com.gdg.Todak.diary.dto.DiaryRequest;
-import com.gdg.Todak.diary.dto.DiarySearchRequest;
-import com.gdg.Todak.diary.dto.DiarySummaryResponse;
+import com.gdg.Todak.diary.dto.*;
 import com.gdg.Todak.diary.service.DiaryService;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.resolver.Login;
@@ -58,8 +55,8 @@ public class DiaryController {
 
     @PutMapping("/{diaryId}")
     @Operation(summary = "일기 수정하기", description = "diaryId에 해당하는 일기를 수정한다.")
-    public ApiResponse<Void> updateDiary(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("diaryId") Long diaryId, @RequestBody DiaryRequest diaryRequest) {
-        diaryService.updateDiary(authenticateUser.getUsername(), diaryId, diaryRequest);
+    public ApiResponse<Void> updateDiary(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("diaryId") Long diaryId, @RequestBody DiaryUpdateRequest diaryUpdateRequest) {
+        diaryService.updateDiary(authenticateUser.getUsername(), diaryId, diaryUpdateRequest);
         return ApiResponse.of(HttpStatus.OK, "수정되었습니다.");
     }
 

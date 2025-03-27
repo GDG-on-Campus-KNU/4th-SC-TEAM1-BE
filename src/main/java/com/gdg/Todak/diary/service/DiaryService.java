@@ -1,9 +1,6 @@
 package com.gdg.Todak.diary.service;
 
-import com.gdg.Todak.diary.dto.DiaryDetailResponse;
-import com.gdg.Todak.diary.dto.DiaryRequest;
-import com.gdg.Todak.diary.dto.DiarySearchRequest;
-import com.gdg.Todak.diary.dto.DiarySummaryResponse;
+import com.gdg.Todak.diary.dto.*;
 import com.gdg.Todak.diary.entity.Diary;
 import com.gdg.Todak.diary.exception.BadRequestException;
 import com.gdg.Todak.diary.exception.NotFoundException;
@@ -32,6 +29,7 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
+    private final ImageService imageService;
 
     @Transactional
     public void writeDiary(String memberName, DiaryRequest diaryRequest) {
@@ -49,6 +47,7 @@ public class DiaryService {
                 .member(member)
                 .content(diaryRequest.content())
                 .emotion(diaryRequest.emotion())
+                .storageUUID(diaryRequest.storageUUID())
                 .build();
 
         diaryRepository.save(diary);
@@ -135,7 +134,7 @@ public class DiaryService {
         LocalDateTime createdAt = diary.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         if (diary.isWriter(member)) {
-            return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), true);
+            return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), diary.getStorageUUID(), true);
         }
 
         List<Member> acceptedMembers = getFriendMembers(diary.getMember().getUsername());
@@ -144,11 +143,11 @@ public class DiaryService {
             throw new UnauthorizedException("작성자 또는 작성자의 친구만 일기 조회가 가능합니다.");
         }
 
-        return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), false);
+        return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), diary.getStorageUUID(), false);
     }
 
     @Transactional
-    public void updateDiary(String memberName, Long diaryId, DiaryRequest diaryRequest) {
+    public void updateDiary(String memberName, Long diaryId, DiaryUpdateRequest diaryUpdateRequest) {
         Member member = getMember(memberName);
 
         Diary diary = diaryRepository.findById(diaryId)
@@ -158,7 +157,7 @@ public class DiaryService {
             throw new UnauthorizedException("일기 작성자가 아닙니다.");
         }
 
-        diary.updateDiary(diaryRequest.content(), diaryRequest.emotion());
+        diary.updateDiary(diaryUpdateRequest.content(), diaryUpdateRequest.emotion());
     }
 
     @Transactional
@@ -172,6 +171,7 @@ public class DiaryService {
             throw new UnauthorizedException("일기 작성자가 아닙니다.");
         }
 
+        imageService.deleteAllImagesInStorageUUID(memberName, diary.getStorageUUID());
         diaryRepository.delete(diary);
     }
 

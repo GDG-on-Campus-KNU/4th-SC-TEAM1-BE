@@ -35,6 +35,7 @@ class DiaryRepositoryTest {
                 .member(member)
                 .content("오늘 하루도 행복했다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build();
 
         // when
@@ -54,15 +55,15 @@ class DiaryRepositoryTest {
         Instant start = Instant.now().minusSeconds(86400);
         Instant end = Instant.now().plusSeconds(86400);
 
-        Diary yesterdayDiary = Diary.builder().member(member).content("어제의 일기").emotion(Emotion.HAPPY).build();
+        Diary yesterdayDiary = Diary.builder().member(member).content("어제의 일기").emotion(Emotion.HAPPY).storageUUID("testUUID").build();
         ReflectionTestUtils.setField(yesterdayDiary, "createdAt", start);
         diaryRepository.save(yesterdayDiary);
 
-        Diary todayDiary = Diary.builder().member(member).content("오늘의 일기").emotion(Emotion.HAPPY).build();
+        Diary todayDiary = Diary.builder().member(member).content("오늘의 일기").emotion(Emotion.HAPPY).storageUUID("testUUID").build();
         ReflectionTestUtils.setField(todayDiary, "createdAt", Instant.now());
         diaryRepository.save(todayDiary);
 
-        Diary tomorrowDiary = Diary.builder().member(member).content("내일의 일기").emotion(Emotion.HAPPY).build();
+        Diary tomorrowDiary = Diary.builder().member(member).content("내일의 일기").emotion(Emotion.HAPPY).storageUUID("testUUID").build();
         ReflectionTestUtils.setField(tomorrowDiary, "createdAt", end);
         diaryRepository.save(tomorrowDiary);
 
@@ -85,6 +86,7 @@ class DiaryRepositoryTest {
                 .member(member)
                 .content("오늘 하루도 행복했다.")
                 .emotion(Emotion.HAPPY)
+                .storageUUID("testUUID")
                 .build();
         ReflectionTestUtils.setField(diary, "createdAt", Instant.now());
 
