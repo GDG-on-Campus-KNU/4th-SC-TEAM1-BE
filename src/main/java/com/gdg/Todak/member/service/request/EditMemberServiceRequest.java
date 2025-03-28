@@ -6,18 +6,16 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SignupServiceRequest {
+public class EditMemberServiceRequest {
 
     private String userId;
-    private String password;
-    private String passwordCheck;
     private String nickname;
+    private String imageUrl;
 
     @Builder
-    public SignupServiceRequest(String userId, String password, String passwordCheck, String nickname) {
+    public EditMemberServiceRequest(String userId, String nickname, String imageUrl) {
         this.userId = userId;
-        this.password = password;
-        this.passwordCheck = passwordCheck;
         this.nickname = nickname;
+        this.imageUrl = imageUrl;
     }
 }

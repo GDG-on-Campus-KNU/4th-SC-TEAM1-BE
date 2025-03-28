@@ -20,9 +20,11 @@ public class Member {
     private Long id;
 
     @Column(unique = true)
-    private String username;
+    private String userId;
 
     private String password;
+
+    private String nickname;
 
     private String imageUrl;
 
@@ -32,17 +34,19 @@ public class Member {
     private Set<MemberRole> memberRoles = new HashSet<>();
 
     @Builder
-    public Member(String username, String password, String imageUrl, String salt) {
-        this.username = username;
+    public Member(String userId, String password, String nickname, String imageUrl, String salt) {
+        this.userId = userId;
         this.password = password;
+        this.nickname = nickname;
         this.imageUrl = imageUrl;
         this.salt = salt;
     }
 
-    public static Member of(String username, String password, String imageUrl, String salt) {
+    public static Member of(String userId, String password, String nickname, String imageUrl, String salt) {
         return Member.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
+                .nickname(nickname)
                 .imageUrl(imageUrl)
                 .salt(salt)
                 .build();
@@ -55,5 +59,21 @@ public class Member {
     public Set<Role> getRoles() {
         return memberRoles.stream()
                 .map(MemberRole::getRole).collect(Collectors.toSet());
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

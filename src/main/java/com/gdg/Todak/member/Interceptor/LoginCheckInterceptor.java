@@ -46,10 +46,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         AuthenticateUser authenticateUser = getAuthenticateUser(claims);
 
-        String username = authenticateUser.getUsername();
+        String userId = authenticateUser.getUserId();
         Set<Role> roles = authenticateUser.getRoles();
 
-        Optional<Member> findMember = memberRepository.findByUsername(username);
+        Optional<Member> findMember = memberRepository.findByUserId(userId);
         if (findMember.isEmpty()) {
             throw new UnauthorizedException("해당 사용자가 존재하지 않습니다.");
         }

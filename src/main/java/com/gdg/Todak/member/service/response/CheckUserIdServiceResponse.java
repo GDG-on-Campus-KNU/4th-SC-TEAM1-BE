@@ -6,17 +6,17 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CheckUsernameServiceResponse {
+public class CheckUserIdServiceResponse {
 
     private Boolean exists;
 
     @Builder
-    public CheckUsernameServiceResponse(Boolean exists) {
+    public CheckUserIdServiceResponse(Boolean exists) {
         this.exists = exists;
     }
 
-    public static CheckUsernameServiceResponse of(Boolean exists) {
-        return CheckUsernameServiceResponse.builder()
+    public static CheckUserIdServiceResponse of(Boolean exists) {
+        return CheckUserIdServiceResponse.builder()
                 .exists(exists)
                 .build();
     }

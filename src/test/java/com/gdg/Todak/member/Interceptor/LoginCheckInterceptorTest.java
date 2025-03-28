@@ -55,18 +55,18 @@ class LoginCheckInterceptorTest {
         // given
         String accessToken = "Bearer abc";
 
-        String username = "username";
+        String userId = "userId";
         Set<Role> roles = Set.of(Role.USER);
 
         Member member = Member.builder()
-                .username(username)
+                .userId(userId)
                 .password("password")
                 .build();
 
         member.addRole(new MemberRole(member, Role.USER));
 
         AuthenticateUser user = AuthenticateUser.builder()
-                .username(username)
+                .userId(userId)
                 .roles(roles)
                 .build();
 
@@ -81,7 +81,7 @@ class LoginCheckInterceptorTest {
 
         when(objectMapper.readValue(any(String.class), eq(AuthenticateUser.class))).thenReturn(user);
 
-        when(memberRepository.findByUsername(username)).thenReturn(Optional.of(member));
+        when(memberRepository.findByUserId(userId)).thenReturn(Optional.of(member));
 
         // when
         boolean result = loginCheckInterceptor.preHandle(request, response, null);

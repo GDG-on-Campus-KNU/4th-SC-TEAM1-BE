@@ -52,8 +52,8 @@ class DiaryServiceTest {
 
     @BeforeEach
     void setUp() {
-        writer = memberRepository.save(new Member("writerUser", "test1", "test1", "test1"));
-        nonWriter = memberRepository.save(new Member("nonWriterUser", "test2", "test2", "test2"));
+        writer = memberRepository.save(new Member("writerUser", "test1", "test1", "test1", "test1"));
+        nonWriter = memberRepository.save(new Member("nonWriterUser", "test2", "test2", "test2", "test2"));
 
         friendRepository.save(Friend.builder().requester(writer).accepter(nonWriter).friendStatus(FriendStatus.ACCEPTED).build());
     }
@@ -65,7 +65,7 @@ class DiaryServiceTest {
         DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY, "testUUID");
 
         // when
-        diaryService.writeDiary(writer.getUsername(), diaryRequest);
+        diaryService.writeDiary(writer.getUserId(), diaryRequest);
 
         // then
         Optional<Diary> diary = diaryRepository.findByMemberAndContent(writer, "오늘은 기분이 좋다.");
@@ -80,10 +80,10 @@ class DiaryServiceTest {
     void cannotWriteDiaryIfAlreadyExistsTest() {
         // given
         DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY, "testUUID");
-        diaryService.writeDiary(writer.getUsername(), diaryRequest);
+        diaryService.writeDiary(writer.getUserId(), diaryRequest);
 
         // when & then
-        assertThatThrownBy(() -> diaryService.writeDiary(writer.getUsername(), diaryRequest))
+        assertThatThrownBy(() -> diaryService.writeDiary(writer.getUserId(), diaryRequest))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("오늘 이미 작성된 일기 또는 감정이 있습니다. 삭제 후 재작성하거나 작성된 일기를 수정해주세요.");
     }
@@ -112,7 +112,7 @@ class DiaryServiceTest {
                 .build());
 
         // when
-        var diaryDetail = diaryService.readDiary(writer.getUsername(), diary.getId());
+        var diaryDetail = diaryService.readDiary(writer.getUserId(), diary.getId());
 
         // then
         assertThat(diaryDetail).isNotNull();
@@ -150,7 +150,7 @@ class DiaryServiceTest {
 
 
         // when
-        List<DiarySummaryResponse> summaries = diaryService.getMySummaryByYearAndMonth(writer.getUsername(), diarySearchRequest);
+        List<DiarySummaryResponse> summaries = diaryService.getMySummaryByYearAndMonth(writer.getUserId(), diarySearchRequest);
 
         // then
         assertThat(summaries).hasSize(2);
@@ -186,7 +186,7 @@ class DiaryServiceTest {
         ReflectionTestUtils.setField(diary2, "createdAt", Instant.now());
 
         // when
-        List<DiarySummaryResponse> summaries = diaryService.getFriendSummaryByYearAndMonth(writer.getUsername(), nonWriter.getUsername(), diarySearchRequest);
+        List<DiarySummaryResponse> summaries = diaryService.getFriendSummaryByYearAndMonth(writer.getUserId(), nonWriter.getUserId(), diarySearchRequest);
 
         // then
         assertThat(summaries).hasSize(2);
@@ -206,7 +206,7 @@ class DiaryServiceTest {
                 .build());
 
         // when
-        var diaryDetail = diaryService.readDiary(nonWriter.getUsername(), diary.getId());
+        var diaryDetail = diaryService.readDiary(nonWriter.getUserId(), diary.getId());
 
         // then
         assertThat(diaryDetail).isNotNull();
@@ -227,14 +227,14 @@ class DiaryServiceTest {
                 .build());
 
         Member newMember = memberRepository.save(Member.builder()
-                .username("newMember")
+                .userId("newMember")
                 .password("password")
                 .salt("salt")
                 .imageUrl("imageUrl")
                 .build());
 
         // when & then
-        assertThatThrownBy(() -> diaryService.readDiary(newMember.getUsername(), diary.getId()))
+        assertThatThrownBy(() -> diaryService.readDiary(newMember.getUserId(), diary.getId()))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("작성자 또는 작성자의 친구만 일기 조회가 가능합니다.");
     }
@@ -253,7 +253,7 @@ class DiaryServiceTest {
         DiaryUpdateRequest updateRequest = new DiaryUpdateRequest("오늘은 기분이 매우 좋다.", Emotion.HAPPY);
 
         // when
-        diaryService.updateDiary(writer.getUsername(), diary.getId(), updateRequest);
+        diaryService.updateDiary(writer.getUserId(), diary.getId(), updateRequest);
 
         // then
         Optional<Diary> updatedDiary = diaryRepository.findById(diary.getId());
@@ -276,7 +276,7 @@ class DiaryServiceTest {
         DiaryUpdateRequest updateRequest = new DiaryUpdateRequest("오늘은 기분이 별로다.", Emotion.SAD);
 
         // when & then
-        assertThatThrownBy(() -> diaryService.updateDiary(nonWriter.getUsername(), diary.getId(), updateRequest))
+        assertThatThrownBy(() -> diaryService.updateDiary(nonWriter.getUserId(), diary.getId(), updateRequest))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("일기 작성자가 아닙니다.");
     }
@@ -293,7 +293,7 @@ class DiaryServiceTest {
                 .build());
 
         // when
-        diaryService.deleteDiary(writer.getUsername(), diary.getId());
+        diaryService.deleteDiary(writer.getUserId(), diary.getId());
 
         // then
         Optional<Diary> deletedDiary = diaryRepository.findById(diary.getId());
@@ -312,7 +312,7 @@ class DiaryServiceTest {
                 .build());
 
         // when & then
-        assertThatThrownBy(() -> diaryService.deleteDiary(nonWriter.getUsername(), diary.getId()))
+        assertThatThrownBy(() -> diaryService.deleteDiary(nonWriter.getUserId(), diary.getId()))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage("일기 작성자가 아닙니다.");
     }

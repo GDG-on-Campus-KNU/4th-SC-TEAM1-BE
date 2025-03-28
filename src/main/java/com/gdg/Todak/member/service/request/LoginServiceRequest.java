@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginServiceRequest {
 
-    private String username;
+    private String userId;
     private String password;
 
     @Builder
-    public LoginServiceRequest(String username, String password) {
-        this.username = username;
+    public LoginServiceRequest(String userId, String password) {
+        this.userId = userId;
         this.password = password;
     }
 }

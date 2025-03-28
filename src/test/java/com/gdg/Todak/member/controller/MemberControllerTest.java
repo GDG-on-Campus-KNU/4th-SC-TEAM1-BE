@@ -22,16 +22,16 @@ class MemberControllerTest extends ControllerTestSupport {
     @Test
     void signup() throws Exception {
         // given
-        String username = "testUsername";
+        String userId = "testUserId";
         String password = "testPassword";
 
         SignupRequest request = SignupRequest.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
                 .build();
 
         when(memberService.signup(any(SignupServiceRequest.class))).thenReturn(
-                MemberResponse.of(username));
+                MemberResponse.of(userId));
 
         // when // then
         mockMvc.perform(
@@ -46,15 +46,15 @@ class MemberControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("OK"));
     }
 
-    @DisplayName("회원가입 시 username은 3글자 이상이어야 한다.")
+    @DisplayName("회원가입 시 userId은 3글자 이상이어야 한다.")
     @Test
-    void signupWithShortUsername() throws Exception {
+    void signupWithShortUserId() throws Exception {
         // given
-        String username = "us";
+        String userId = "us";
         String password = "testPassword";
 
         SignupRequest request = SignupRequest.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
                 .build();
 
@@ -74,11 +74,11 @@ class MemberControllerTest extends ControllerTestSupport {
     @Test
     void signupWithShortPassword() throws Exception {
         // given
-        String username = "testUsername";
+        String userId = "testUserId";
         String password = "passwor";
 
         SignupRequest request = SignupRequest.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
                 .build();
 
@@ -98,10 +98,10 @@ class MemberControllerTest extends ControllerTestSupport {
     @Test
     void login() throws Exception {
         // given
-        String username = "testUsername";
+        String userId = "testUserId";
         String password = "testPassword";
 
-        LoginRequest request = new LoginRequest(username, password);
+        LoginRequest request = new LoginRequest(userId, password);
 
         // when // then
         mockMvc.perform(

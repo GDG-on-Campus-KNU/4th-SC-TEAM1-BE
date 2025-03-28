@@ -10,12 +10,12 @@ import java.util.Set;
 @NoArgsConstructor
 public class AuthenticateUser {
 
-    private String username;
+    private String userId;
     private Set<Role> roles;
 
     @Builder
-    public AuthenticateUser(String username, Set<Role> roles) {
-        this.username = username;
+    public AuthenticateUser(String userId, Set<Role> roles) {
+        this.userId = userId;
         this.roles = roles;
     }
 }

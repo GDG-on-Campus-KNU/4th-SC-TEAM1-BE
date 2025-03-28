@@ -37,18 +37,18 @@ class FriendServiceTest {
 
     @BeforeEach
     void setUp() {
-        requester = memberRepository.save(new Member("requesterUser", "test1", "test1", "test1"));
-        accepter = memberRepository.save(new Member("accepterUser", "test2", "test2", "test2"));
+        requester = memberRepository.save(new Member("requesterUser", "test1", "test1","test1", "test1"));
+        accepter = memberRepository.save(new Member("accepterUser", "test2", "test2","test2", "test2"));
     }
 
     @Test
     @DisplayName("친구 요청 성공")
     void makeFriendRequestSuccessfullyTest() {
         //given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUsername());
+        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
 
         //when
-        friendService.makeFriendRequest(requester.getUsername(), request);
+        friendService.makeFriendRequest(requester.getUserId(), request);
 
         //then
         Optional<Friend> friendRequest = friendRepository.findByRequesterAndAccepter(requester, accepter);
@@ -60,10 +60,10 @@ class FriendServiceTest {
     @DisplayName("본인에게 친구 요청 불가")
     void notAllowSelfFriendRequestTest() {
         //given
-        FriendNameRequest request = new FriendNameRequest(requester.getUsername());
+        FriendNameRequest request = new FriendNameRequest(requester.getUserId());
 
         //when & then
-        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUsername(), request))
+        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUserId(), request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("본인에게는 친구 요청을 할 수 없습니다");
     }
@@ -72,13 +72,13 @@ class FriendServiceTest {
     @DisplayName("중복 친구 요청 불가")
     void notAllowDuplicateFriendRequestTest() {
         //given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUsername());
+        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
 
         //when
-        friendService.makeFriendRequest(requester.getUsername(), request);
+        friendService.makeFriendRequest(requester.getUserId(), request);
 
         //then
-        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUsername(), request))
+        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUserId(), request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("이미 친구이거나, 대기 또는 거절된 친구요청이 존재합니다.");
     }
@@ -90,7 +90,7 @@ class FriendServiceTest {
         Friend friend = friendRepository.save(Friend.builder().requester(requester).accepter(accepter).friendStatus(FriendStatus.PENDING).build());
 
         //when
-        friendService.acceptFriendRequest(accepter.getUsername(), friend.getId());
+        friendService.acceptFriendRequest(accepter.getUserId(), friend.getId());
 
         //then
         Friend updatedFriend = friendRepository.findById(friend.getId()).orElseThrow();
@@ -104,7 +104,7 @@ class FriendServiceTest {
         Friend friend = friendRepository.save(Friend.builder().requester(requester).accepter(accepter).friendStatus(FriendStatus.PENDING).build());
 
         //when
-        friendService.declineFriendRequest(accepter.getUsername(), friend.getId());
+        friendService.declineFriendRequest(accepter.getUserId(), friend.getId());
 
         //then
         Friend updatedFriend = friendRepository.findById(friend.getId()).orElseThrow();
@@ -118,7 +118,7 @@ class FriendServiceTest {
         Friend friend = friendRepository.save(Friend.builder().requester(requester).accepter(accepter).friendStatus(FriendStatus.ACCEPTED).build());
 
         //when
-        friendService.deleteFriend(requester.getUsername(), friend.getId());
+        friendService.deleteFriend(requester.getUserId(), friend.getId());
 
         //then
         Optional<Friend> deletedFriend = friendRepository.findById(friend.getId());
@@ -129,11 +129,11 @@ class FriendServiceTest {
     @DisplayName("친구 요청 개수를 초과한 경우 예외 발생")
     void exceedFriendRequestLimitTest() {
         // given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUsername());
+        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
 
         for (int i = 0; i < 20; i++) {
             Member accepterMember = Member.builder()
-                    .username("accepter" + i)
+                    .userId("accepter" + i)
                     .password("password")
                     .salt("salt")
                     .imageUrl("imageUrl")
@@ -151,7 +151,7 @@ class FriendServiceTest {
         }
 
         // when & then
-        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUsername(), request))
+        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUserId(), request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("친구 요청 개수를 초과하였습니다. (최대 20개)");
     }
@@ -160,11 +160,11 @@ class FriendServiceTest {
     @DisplayName("상대방이 더 이상 친구 요청을 받을 수 없을 경우 예외 발생")
     void exceedAccepterFriendRequestLimitTest() {
         // given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUsername());
+        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
 
         for (int i = 0; i < 20; i++) {
             Member requesterMember = Member.builder()
-                    .username("requester" + i)
+                    .userId("requester" + i)
                     .password("password")
                     .salt("salt")
                     .imageUrl("imageUrl")
@@ -182,7 +182,7 @@ class FriendServiceTest {
         }
 
         // when & then
-        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUsername(), request))
+        assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUserId(), request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("상대방이 더 이상 친구 요청을 받을 수 없습니다. (최대 20개)");
     }

@@ -29,7 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final LoginMemberArgumentResolver loginMemberArgumentResolver;
 
     List<String> whiteList = List.of(
-            "/api/v1/users/check-username",
+            "/api/v1/users/check-userId",
             "/api/v1/users/signup",
             "/api/v1/users/login",
             "/api/v1/users/logout",

@@ -15,7 +15,7 @@ class DiaryTest {
 
     @BeforeEach
     void setUp() {
-        member = new Member("user1", "test1", "test1", "test1");
+        member = new Member("user1", "test1", "test1", "test1", "test1");
         diary = Diary.builder()
                 .content("오늘 하루도 힘들었다.")
                 .emotion(Emotion.SAD)
@@ -54,7 +54,7 @@ class DiaryTest {
     @DisplayName("일기의 작성자가 아닌 경우 isWriter가 false를 반환해야 한다")
     @Test
     void isWriter_notWriterTest() {
-        Member otherMember = new Member("user2", "test2", "test2", "test2");
+        Member otherMember = new Member("user2", "test2", "test2", "test2", "test2");
         assertThat(diary.isWriter(otherMember)).isFalse();
     }
 }

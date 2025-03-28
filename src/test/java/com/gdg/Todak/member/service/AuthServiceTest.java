@@ -61,13 +61,14 @@ class AuthServiceTest {
     @Test
     void validRefreshTokenTest() throws JsonProcessingException {
         // given
-        String username = "test_username";
+        String userId = "test_userId";
         String password = "test_password";
+        String passwordCheck = "test_password";
 
-        createMember(username, password);
+        createMember(userId, password, passwordCheck);
 
         LoginServiceRequest loginRequest = LoginServiceRequest.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
                 .build();
 
@@ -86,7 +87,7 @@ class AuthServiceTest {
         AuthenticateUser authenticateUser = objectMapper.readValue(json, AuthenticateUser.class);
 
         // then
-        assertThat(authenticateUser.getUsername()).isEqualTo(username);
+        assertThat(authenticateUser.getUserId()).isEqualTo(userId);
     }
 
     @DisplayName("리프레시 토큰이 유효하지 않으면 예외가 발생한다.")
@@ -106,10 +107,11 @@ class AuthServiceTest {
                 .hasMessage("리프레시 토큰이 만료되었습니다.");
     }
 
-    private void createMember(String username, String password) {
+    private void createMember(String userId, String password, String passwordCheck) {
         SignupServiceRequest request = SignupServiceRequest.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
+                .passwordCheck(passwordCheck)
                 .build();
 
         memberService.signup(request);

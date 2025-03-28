@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
     boolean existsByRequesterAndAccepter(Member requester, Member accepter);
 
-    List<Friend> findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus
+    List<Friend> findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus
             (String accepterName, FriendStatus friendStatus1, String requesterName, FriendStatus friendStatus2);
 
     @Query("SELECT COUNT(f) FROM Friend f WHERE f.requester = :member AND f.friendStatus IN :statuses")
