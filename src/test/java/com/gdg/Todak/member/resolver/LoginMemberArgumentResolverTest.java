@@ -50,12 +50,12 @@ class LoginMemberArgumentResolverTest {
     @Test
     void LoginMemberArgumentResolverTest() throws Exception {
         // given
-        String username = "username";
+        String userId = "userId";
 
         String accessToken = "Bearer abc";
 
         AuthenticateUser user = AuthenticateUser.builder()
-                .username(username)
+                .userId(userId)
                 .roles(Set.of(Role.USER))
                 .build();
 
@@ -76,7 +76,7 @@ class LoginMemberArgumentResolverTest {
                 webRequest, null);
 
         // then
-        assertThat(resolvedUser.getUsername()).isEqualTo(username);
+        assertThat(resolvedUser.getUserId()).isEqualTo(userId);
     }
 
 }

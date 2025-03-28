@@ -1,24 +1,24 @@
 package com.gdg.Todak.member.controller.request;
 
-import com.gdg.Todak.member.service.request.CheckUsernameServiceRequest;
+import com.gdg.Todak.member.service.request.CheckUserIdServiceRequest;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CheckUsernameRequest {
+public class CheckUserIdRequest {
 
-    private String username;
+    private String userId;
 
     @Builder
-    public CheckUsernameRequest(String username) {
-        this.username = username;
+    public CheckUserIdRequest(String userId) {
+        this.userId = userId;
     }
 
-    public CheckUsernameServiceRequest toServiceRequest() {
-        return CheckUsernameServiceRequest.builder()
-                .username(username)
+    public CheckUserIdServiceRequest toServiceRequest() {
+        return CheckUserIdServiceRequest.builder()
+                .userId(userId)
                 .build();
     }
 }

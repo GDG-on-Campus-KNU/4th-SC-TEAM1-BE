@@ -30,7 +30,7 @@ class DiaryRepositoryTest {
     @Test
     void diarySaveTest() {
         // given
-        Member member = memberRepository.save(new Member("user1", "test1", "test1", "test1"));
+        Member member = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
         Diary diary = Diary.builder()
                 .member(member)
                 .content("오늘 하루도 행복했다.")
@@ -51,7 +51,7 @@ class DiaryRepositoryTest {
     @Test
     void findByMemberAndCreatedAtBetweenTest() {
         // given
-        Member member = memberRepository.save(new Member("user1", "test1", "test1", "test1"));
+        Member member = memberRepository.save(new Member("user1", "test1", "test2", "test1", "test1"));
         Instant start = Instant.now().minusSeconds(86400);
         Instant end = Instant.now().plusSeconds(86400);
 
@@ -78,7 +78,7 @@ class DiaryRepositoryTest {
     @Test
     void existsByMemberAndCreatedAtBetweenTest() {
         // given
-        Member member = memberRepository.save(new Member("user1", "test1", "test1", "test1"));
+        Member member = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
         Instant startOfDay = Instant.now().minusSeconds(43200);
         Instant endOfDay = Instant.now().plusSeconds(43200);
 

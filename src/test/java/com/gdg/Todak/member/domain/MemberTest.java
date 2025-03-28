@@ -17,14 +17,14 @@ class MemberTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    @DisplayName("중복된 유저명으로 생성할 수 없다.")
+    @DisplayName("중복된 유저 아이디로 생성할 수 없다.")
     @Test
-    void duplicateUsernameTest() {
+    void duplicateUserIdTest() {
         // given
-        String username = "username";
+        String userId = "userId";
 
-        Member member1 = Member.of(username, "password", "imageUrl", "salt");
-        Member member2 = Member.of(username, "password", "imageUrl", "salt");
+        Member member1 = Member.of(userId, "password", "nickname", "imageUrl", "salt");
+        Member member2 = Member.of(userId, "password", "nickname", "imageUrl", "salt");
 
         // when
         memberRepository.save(member1);

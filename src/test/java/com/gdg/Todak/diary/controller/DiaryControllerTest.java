@@ -59,8 +59,8 @@ class DiaryControllerTest {
     void setUp() throws Exception {
         when(loginCheckInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
-        String username = "testUser";
-        AuthenticateUser authenticateUser = new AuthenticateUser(username, Set.of(Role.USER));
+        String userId = "testUser";
+        AuthenticateUser authenticateUser = new AuthenticateUser(userId, Set.of(Role.USER));
 
         when(loginMemberArgumentResolver.supportsParameter(any())).thenReturn(true);
         when(loginMemberArgumentResolver.resolveArgument(any(), any(), any(), any())).thenReturn(authenticateUser);

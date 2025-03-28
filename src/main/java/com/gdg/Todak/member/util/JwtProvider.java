@@ -63,7 +63,7 @@ public class JwtProvider {
 
     public Map<String, Object> createClaims(Member member, Set<Role> roles) {
         Map<String, Object> claims = new HashMap<>();
-        AuthenticateUser authenticateUser = new AuthenticateUser(member.getUsername(), roles);
+        AuthenticateUser authenticateUser = new AuthenticateUser(member.getUserId(), roles);
 
         try {
             String authenticateUserJson = objectMapper.writeValueAsString(authenticateUser);

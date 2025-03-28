@@ -13,21 +13,30 @@ public class SignupRequest {
 
     @NotBlank
     @Size(min = 3, max = 20)
-    private String username;
+    private String userId;
+
     @NotBlank
     @Size(min = 8, max = 16)
     private String password;
+    private String passwordCheck;
+
+    @Size(min = 3, max = 20)
+    private String nickname;
 
     @Builder
-    public SignupRequest(String username, String password) {
-        this.username = username;
+    public SignupRequest(String userId, String password, String passwordCheck, String nickname) {
+        this.userId = userId;
         this.password = password;
+        this.passwordCheck = passwordCheck;
+        this.nickname = nickname;
     }
 
     public SignupServiceRequest toServiceRequest() {
         return SignupServiceRequest.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
+                .passwordCheck(passwordCheck)
+                .nickname(nickname)
                 .build();
     }
 }

@@ -30,7 +30,7 @@ public class ImageController {
     @Operation(summary = "이미지 업로드(png, jpeg 그리고 10MB 까지 업로드 가능)", description = "로그인 필요, 파일 필수, storageUUID 필수")
     public ApiResponse<UrlResponse> getImageUrl(@ModelAttribute @Valid ImageUploadRequest request,
                                                 @Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
-        UrlResponse urlResponse = imageService.uploadImage(request.file(), request.storageUUID(), authenticateUser.getUsername());
+        UrlResponse urlResponse = imageService.uploadImage(request.file(), request.storageUUID(), authenticateUser.getUserId());
         return ApiResponse.ok(urlResponse);
     }
 
@@ -38,7 +38,7 @@ public class ImageController {
     @Operation(summary = "이미지 제거(업로드 API를 통해 받는 url을 body에)", description = "로그인 필요, url 필수")
     public ApiResponse<Void> deleteImage(@RequestBody @Valid ImageDeleteRequest request,
                                          @Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
-        imageService.deleteImage(request.url(), authenticateUser.getUsername());
+        imageService.deleteImage(request.url(), authenticateUser.getUserId());
         return ApiResponse.of(HttpStatus.OK, "제거가 완료되었습니다.");
     }
 

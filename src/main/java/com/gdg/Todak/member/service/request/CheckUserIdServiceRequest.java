@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CheckUsernameServiceRequest {
+public class CheckUserIdServiceRequest {
 
-    private String username;
+    private String userId;
 
     @Builder
-    public CheckUsernameServiceRequest(String username) {
-        this.username = username;
+    public CheckUserIdServiceRequest(String userId) {
+        this.userId = userId;
     }
 }

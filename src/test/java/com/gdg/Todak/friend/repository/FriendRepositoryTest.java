@@ -28,8 +28,8 @@ class FriendRepositoryTest {
     @Test
     void friendSaveTest() {
         // given
-        Member requester = new Member("user1", "test1", "test1", "test1");
-        Member accepter = new Member("user2", "test2", "test2", "test2");
+        Member requester = new Member("user1", "test1", "test1", "test1", "test1");
+        Member accepter = new Member("user2", "test2", "test2", "test2", "test2");
 
         memberRepository.save(requester);
         memberRepository.save(accepter);
@@ -54,8 +54,8 @@ class FriendRepositoryTest {
     @Test
     void existsByRequesterAndAccepterTest() {
         // given
-        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1"));
-        Member accepter = memberRepository.save(new Member("user2", "test2", "test2", "test2"));
+        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
+        Member accepter = memberRepository.save(new Member("user2", "test2", "test2", "test2", "test2"));
 
         friendRepository.save(Friend.builder()
                 .requester(requester)
@@ -70,13 +70,13 @@ class FriendRepositoryTest {
         assertThat(exists).isTrue();
     }
 
-    @DisplayName("findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus() 테스트 - 친구 찾기 정상 작동 확인")
+    @DisplayName("findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus() 테스트 - 친구 찾기 정상 작동 확인")
     @Test
     void findAllByAccepterOrRequesterAndStatusTest() {
         // given
-        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1"));
-        Member accepter = memberRepository.save(new Member("user2", "test2", "test2", "test2"));
-        Member other = memberRepository.save(new Member("user3", "test3", "test3", "test3"));
+        Member requester = memberRepository.save(new Member("user1", "test1","test1", "test1", "test1"));
+        Member accepter = memberRepository.save(new Member("user2", "test2", "test2","test2", "test2"));
+        Member other = memberRepository.save(new Member("user3", "test3", "test3","test3", "test3"));
 
         friendRepository.save(Friend.builder()
                 .requester(requester)
@@ -91,7 +91,7 @@ class FriendRepositoryTest {
                 .build());
 
         // when
-        List<Friend> friends = friendRepository.findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus(
+        List<Friend> friends = friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(
                 "user2", FriendStatus.ACCEPTED, "user2", FriendStatus.ACCEPTED
         );
 
@@ -103,9 +103,9 @@ class FriendRepositoryTest {
     @Test
     void countByRequesterAndStatusInTest() {
         // given
-        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1"));
-        Member accepter1 = memberRepository.save(new Member("user2", "test2", "test2", "test2"));
-        Member accepter2 = memberRepository.save(new Member("user3", "test3", "test3", "test3"));
+        Member requester = memberRepository.save(new Member("user1", "test1","test1", "test1", "test1"));
+        Member accepter1 = memberRepository.save(new Member("user2", "test2", "test2","test2", "test2"));
+        Member accepter2 = memberRepository.save(new Member("user3", "test3", "test3","test3", "test3"));
 
         friendRepository.save(Friend.builder()
                 .requester(requester)
@@ -130,9 +130,9 @@ class FriendRepositoryTest {
     @Test
     void countByAccepterAndStatusInTest() {
         // given
-        Member requester1 = memberRepository.save(new Member("user1", "test1", "test1", "test1"));
-        Member requester2 = memberRepository.save(new Member("user2", "test2", "test2", "test2"));
-        Member accepter = memberRepository.save(new Member("user3", "test3", "test3", "test3"));
+        Member requester1 = memberRepository.save(new Member("user1", "test1", "test1","test1", "test1"));
+        Member requester2 = memberRepository.save(new Member("user2", "test2", "test2","test2", "test2"));
+        Member accepter = memberRepository.save(new Member("user3", "test3", "test3","test3", "test3"));
 
         friendRepository.save(Friend.builder()
                 .requester(requester1)

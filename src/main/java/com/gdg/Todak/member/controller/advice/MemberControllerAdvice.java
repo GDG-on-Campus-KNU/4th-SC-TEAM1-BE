@@ -13,6 +13,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice(basePackages = "com.gdg.Todak.member")
 public class MemberControllerAdvice {
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ApiResponse<Exception> signupFailed(IllegalArgumentException e) {
+        return ApiResponse.of(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage()
+        );
+    }
+
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public ApiResponse<Exception> loginFailed(UnauthorizedException e) {

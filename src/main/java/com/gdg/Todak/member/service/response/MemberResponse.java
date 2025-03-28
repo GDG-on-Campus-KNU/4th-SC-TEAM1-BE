@@ -8,16 +8,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MemberResponse {
 
-    private String username;
+    private String userId;
 
     @Builder
-    public MemberResponse(String username) {
-        this.username = username;
+    public MemberResponse(String userId) {
+        this.userId = userId;
     }
 
-    public static MemberResponse of(String username) {
+    public static MemberResponse of(String userId) {
         return MemberResponse.builder()
-                .username(username)
+                .userId(userId)
                 .build();
     }
 }

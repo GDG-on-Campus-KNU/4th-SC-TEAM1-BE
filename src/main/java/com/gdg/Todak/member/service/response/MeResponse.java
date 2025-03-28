@@ -9,18 +9,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MeResponse {
 
-    private String username;
+    private String userId;
+    private String nickname;
     private String imageUrl;
 
     @Builder
-    public MeResponse(String username, String imageUrl) {
-        this.username = username;
+    public MeResponse(String userId, String nickname, String imageUrl) {
+        this.userId = userId;
+        this.nickname = nickname;
         this.imageUrl = imageUrl;
     }
 
     public static MeResponse of(Member member) {
         return MeResponse.builder()
-                .username(member.getUsername())
+                .userId(member.getUserId())
+                .nickname(member.getNickname())
                 .imageUrl(member.getImageUrl())
                 .build();
     }

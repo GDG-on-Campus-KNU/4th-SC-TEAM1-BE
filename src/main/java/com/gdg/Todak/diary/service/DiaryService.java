@@ -78,7 +78,7 @@ public class DiaryService {
     }
 
     public List<DiarySummaryResponse> getFriendSummaryByYearAndMonth(String memberName, String friendName, DiarySearchRequest diarySearchRequest) {
-        Member friendMember = memberRepository.findByUsername(friendName)
+        Member friendMember = memberRepository.findByUserId(friendName)
                 .orElseThrow(() -> new NotFoundException("friendName에 해당하는 멤버가 없습니다."));
 
         int year = diarySearchRequest.year();
@@ -107,7 +107,7 @@ public class DiaryService {
     private List<Member> getFriendMembers(String memberName) {
         Member member = getMember(memberName);
 
-        List<Friend> acceptedFriends = friendRepository.findAllByAccepterUsernameAndFriendStatusOrRequesterUsernameAndFriendStatus(
+        List<Friend> acceptedFriends = friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(
                 memberName, FriendStatus.ACCEPTED, memberName, FriendStatus.ACCEPTED);
 
         return acceptedFriends.stream()
@@ -137,7 +137,7 @@ public class DiaryService {
             return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), diary.getStorageUUID(), true);
         }
 
-        List<Member> acceptedMembers = getFriendMembers(diary.getMember().getUsername());
+        List<Member> acceptedMembers = getFriendMembers(diary.getMember().getUserId());
 
         if (!acceptedMembers.contains(member)) {
             throw new UnauthorizedException("작성자 또는 작성자의 친구만 일기 조회가 가능합니다.");
@@ -176,7 +176,7 @@ public class DiaryService {
     }
 
     private Member getMember(String memberName) {
-        return memberRepository.findByUsername(memberName)
+        return memberRepository.findByUserId(memberName)
                 .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
     }
 }

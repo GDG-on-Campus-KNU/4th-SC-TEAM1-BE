@@ -18,8 +18,8 @@ class FriendTest {
 
     @BeforeEach
     void setUp() {
-        requester = new Member("user1", "test1", "test1", "test1");
-        accepter = new Member("user2", "test2", "test2", "test2");
+        requester = new Member("user1", "test1", "test1","test1", "test1");
+        accepter = new Member("user2", "test2", "test2","test2", "test2");
 
         friend = Friend.builder().requester(requester).accepter(accepter).friendStatus(FriendStatus.PENDING).build();
     }
@@ -80,7 +80,7 @@ class FriendTest {
     @DisplayName("요청자가 아닌 사용자가 checkMemberIsNotRequester 호출 시 true 반환")
     @Test
     void checkMemberIsNotRequesterTest() {
-        Member otherUser = new Member("user3", "test3", "test3", "test3");
+        Member otherUser = new Member("user3", "test3", "test3","test3", "test3");
 
         assertThat(friend.checkMemberIsNotRequester(otherUser)).isTrue();
         assertThat(friend.checkMemberIsNotRequester(requester)).isFalse();
@@ -89,7 +89,7 @@ class FriendTest {
     @DisplayName("수락자가 아닌 사용자가 checkMemberIsNotAccepter 호출 시 true 반환")
     @Test
     void checkMemberIsNotAccepterTest() {
-        Member otherUser = new Member("user3", "test3", "test3", "test3");
+        Member otherUser = new Member("user3", "test3", "test3","test3", "test3");
 
         assertThat(friend.checkMemberIsNotAccepter(otherUser)).isTrue();
         assertThat(friend.checkMemberIsNotAccepter(accepter)).isFalse();
