@@ -4,18 +4,18 @@ import com.gdg.Todak.member.domain.*;
 import com.gdg.Todak.member.exception.UnauthorizedException;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.repository.MemberRoleRepository;
-import com.gdg.Todak.member.service.request.CheckUsernameServiceRequest;
-import com.gdg.Todak.member.service.request.LoginServiceRequest;
-import com.gdg.Todak.member.service.request.SignupServiceRequest;
-import com.gdg.Todak.member.service.response.CheckUsernameServiceResponse;
+import com.gdg.Todak.member.service.request.*;
+import com.gdg.Todak.member.service.response.CheckUserIdServiceResponse;
 import com.gdg.Todak.member.service.response.MeResponse;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,8 +24,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 class MemberServiceTest {
 
-    public static final String USERNAME = "test_username";
+    public static final String USERNAME = "test_userId";
     public static final String PASSWORD = "test_password";
+    public static final String PASSWORD_CHECK = "test_password";
 
     public String refreshToken;
 
@@ -50,33 +51,33 @@ class MemberServiceTest {
         }
     }
 
+    @BeforeEach
+    void setUp() {
+        createMember(USERNAME, PASSWORD, PASSWORD_CHECK);
+    }
+
     @DisplayName("회원마다 랜덤 salt를 생성하여 salt와 함께 비밀번호를 인코딩하여 저장한다.")
     @Test
     void signupTest() {
-        // given
-        createMember(USERNAME, PASSWORD);
-
-        // when
-        Member findMember = memberRepository.findByUsername(USERNAME).get();
+        // given // when
+        Member findMember = memberRepository.findByUserId(USERNAME).get();
 
         // then
-        assertThat(findMember.getUsername()).isEqualTo(USERNAME);
+        assertThat(findMember.getUserId()).isEqualTo(USERNAME);
         assertThat(findMember.getPassword()).isNotEqualTo(PASSWORD);
         assertThat(findMember.getMemberRoles()).hasSize(1)
                 .extracting(MemberRole::getRole)
                 .containsExactly(Role.USER);
     }
 
-    @DisplayName("존재하지 않는 username으로 로그인 시 예외가 발생한다.")
+    @DisplayName("존재하지 않는 userId으로 로그인 시 예외가 발생한다.")
     @Test
-    void nonexistentUsernameLoginTest() {
+    void nonexistentUserIdLoginTest() {
         // given
-        createMember(USERNAME, PASSWORD);
-
-        String nonexistentUsername = "nonexistentUsername";
+        String nonexistentUserId = "nonexistentUserId";
 
         LoginServiceRequest request = LoginServiceRequest.builder()
-                .username(nonexistentUsername)
+                .userId(nonexistentUserId)
                 .password(PASSWORD)
                 .build();
 
@@ -90,12 +91,10 @@ class MemberServiceTest {
     @Test
     void wrongPasswordLoginTest() {
         // given
-        createMember(USERNAME, PASSWORD);
-
         String wrongPassword = "wrongPassword";
 
         LoginServiceRequest request = LoginServiceRequest.builder()
-                .username(USERNAME)
+                .userId(USERNAME)
                 .password(wrongPassword)
                 .build();
 
@@ -105,14 +104,12 @@ class MemberServiceTest {
                 .hasMessage("비밀번호가 올바르지 않습니다.");
     }
 
-    @DisplayName("올바른 username과 password로 로그인 시 accessToken과 refreshToken이 반환된다.")
+    @DisplayName("올바른 userId과 password로 로그인 시 accessToken과 refreshToken이 반환된다.")
     @Test
     void loginTest() {
         // given
-        createMember(USERNAME, PASSWORD);
-
         LoginServiceRequest request = LoginServiceRequest.builder()
-                .username(USERNAME)
+                .userId(USERNAME)
                 .password(PASSWORD)
                 .build();
 
@@ -125,50 +122,44 @@ class MemberServiceTest {
         assertThat(memberId).isNotNull();
     }
 
-    @DisplayName("이미 존재하는 username이면 true를 반환한다.")
+    @DisplayName("이미 존재하는 userId이면 true를 반환한다.")
     @Test
-    void existUsernameCheckTest() {
+    void existUserIdCheckTest() {
         // given
-        createMember(USERNAME, PASSWORD);
-
-        CheckUsernameServiceRequest request = CheckUsernameServiceRequest.builder()
-                .username(USERNAME)
+        CheckUserIdServiceRequest request = CheckUserIdServiceRequest.builder()
+                .userId(USERNAME)
                 .build();
 
         // when
-        CheckUsernameServiceResponse result = memberService.checkUsername(request);
+        CheckUserIdServiceResponse result = memberService.checkUserId(request);
 
         // then
         assertThat(result.getExists()).isEqualTo(true);
     }
 
-    @DisplayName("존재하지 않는 username이면 false를 반환한다.")
+    @DisplayName("존재하지 않는 userId이면 false를 반환한다.")
     @Test
-    void nonexistentUsernameCheckTest() {
+    void nonexistentUserIdCheckTest() {
         // given
-        createMember(USERNAME, PASSWORD);
-
-        CheckUsernameServiceRequest request = CheckUsernameServiceRequest.builder()
-                .username(USERNAME + "nonexistent")
+        CheckUserIdServiceRequest request = CheckUserIdServiceRequest.builder()
+                .userId(USERNAME + "nonexistent")
                 .build();
 
         // when
-        CheckUsernameServiceResponse result = memberService.checkUsername(request);
+        CheckUserIdServiceResponse result = memberService.checkUserId(request);
 
         // then
         assertThat(result.getExists()).isEqualTo(false);
     }
 
-    @DisplayName("마이페이지에서 username이 반환된다")
+    @DisplayName("마이페이지에서 userId이 반환된다")
     @Test
     void meTest() {
         // given
-        createMember(USERNAME, PASSWORD);
-
         Set<Role> roles = Set.of(Role.USER);
 
         AuthenticateUser user = AuthenticateUser.builder()
-                .username(USERNAME)
+                .userId(USERNAME)
                 .roles(roles)
                 .build();
 
@@ -176,13 +167,85 @@ class MemberServiceTest {
         MeResponse me = memberService.me(user);
 
         // then
-        assertThat(me.getUsername()).isEqualTo(USERNAME);
+        assertThat(me.getUserId()).isEqualTo(USERNAME);
     }
 
-    private void createMember(String username, String password) {
+    @DisplayName("유저 정보(닉네임, 프로필 사진 url)을 수정한다.")
+    @Test
+    void editMemberInfoTest() {
+        // given
+        String changedNickname = "changedNickname";
+        String changedImageUrl = "changedImageUrl";
+
+        Set<Role> roles = Set.of(Role.USER);
+        AuthenticateUser user = AuthenticateUser.builder()
+                .userId(USERNAME)
+                .roles(roles)
+                .build();
+
+        EditMemberServiceRequest request = EditMemberServiceRequest.builder()
+                .userId(USERNAME)
+                .nickname(changedNickname)
+                .imageUrl(changedImageUrl)
+                .build();
+
+        // when
+        MeResponse meResponse = memberService.editMemberInfo(user, request);
+
+        // then
+        assertThat(meResponse.getNickname()).isEqualTo(changedNickname);
+        assertThat(meResponse.getImageUrl()).isEqualTo(changedImageUrl);
+    }
+
+    @DisplayName("비밀번호 수정 시 새로운 비밀번호와 수정된 비밀번호 확인이 같아야 한다.")
+    @Test
+    void changePasswordNonMatchingTest() {
+        // given
+        Set<Role> roles = Set.of(Role.USER);
+        AuthenticateUser user = AuthenticateUser.builder()
+                .userId(USERNAME)
+                .roles(roles)
+                .build();
+
+        String changedPassword = "changedPassword";
+        String changePasswordCheck = "changePasswordCheck";
+
+        ChangePasswordServiceRequest request = ChangePasswordServiceRequest.builder()
+                .oldPassword(PASSWORD)
+                .newPassword(changedPassword)
+                .newPasswordCheck(changePasswordCheck)
+                .build();
+
+
+        // when // then
+        assertThatThrownBy(() -> memberService.changePassword(user, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("비밀번호가 일치하지 않습니다.");
+    }
+
+    @DisplayName("회원 탈퇴시 회원 정보가 삭제된다.")
+    @Test
+    void deleteMemberTest() {
+        // given
+        Set<Role> roles = Set.of(Role.USER);
+        AuthenticateUser user = AuthenticateUser.builder()
+                .userId(USERNAME)
+                .roles(roles)
+                .build();
+
+        // when
+        memberService.deleteMember(user);
+
+        // then
+        Optional<Member> findMember = memberRepository.findByUserId(USERNAME);
+        assertThat(findMember.isEmpty()).isTrue();
+    }
+
+    private void createMember(String userId, String password, String passwordCheck) {
         SignupServiceRequest request = SignupServiceRequest.builder()
-                .username(username)
+                .userId(userId)
                 .password(password)
+                .passwordCheck(passwordCheck)
                 .build();
 
         memberService.signup(request);
