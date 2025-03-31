@@ -31,4 +31,8 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "diary_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Diary diary;
+
+    public void updateComment(String content) {
+        this.content = content;
+    }
 }
