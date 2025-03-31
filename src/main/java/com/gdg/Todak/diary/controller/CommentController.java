@@ -43,6 +43,7 @@ public class CommentController {
 
     @PostMapping("/{diaryId}")
     @Operation(summary = "댓글 작성", description = "댓글 달기, 본인 또는 친구의 일기에만 작성 가능")
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Void> saveComment(@RequestBody CommentRequest commentRequest, @PathVariable("diaryId") Long diaryId,
                                          @Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
         commentService.saveComment(authenticateUser.getUserId(), diaryId, commentRequest);
