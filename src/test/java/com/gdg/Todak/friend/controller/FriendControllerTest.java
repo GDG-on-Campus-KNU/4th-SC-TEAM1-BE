@@ -3,7 +3,7 @@ package com.gdg.Todak.friend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gdg.Todak.friend.FriendStatus;
 import com.gdg.Todak.friend.dto.FriendCountResponse;
-import com.gdg.Todak.friend.dto.FriendNameRequest;
+import com.gdg.Todak.friend.dto.FriendIdRequest;
 import com.gdg.Todak.friend.dto.FriendRequestResponse;
 import com.gdg.Todak.friend.dto.FriendResponse;
 import com.gdg.Todak.friend.service.FriendService;
@@ -64,8 +64,8 @@ class FriendControllerTest {
     @DisplayName("친구 요청 보내기 테스트")
     void sendFriendRequestTest() throws Exception {
         // given
-        FriendNameRequest request = new FriendNameRequest("friendName");
-        doNothing().when(friendService).makeFriendRequest(anyString(), any(FriendNameRequest.class));
+        FriendIdRequest request = new FriendIdRequest("friendId");
+        doNothing().when(friendService).makeFriendRequest(anyString(), any(FriendIdRequest.class));
 
         // when & then
         mockMvc.perform(post("/api/v1/friend")
@@ -80,11 +80,11 @@ class FriendControllerTest {
     @DisplayName("친구 목록 조회 테스트")
     void getAllFriendsTest() throws Exception {
         // given
-        String friend1Name = "friend1";
-        String friend2Name = "friend2";
+        String friend1Id = "friend1";
+        String friend2Id = "friend2";
         List<FriendResponse> responses = Arrays.asList(
-                new FriendResponse(1L, friend1Name),
-                new FriendResponse(2L, friend2Name)
+                new FriendResponse(1L, friend1Id),
+                new FriendResponse(2L, friend2Id)
         );
         when(friendService.getAllFriend(anyString())).thenReturn(responses);
 
@@ -92,19 +92,19 @@ class FriendControllerTest {
         mockMvc.perform(get("/api/v1/friend")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].friendName").value(friend1Name))
-                .andExpect(jsonPath("$.data[1].friendName").value(friend2Name));
+                .andExpect(jsonPath("$.data[0].friendId").value(friend1Id))
+                .andExpect(jsonPath("$.data[1].friendId").value(friend2Id));
     }
 
     @Test
     @DisplayName("대기중인 친구 요청 조회 테스트")
     void getAllPendingFriendRequestTest() throws Exception {
         // given
-        String requester1Name = "requester1";
-        String requester2Name = "requester2";
+        String requester1Id = "requester1";
+        String requester2Id = "requester2";
         List<FriendRequestResponse> responses = Arrays.asList(
-                new FriendRequestResponse(1L, requester1Name, "profile1"),
-                new FriendRequestResponse(2L, requester2Name, "profile2")
+                new FriendRequestResponse(1L, requester1Id, "profile1"),
+                new FriendRequestResponse(2L, requester2Id, "profile2")
         );
         when(friendService.getAllFriendRequests(anyString())).thenReturn(responses);
 
@@ -112,19 +112,19 @@ class FriendControllerTest {
         mockMvc.perform(get("/api/v1/friend/pending")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].requesterName").value(requester1Name))
-                .andExpect(jsonPath("$.data[1].requesterName").value(requester2Name));
+                .andExpect(jsonPath("$.data[0].requesterName").value(requester1Id))
+                .andExpect(jsonPath("$.data[1].requesterName").value(requester2Id));
     }
 
     @Test
     @DisplayName("거절한 친구 요청 조회 테스트")
     void getAllDeclinedFriendRequestTest() throws Exception {
         // given
-        String decliner1Name = "decliner1";
-        String decliner2Name = "decliner2";
+        String decliner1Id = "decliner1";
+        String decliner2Id = "decliner2";
         List<FriendRequestResponse> responses = Arrays.asList(
-                new FriendRequestResponse(1L, decliner1Name, "profile1"),
-                new FriendRequestResponse(2L, decliner2Name, "profile2")
+                new FriendRequestResponse(1L, decliner1Id, "profile1"),
+                new FriendRequestResponse(2L, decliner2Id, "profile2")
         );
         when(friendService.getAllDeclinedFriends(anyString())).thenReturn(responses);
 
@@ -132,8 +132,8 @@ class FriendControllerTest {
         mockMvc.perform(get("/api/v1/friend/declined")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].requesterName").value(decliner1Name))
-                .andExpect(jsonPath("$.data[1].requesterName").value(decliner2Name));
+                .andExpect(jsonPath("$.data[0].requesterName").value(decliner1Id))
+                .andExpect(jsonPath("$.data[1].requesterName").value(decliner2Id));
     }
 
     @Test

@@ -38,11 +38,11 @@ public class DiaryController {
         return ApiResponse.ok(diaryResponses);
     }
 
-    @GetMapping("/friend/{friendName}/{year}/{month}")
+    @GetMapping("/friend/{friendId}/{year}/{month}")
     @Operation(summary = "친구의 년/월에 해당하는 모든 일기 불러오기", description = "친구가 작성한 일기 중 year, month에 해당하는 모든 일기를 불러온다.")
-    public ApiResponse<List<DiarySummaryResponse>> getAllDiaryByFriend(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("friendName") String friendName, @PathVariable("year") int year, @PathVariable("month") int month) {
+    public ApiResponse<List<DiarySummaryResponse>> getAllDiaryByFriend(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser, @PathVariable("friendId") String friendId, @PathVariable("year") int year, @PathVariable("month") int month) {
         DiarySearchRequest diarySearchRequest = new DiarySearchRequest(year, month);
-        List<DiarySummaryResponse> diaryResponses = diaryService.getFriendSummaryByYearAndMonth(authenticateUser.getUserId(), friendName, diarySearchRequest);
+        List<DiarySummaryResponse> diaryResponses = diaryService.getFriendSummaryByYearAndMonth(authenticateUser.getUserId(), friendId, diarySearchRequest);
         return ApiResponse.ok(diaryResponses);
     }
 

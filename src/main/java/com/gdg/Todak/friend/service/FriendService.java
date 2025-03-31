@@ -2,7 +2,7 @@ package com.gdg.Todak.friend.service;
 
 import com.gdg.Todak.friend.FriendStatus;
 import com.gdg.Todak.friend.dto.FriendCountResponse;
-import com.gdg.Todak.friend.dto.FriendNameRequest;
+import com.gdg.Todak.friend.dto.FriendIdRequest;
 import com.gdg.Todak.friend.dto.FriendRequestResponse;
 import com.gdg.Todak.friend.dto.FriendResponse;
 import com.gdg.Todak.friend.entity.Friend;
@@ -28,10 +28,10 @@ public class FriendService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void makeFriendRequest(String memberName, FriendNameRequest friendNameRequest) {
-        Member requesterMember = getMember(memberName);
-        Member accepterMember = memberRepository.findByUserId(friendNameRequest.friendName())
-                .orElseThrow(() -> new NotFoundException("friendName에 해당하는 멤버가 없습니다."));
+    public void makeFriendRequest(String userId, FriendIdRequest friendIdRequest) {
+        Member requesterMember = getMember(userId);
+        Member accepterMember = memberRepository.findByUserId(friendIdRequest.friendId())
+                .orElseThrow(() -> new NotFoundException("friendId에 해당하는 멤버가 없습니다."));
 
         if (friendRepository.existsByRequesterAndAccepter(requesterMember, accepterMember) || friendRepository.existsByRequesterAndAccepter(accepterMember, requesterMember)) {
             throw new BadRequestException("이미 친구이거나, 대기 또는 거절된 친구요청이 존재합니다.");
@@ -58,10 +58,10 @@ public class FriendService {
                 .build());
     }
 
-    public List<FriendResponse> getAllFriend(String memberName) {
-        return friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(memberName, FriendStatus.ACCEPTED, memberName, FriendStatus.ACCEPTED)
+    public List<FriendResponse> getAllFriend(String userId) {
+        return friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(userId, FriendStatus.ACCEPTED, userId, FriendStatus.ACCEPTED)
                 .stream().map(friend -> {
-                    if (friend.getRequester().getUserId().equals(memberName)) {
+                    if (friend.getRequester().getUserId().equals(userId)) {
                         return new FriendResponse(
                                 friend.getId(),
                                 friend.getAccepter().getUserId()
@@ -76,8 +76,8 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-    public List<FriendRequestResponse> getAllDeclinedFriends(String memberName) {
-        return friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(memberName, FriendStatus.DECLINED, memberName, FriendStatus.DECLINED)
+    public List<FriendRequestResponse> getAllDeclinedFriends(String userId) {
+        return friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(userId, FriendStatus.DECLINED, userId, FriendStatus.DECLINED)
                 .stream().map(
                         Friend -> new FriendRequestResponse(
                                 Friend.getId(),
@@ -87,8 +87,8 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-    public List<FriendRequestResponse> getAllFriendRequests(String memberName) {
-        return friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(memberName, FriendStatus.PENDING, memberName, FriendStatus.PENDING)
+    public List<FriendRequestResponse> getAllFriendRequests(String userId) {
+        return friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(userId, FriendStatus.PENDING, userId, FriendStatus.PENDING)
                 .stream().map(
                         Friend -> new FriendRequestResponse(
                                 Friend.getId(),
@@ -99,8 +99,8 @@ public class FriendService {
     }
 
     @Transactional
-    public void acceptFriendRequest(String memberName, Long friendRequestId) {
-        Member member = getMember(memberName);
+    public void acceptFriendRequest(String userId, Long friendRequestId) {
+        Member member = getMember(userId);
 
         Friend friendRequest = friendRepository.findById(friendRequestId)
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
@@ -113,8 +113,8 @@ public class FriendService {
     }
 
     @Transactional
-    public void declineFriendRequest(String memberName, Long friendRequestId) {
-        Member member = getMember(memberName);
+    public void declineFriendRequest(String userId, Long friendRequestId) {
+        Member member = getMember(userId);
 
         Friend friendRequest = friendRepository.findById(friendRequestId)
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
@@ -127,8 +127,8 @@ public class FriendService {
     }
 
     @Transactional
-    public void deleteFriend(String memberName, Long friendRequestId) {
-        Member member = getMember(memberName);
+    public void deleteFriend(String userId, Long friendRequestId) {
+        Member member = getMember(userId);
 
         Friend friendRequest = friendRepository.findById(friendRequestId)
                 .orElseThrow(() -> new NotFoundException("friendRequestId에 해당하는 친구요청이 없습니다."));
@@ -140,8 +140,8 @@ public class FriendService {
         friendRepository.deleteById(friendRequestId);
     }
 
-    public List<FriendCountResponse> getMyFriendCountByStatus(String memberName) {
-        Member member = getMember(memberName);
+    public List<FriendCountResponse> getMyFriendCountByStatus(String userId) {
+        Member member = getMember(userId);
 
         long PendingFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.PENDING));
         long AcceptedFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.ACCEPTED))
@@ -153,8 +153,8 @@ public class FriendService {
         );
     }
 
-    private Member getMember(String memberName) {
-        return memberRepository.findByUserId(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+    private Member getMember(String userId) {
+        return memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("userId에 해당하는 멤버가 없습니다."));
     }
 }
