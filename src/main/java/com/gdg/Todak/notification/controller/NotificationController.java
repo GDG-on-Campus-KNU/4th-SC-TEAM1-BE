@@ -19,12 +19,12 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping
+    @GetMapping("/create")
     public SseEmitter notificationSubscribe(@Login AuthenticateUser user) {
         return notificationService.createEmitter(user.getUserId());
     }
 
-    @PostMapping
+    @PostMapping("/ack")
     public ApiResponse notificationAck(@Login AuthenticateUser user, @RequestBody AckRequest request) {
         return ApiResponse.ok(notificationService.deleteAckNotification(user.getUserId(), request.getNotificationId()));
     }
