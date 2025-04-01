@@ -84,8 +84,6 @@ class ImageServiceTest {
         String storageUUID = "1234";
         String userName = "testUser";
 
-        System.out.println();
-
         // when
         UrlResponse response = imageService.uploadImage(file, storageUUID, userName);
 
