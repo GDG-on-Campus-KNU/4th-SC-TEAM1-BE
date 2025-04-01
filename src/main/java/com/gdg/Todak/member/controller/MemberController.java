@@ -11,6 +11,7 @@ import com.gdg.Todak.member.service.response.LogoutResponse;
 import com.gdg.Todak.member.service.response.MeResponse;
 import com.gdg.Todak.member.service.response.MemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -45,32 +46,32 @@ public class MemberController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "리프레시 토큰을 삭제하여 로그아웃한다.")
-    public ApiResponse<LogoutResponse> logout(@Login AuthenticateUser user,
+    public ApiResponse<LogoutResponse> logout(@Parameter(hidden = true) @Login AuthenticateUser user,
                                               @RequestBody LogoutRequest request) {
         return ApiResponse.ok(memberService.logout(user, request.toServiceRequest()));
     }
 
     @PostMapping("/me")
     @Operation(summary = "마이페이지", description = "로그인이 된 유저 아이디, 유저 닉네임 그리고 프로필 사진 url을 반환한다.")
-    public ApiResponse<MeResponse> me(@Login AuthenticateUser user) {
+    public ApiResponse<MeResponse> me(@Parameter(hidden = true) @Login AuthenticateUser user) {
         return ApiResponse.ok(memberService.me(user));
     }
 
     @PutMapping("/edit")
     @Operation(summary = "내 정보 수정", description = "유저 닉네임 혹은 프로필 사진 url을 수정한다.")
-    public ApiResponse<MeResponse> editMember(@Login AuthenticateUser user, @RequestBody EditMemberRequest request) {
+    public ApiResponse<MeResponse> editMember(@Parameter(hidden = true) @Login AuthenticateUser user, @RequestBody EditMemberRequest request) {
         return ApiResponse.ok(memberService.editMemberInfo(user, request.toServiceRequest()));
     }
 
     @PutMapping("/edit-password")
     @Operation(summary = "비밀번호 수정", description = "비밀번호를 수정한다.")
-    public ApiResponse<String> changePassword(@Login AuthenticateUser user, @RequestBody ChangePasswordRequest request) {
+    public ApiResponse<String> changePassword(@Parameter(hidden = true) @Login AuthenticateUser user, @RequestBody ChangePasswordRequest request) {
         return ApiResponse.ok(memberService.changePassword(user, request.toServiceRequest()));
     }
 
     @DeleteMapping("/me")
     @Operation(summary = "계정 탈퇴", description = "회원 정보를 삭제하고 계정을 탈퇴한다.")
-    public ApiResponse<Void> deleteMember(@Login AuthenticateUser user) {
+    public ApiResponse<Void> deleteMember(@Parameter(hidden = true) @Login AuthenticateUser user) {
         return ApiResponse.ok(memberService.deleteMember(user));
     }
 }
