@@ -43,8 +43,6 @@ public class WebConfig implements WebMvcConfigurer {
             "/api/v1/members/edit",
             "/api/v1/members/edit-password",
 
-            "/api/v1/notifications",
-
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/backend/**"
