@@ -1,7 +1,7 @@
 package com.gdg.Todak.friend.service;
 
 import com.gdg.Todak.friend.FriendStatus;
-import com.gdg.Todak.friend.dto.FriendNameRequest;
+import com.gdg.Todak.friend.dto.FriendIdRequest;
 import com.gdg.Todak.friend.entity.Friend;
 import com.gdg.Todak.friend.exception.BadRequestException;
 import com.gdg.Todak.friend.repository.FriendRepository;
@@ -37,15 +37,15 @@ class FriendServiceTest {
 
     @BeforeEach
     void setUp() {
-        requester = memberRepository.save(new Member("requesterUser", "test1", "test1","test1", "test1"));
-        accepter = memberRepository.save(new Member("accepterUser", "test2", "test2","test2", "test2"));
+        requester = memberRepository.save(new Member("requesterUser", "test1", "test1", "test1", "test1"));
+        accepter = memberRepository.save(new Member("accepterUser", "test2", "test2", "test2", "test2"));
     }
 
     @Test
     @DisplayName("친구 요청 성공")
     void makeFriendRequestSuccessfullyTest() {
         //given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
+        FriendIdRequest request = new FriendIdRequest(accepter.getUserId());
 
         //when
         friendService.makeFriendRequest(requester.getUserId(), request);
@@ -60,7 +60,7 @@ class FriendServiceTest {
     @DisplayName("본인에게 친구 요청 불가")
     void notAllowSelfFriendRequestTest() {
         //given
-        FriendNameRequest request = new FriendNameRequest(requester.getUserId());
+        FriendIdRequest request = new FriendIdRequest(requester.getUserId());
 
         //when & then
         assertThatThrownBy(() -> friendService.makeFriendRequest(requester.getUserId(), request))
@@ -72,7 +72,7 @@ class FriendServiceTest {
     @DisplayName("중복 친구 요청 불가")
     void notAllowDuplicateFriendRequestTest() {
         //given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
+        FriendIdRequest request = new FriendIdRequest(accepter.getUserId());
 
         //when
         friendService.makeFriendRequest(requester.getUserId(), request);
@@ -129,7 +129,7 @@ class FriendServiceTest {
     @DisplayName("친구 요청 개수를 초과한 경우 예외 발생")
     void exceedFriendRequestLimitTest() {
         // given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
+        FriendIdRequest request = new FriendIdRequest(accepter.getUserId());
 
         for (int i = 0; i < 20; i++) {
             Member accepterMember = Member.builder()
@@ -160,7 +160,7 @@ class FriendServiceTest {
     @DisplayName("상대방이 더 이상 친구 요청을 받을 수 없을 경우 예외 발생")
     void exceedAccepterFriendRequestLimitTest() {
         // given
-        FriendNameRequest request = new FriendNameRequest(accepter.getUserId());
+        FriendIdRequest request = new FriendIdRequest(accepter.getUserId());
 
         for (int i = 0; i < 20; i++) {
             Member requesterMember = Member.builder()

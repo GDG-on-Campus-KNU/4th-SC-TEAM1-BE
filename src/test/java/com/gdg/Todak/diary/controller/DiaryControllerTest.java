@@ -119,7 +119,7 @@ class DiaryControllerTest {
         when(diaryService.getFriendSummaryByYearAndMonth(anyString(), anyString(), any())).thenReturn(responses);
 
         // when
-        mockMvc.perform(get("/api/v1/diary/friend/friendName/2025/3")
+        mockMvc.perform(get("/api/v1/diary/friend/friendId/2025/3")
                         .header("Authorization", "Bearer " + token))
 
                 // then
