@@ -53,4 +53,11 @@ public class Friend {
         }
         this.friendStatus = FriendStatus.DECLINED;
     }
+
+    public Member getFriend(String myUserId) {
+        if (!myUserId.equals(this.requester.getUserId())) {
+            return this.requester;
+        }
+        return this.accepter;
+    }
 }
