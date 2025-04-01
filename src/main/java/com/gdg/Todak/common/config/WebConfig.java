@@ -1,9 +1,13 @@
 package com.gdg.Todak.common.config;
 
+import com.gdg.Todak.common.filter.AuthenticationExceptionHandlingFilter;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -16,6 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -28,11 +33,18 @@ public class WebConfig implements WebMvcConfigurer {
     private final LoginCheckInterceptor loginCheckInterceptor;
     private final LoginMemberArgumentResolver loginMemberArgumentResolver;
 
+    private final AuthenticationExceptionHandlingFilter authenticationExceptionHandlingFilter;
+
     List<String> whiteList = List.of(
-            "/api/v1/users/check-userId",
-            "/api/v1/users/signup",
-            "/api/v1/users/login",
-            "/api/v1/users/logout",
+            "/api/v1/members/check-userId",
+            "/api/v1/members/signup",
+            "/api/v1/members/login",
+            "/api/v1/members/logout",
+            "/api/v1/members/edit",
+            "/api/v1/members/edit-password",
+
+            "/api/v1/notifications",
+
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/backend/**"
@@ -40,10 +52,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        log.info("caught by interceptor");
         registry.addInterceptor(loginCheckInterceptor)
                 .order(1)
                 .addPathPatterns("/**")
                 .excludePathPatterns(whiteList);
+    }
+
+    @Bean
+    public FilterRegistrationBean uriFilterRegistrationBean() {
+        FilterRegistrationBean<Filter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(authenticationExceptionHandlingFilter);
+        registrationBean.setOrder(1);
+        registrationBean.addUrlPatterns("/*");
+        return registrationBean;
     }
 
     @Override
