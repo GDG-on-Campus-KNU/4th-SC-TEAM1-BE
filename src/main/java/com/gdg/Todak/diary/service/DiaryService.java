@@ -9,9 +9,12 @@ import com.gdg.Todak.diary.repository.DiaryRepository;
 import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
+import com.gdg.Todak.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -27,6 +30,7 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final MemberRepository memberRepository;
     private final ImageService imageService;
+    private final NotificationService notificationService;
     private final FriendCheckService friendCheckService;
 
     @Transactional
@@ -48,7 +52,15 @@ public class DiaryService {
                 .storageUUID(diaryRequest.storageUUID())
                 .build();
 
-        diaryRepository.save(diary);
+        Diary saveDiary = diaryRepository.save(diary);
+
+        // 알림 전송
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                notificationService.publishNotification(memberName, "post", saveDiary.getId());
+            }
+        });
     }
 
     public List<DiarySummaryResponse> getMySummaryByYearAndMonth(String userId, DiarySearchRequest diarySearchRequest) {
