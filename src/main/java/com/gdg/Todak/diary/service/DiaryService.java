@@ -58,7 +58,7 @@ public class DiaryService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                notificationService.publishNotification(memberName, "post", saveDiary.getId());
+                notificationService.publishNotification(userId, "post", saveDiary.getId());
             }
         });
     }

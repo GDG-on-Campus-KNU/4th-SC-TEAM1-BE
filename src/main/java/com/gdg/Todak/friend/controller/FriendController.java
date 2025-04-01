@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/friend")
+@RequestMapping("/api/v1/friends")
 @Tag(name = "친구", description = "친구 관련 API")
 public class FriendController {
 

@@ -74,7 +74,7 @@ class DiaryControllerTest {
         doNothing().when(diaryService).writeDiary(anyString(), any(DiaryRequest.class));
 
         // when
-        mockMvc.perform(post("/api/v1/diary")
+        mockMvc.perform(post("/api/v1/diaries")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -95,7 +95,7 @@ class DiaryControllerTest {
         when(diaryService.getMySummaryByYearAndMonth(anyString(), any())).thenReturn(responses);
 
         // when
-        mockMvc.perform(get("/api/v1/diary/me/2025/3")
+        mockMvc.perform(get("/api/v1/diaries/me/2025/3")
                         .header("Authorization", "Bearer " + token))
 
                 // then
@@ -119,7 +119,7 @@ class DiaryControllerTest {
         when(diaryService.getFriendSummaryByYearAndMonth(anyString(), anyString(), any())).thenReturn(responses);
 
         // when
-        mockMvc.perform(get("/api/v1/diary/friend/friendId/2025/3")
+        mockMvc.perform(get("/api/v1/diaries/friend/friendId/2025/3")
                         .header("Authorization", "Bearer " + token))
 
                 // then
@@ -140,7 +140,7 @@ class DiaryControllerTest {
         when(diaryService.readDiary(anyString(), anyLong())).thenReturn(response);
 
         // when
-        mockMvc.perform(get("/api/v1/diary/1")
+        mockMvc.perform(get("/api/v1/diaries/1")
                         .header("Authorization", "Bearer " + token))
 
                 // then
@@ -161,7 +161,7 @@ class DiaryControllerTest {
         doNothing().when(diaryService).updateDiary(anyString(), anyLong(), any(DiaryUpdateRequest.class));
 
         // when
-        mockMvc.perform(put("/api/v1/diary/1")
+        mockMvc.perform(put("/api/v1/diaries/1")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -178,7 +178,7 @@ class DiaryControllerTest {
         doNothing().when(diaryService).deleteDiary(anyString(), anyLong());
 
         // when
-        mockMvc.perform(delete("/api/v1/diary/1")
+        mockMvc.perform(delete("/api/v1/diaries/1")
                         .header("Authorization", "Bearer " + token))
 
                 // then

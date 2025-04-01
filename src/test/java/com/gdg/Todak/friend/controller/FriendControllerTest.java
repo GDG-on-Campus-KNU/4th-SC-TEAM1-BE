@@ -68,7 +68,7 @@ class FriendControllerTest {
         doNothing().when(friendService).makeFriendRequest(anyString(), any(FriendIdRequest.class));
 
         // when & then
-        mockMvc.perform(post("/api/v1/friend")
+        mockMvc.perform(post("/api/v1/friends")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -89,7 +89,7 @@ class FriendControllerTest {
         when(friendService.getAllFriend(anyString())).thenReturn(responses);
 
         // when & then
-        mockMvc.perform(get("/api/v1/friend")
+        mockMvc.perform(get("/api/v1/friends")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].friendId").value(friend1Id))
@@ -109,7 +109,7 @@ class FriendControllerTest {
         when(friendService.getAllFriendRequests(anyString())).thenReturn(responses);
 
         // when & then
-        mockMvc.perform(get("/api/v1/friend/pending")
+        mockMvc.perform(get("/api/v1/friends/pending")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].requesterName").value(requester1Id))
@@ -129,7 +129,7 @@ class FriendControllerTest {
         when(friendService.getAllDeclinedFriends(anyString())).thenReturn(responses);
 
         // when & then
-        mockMvc.perform(get("/api/v1/friend/declined")
+        mockMvc.perform(get("/api/v1/friends/declined")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].requesterName").value(decliner1Id))
@@ -144,7 +144,7 @@ class FriendControllerTest {
         doNothing().when(friendService).acceptFriendRequest(anyString(), anyLong());
 
         // when & then
-        mockMvc.perform(put("/api/v1/friend/accept/" + friendRequestId)
+        mockMvc.perform(put("/api/v1/friends/accept/" + friendRequestId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("친구 요청이 수락되었습니다."));
@@ -158,7 +158,7 @@ class FriendControllerTest {
         doNothing().when(friendService).declineFriendRequest(anyString(), anyLong());
 
         // when & then
-        mockMvc.perform(put("/api/v1/friend/decline/" + friendRequestId)
+        mockMvc.perform(put("/api/v1/friends/decline/" + friendRequestId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("친구 요청을 거절하였습니다."));
@@ -172,7 +172,7 @@ class FriendControllerTest {
         doNothing().when(friendService).deleteFriend(anyString(), anyLong());
 
         // when & then
-        mockMvc.perform(delete("/api/v1/friend/" + friendRequestId)
+        mockMvc.perform(delete("/api/v1/friends/" + friendRequestId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("친구/친구요청을 삭제하였습니다."));
@@ -191,7 +191,7 @@ class FriendControllerTest {
         when(friendService.getMyFriendCountByStatus(anyString())).thenReturn(responses);
 
         // when & then
-        mockMvc.perform(get("/api/v1/friend/count")
+        mockMvc.perform(get("/api/v1/friends/count")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].friendStatus").value("PENDING"))
