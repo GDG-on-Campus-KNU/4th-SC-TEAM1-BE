@@ -97,7 +97,7 @@ class DiaryServiceTest {
         // when & then
         assertThatThrownBy(() -> diaryService.writeDiary("nonExistentUser", diaryRequest))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("memberName에 해당하는 멤버가 없습니다.");
+                .hasMessage("userId에 해당하는 멤버가 없습니다.");
     }
 
     @Test

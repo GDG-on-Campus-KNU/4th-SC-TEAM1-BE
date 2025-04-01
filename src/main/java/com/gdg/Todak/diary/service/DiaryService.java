@@ -6,9 +6,7 @@ import com.gdg.Todak.diary.exception.BadRequestException;
 import com.gdg.Todak.diary.exception.NotFoundException;
 import com.gdg.Todak.diary.exception.UnauthorizedException;
 import com.gdg.Todak.diary.repository.DiaryRepository;
-import com.gdg.Todak.friend.FriendStatus;
-import com.gdg.Todak.friend.entity.Friend;
-import com.gdg.Todak.friend.repository.FriendRepository;
+import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +26,12 @@ public class DiaryService {
 
     private final DiaryRepository diaryRepository;
     private final MemberRepository memberRepository;
-    private final FriendRepository friendRepository;
     private final ImageService imageService;
+    private final FriendCheckService friendCheckService;
 
     @Transactional
-    public void writeDiary(String memberName, DiaryRequest diaryRequest) {
-        Member member = getMember(memberName);
+    public void writeDiary(String userId, DiaryRequest diaryRequest) {
+        Member member = getMember(userId);
 
         LocalDate today = LocalDate.now();
         Instant startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
@@ -53,8 +51,8 @@ public class DiaryService {
         diaryRepository.save(diary);
     }
 
-    public List<DiarySummaryResponse> getMySummaryByYearAndMonth(String memberName, DiarySearchRequest diarySearchRequest) {
-        Member member = getMember(memberName);
+    public List<DiarySummaryResponse> getMySummaryByYearAndMonth(String userId, DiarySearchRequest diarySearchRequest) {
+        Member member = getMember(userId);
 
         int year = diarySearchRequest.year();
         int month = diarySearchRequest.month();
@@ -77,9 +75,8 @@ public class DiaryService {
                 )).toList();
     }
 
-    public List<DiarySummaryResponse> getFriendSummaryByYearAndMonth(String memberName, String friendName, DiarySearchRequest diarySearchRequest) {
-        Member friendMember = memberRepository.findByUserId(friendName)
-                .orElseThrow(() -> new NotFoundException("friendName에 해당하는 멤버가 없습니다."));
+    public List<DiarySummaryResponse> getFriendSummaryByYearAndMonth(String userId, String friendId, DiarySearchRequest diarySearchRequest) {
+        Member friendMember = getMember(friendId);
 
         int year = diarySearchRequest.year();
         int month = diarySearchRequest.month();
@@ -88,7 +85,7 @@ public class DiaryService {
             throw new BadRequestException("month의 범위는 1~12 입니다.");
         }
 
-        List<Member> acceptedMembers = getFriendMembers(memberName);
+        List<Member> acceptedMembers = friendCheckService.getFriendMembers(userId);
 
         if (!acceptedMembers.contains(friendMember)) {
             throw new UnauthorizedException("친구만 조회 가능합니다.");
@@ -104,17 +101,6 @@ public class DiaryService {
                 )).toList();
     }
 
-    private List<Member> getFriendMembers(String memberName) {
-        Member member = getMember(memberName);
-
-        List<Friend> acceptedFriends = friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(
-                memberName, FriendStatus.ACCEPTED, memberName, FriendStatus.ACCEPTED);
-
-        return acceptedFriends.stream()
-                .map(friend -> friend.getAccepter().equals(member) ? friend.getRequester() : friend.getAccepter())
-                .toList();
-    }
-
     private List<Diary> getDiariesByYearAndMonth(int year, int month, Member member) {
         LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0, 0);
         LocalDateTime endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(99);
@@ -125,8 +111,8 @@ public class DiaryService {
         return diaryRepository.findByMemberAndCreatedAtBetween(member, startInstant, endInstant);
     }
 
-    public DiaryDetailResponse readDiary(String memberName, Long diaryId) {
-        Member member = getMember(memberName);
+    public DiaryDetailResponse readDiary(String userId, Long diaryId) {
+        Member member = getMember(userId);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new NotFoundException("diary id에 해당하는 일기가 없습니다."));
@@ -137,7 +123,7 @@ public class DiaryService {
             return new DiaryDetailResponse(diary.getId(), createdAt, diary.getContent(), diary.getEmotion(), diary.getStorageUUID(), true);
         }
 
-        List<Member> acceptedMembers = getFriendMembers(diary.getMember().getUserId());
+        List<Member> acceptedMembers = friendCheckService.getFriendMembers(diary.getMember().getUserId());
 
         if (!acceptedMembers.contains(member)) {
             throw new UnauthorizedException("작성자 또는 작성자의 친구만 일기 조회가 가능합니다.");
@@ -147,8 +133,8 @@ public class DiaryService {
     }
 
     @Transactional
-    public void updateDiary(String memberName, Long diaryId, DiaryUpdateRequest diaryUpdateRequest) {
-        Member member = getMember(memberName);
+    public void updateDiary(String userId, Long diaryId, DiaryUpdateRequest diaryUpdateRequest) {
+        Member member = getMember(userId);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new NotFoundException("diary id에 해당하는 일기가 없습니다."));
@@ -161,8 +147,8 @@ public class DiaryService {
     }
 
     @Transactional
-    public void deleteDiary(String memberName, Long diaryId) {
-        Member member = getMember(memberName);
+    public void deleteDiary(String userId, Long diaryId) {
+        Member member = getMember(userId);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("diary id에 해당하는 일기가 없습니다."));
@@ -171,12 +157,12 @@ public class DiaryService {
             throw new UnauthorizedException("일기 작성자가 아닙니다.");
         }
 
-        imageService.deleteAllImagesInStorageUUID(memberName, diary.getStorageUUID());
+        imageService.deleteAllImagesInStorageUUID(userId, diary.getStorageUUID());
         diaryRepository.delete(diary);
     }
 
-    private Member getMember(String memberName) {
-        return memberRepository.findByUserId(memberName)
-                .orElseThrow(() -> new NotFoundException("memberName에 해당하는 멤버가 없습니다."));
+    private Member getMember(String userId) {
+        return memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("userId에 해당하는 멤버가 없습니다."));
     }
 }
