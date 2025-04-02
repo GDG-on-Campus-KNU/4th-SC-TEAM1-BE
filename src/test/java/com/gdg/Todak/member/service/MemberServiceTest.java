@@ -118,7 +118,7 @@ class MemberServiceTest {
         refreshToken = jwtToken.getRefreshToken();
 
         // then
-        Long memberId = (Long) redisTemplate.opsForValue().get(refreshToken);
+        Long memberId = Long.valueOf((String) redisTemplate.opsForValue().get(refreshToken));
         assertThat(memberId).isNotNull();
     }
 

@@ -25,7 +25,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @Service
 public class RedisSubscriberService {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     private Map<String, List<SseEmitter>> emitters;

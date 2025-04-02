@@ -144,6 +144,6 @@ public class MemberService {
     }
 
     private void saveRefreshToken(String refreshToken, Member member) {
-        redisTemplate.opsForValue().set(refreshToken, String.valueOf(member.getId()), 14, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(refreshToken, member.getId().toString(), 14, TimeUnit.DAYS);
     }
 }
