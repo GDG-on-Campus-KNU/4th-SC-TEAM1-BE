@@ -28,7 +28,7 @@ public class NotificationController {
     }
 
     @PostMapping("/ack")
-    @Operation(summary = "읽은 알림 삭제", description = "읽은 알림을 삭제한다.")
+    @Operation(summary = "읽은 알림 삭제", description = "읽은 알림을 삭제한다. ")
     public ApiResponse notificationAck(@Parameter(hidden = true) @Login AuthenticateUser user, @RequestBody AckRequest request) {
         return ApiResponse.ok(notificationService.deleteAckNotification(user.getUserId(), request.getNotificationId()));
     }

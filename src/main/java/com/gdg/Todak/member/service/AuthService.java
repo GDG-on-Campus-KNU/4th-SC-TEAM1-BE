@@ -39,7 +39,11 @@ public class AuthService {
     }
 
     private Long getMemberId(String refreshToken) {
-        return Long.parseLong((String) redisTemplate.opsForValue().get(refreshToken));
+        String memberId = (String) redisTemplate.opsForValue().get(refreshToken);
+        if (memberId == null) {
+            return null;
+        }
+        return Long.valueOf(memberId);
     }
 
     private Member getMemberById(Long memberId) {

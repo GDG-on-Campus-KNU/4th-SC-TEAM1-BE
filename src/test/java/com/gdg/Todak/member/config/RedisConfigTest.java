@@ -31,10 +31,10 @@ class RedisConfigTest {
     @Test
     void redisRetrieveTest() {
         // given
-        redisTemplate.opsForValue().set(refreshToken, memberId, 7, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(refreshToken, memberId.toString(), 7, TimeUnit.DAYS);
 
         // when
-        Long findMemberId = (Long) redisTemplate.opsForValue().get(refreshToken);
+        Long findMemberId = Long.valueOf((String) redisTemplate.opsForValue().get(refreshToken));
 
         // then
         assertThat(findMemberId).isEqualTo(memberId);
@@ -47,10 +47,10 @@ class RedisConfigTest {
         Long memberId = 1L;
         String refreshToken = "abcd";
 
-        redisTemplate.opsForValue().set(refreshToken, memberId, 7, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(refreshToken, memberId.toString(), 7, TimeUnit.DAYS);
 
         // when
-        Long findMemberId = (Long) redisTemplate.opsForValue().get(nonExistentRefreshToken);
+        String findMemberId = (String) redisTemplate.opsForValue().get(nonExistentRefreshToken);
 
         // then
         assertThat(findMemberId).isNull();

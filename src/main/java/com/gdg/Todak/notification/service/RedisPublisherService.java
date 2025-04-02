@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisPublisherService {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     public void publish(String channel, Object message) {
