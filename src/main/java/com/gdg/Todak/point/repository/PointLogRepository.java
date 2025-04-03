@@ -15,8 +15,6 @@ import java.util.List;
 public interface PointLogRepository extends JpaRepository<PointLog, Long> {
     Page<PointLog> findAllByMember(Member member, Pageable pageable);
 
-    boolean existsByCreatedAtAndMemberAndPointTypeIn(Instant createdAt, Member member, List<PointType> pointTypes);
-
     boolean existsByCreatedAtBetweenAndMemberAndPointTypeIn(Instant start, Instant end, Member member, List<PointType> pointTypes);
 
 }

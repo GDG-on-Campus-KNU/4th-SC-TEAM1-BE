@@ -68,9 +68,12 @@ public class PointService {
     public void earnAttendancePointPerDay(Member member) {
         Point point = getPoint(member);
 
-        Instant today = Instant.now();
+        ZoneId zone = ZoneId.systemDefault();
+        Instant now = Instant.now();
+        Instant startOfDay = now.atZone(zone).truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant endOfDay = startOfDay.plus(1, ChronoUnit.DAYS).minusMillis(1);
 
-        if (!pointLogRepository.existsByCreatedAtAndMemberAndPointTypeIn(today, member, ATTENDANCE_LISTS)) {
+        if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, member, ATTENDANCE_LISTS)) {
             int consecutiveDays = calculateConsecutiveAttendanceDays(member);
 
             int totalPoints = ATTENDANCE_BASE_POINT + calculateBonusPoints(consecutiveDays);
