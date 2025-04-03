@@ -12,11 +12,14 @@ import com.gdg.Todak.diary.repository.DiaryRepository;
 import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
+import com.gdg.Todak.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.ZoneId;
 import java.util.List;
@@ -30,6 +33,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
     private final FriendCheckService friendCheckService;
+    private final NotificationService notificationService;
 
     public Page<CommentResponse> getComments(String userId, Long diaryId, Pageable pageable) {
         Member member = getMember(userId);
@@ -71,6 +75,18 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+
+        String senderId = userId;
+        String receiverId = diary.getMember().getUserId();
+        // 알림 전송
+        if (!senderId.equals(receiverId)) { // 자신에게 자신이 댓글 알림을 보내는 것이 아닌 경우에만 알림 전송
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    notificationService.publishCommentNotification(senderId, receiverId, "comment", diary.getId());
+                }
+            });
+        }
     }
 
     @Transactional

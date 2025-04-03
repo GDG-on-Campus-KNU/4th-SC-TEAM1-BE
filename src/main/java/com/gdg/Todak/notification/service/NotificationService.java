@@ -106,26 +106,28 @@ public class NotificationService {
     }
 
     /**
-     * @param userId : userId는 단 post의 주인을 의미
-     * @param type   : "comment" (댓글 알림), "post" (새 글 알림)
+     * @param objectId : postId
+     * @param type     : "post" (새 글 알림)
      */
-    public void publishNotification(String userId, String type, Long objectId) {
-        if (type.equals("comment")) {
-            String commentUserId = "";
-            publishEventToRedis(objectId, commentUserId, userId, type);
-            return;
-        }
-
+    public void publishPostNotifications(String senderId, String type, Long objectId) {
         List<Friend> friends = friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(
-                userId, FriendStatus.ACCEPTED, // requester
-                userId, FriendStatus.ACCEPTED // acceptor
+                senderId, FriendStatus.ACCEPTED, // requester
+                senderId, FriendStatus.ACCEPTED // acceptor
         );
 
         friends.stream()
                 .forEach(friend -> {
-                    Member friendInfo = friend.getFriend(userId);
-                    publishEventToRedis(objectId, userId, friendInfo.getUserId(), type);
+                    Member friendInfo = friend.getFriend(senderId);
+                    publishEventToRedis(objectId, senderId, friendInfo.getUserId(), type);
                 });
+    }
+
+    /**
+     * @param objectId : postId
+     * @param type     : "comment" (댓글 알림)
+     */
+    public void publishCommentNotification(String senderId, String receiverId, String type, Long objectId) {
+        publishEventToRedis(objectId, senderId, receiverId, type);
     }
 
     private void publishEventToRedis(Long objectId, String senderId, String receiverId, String type) {
