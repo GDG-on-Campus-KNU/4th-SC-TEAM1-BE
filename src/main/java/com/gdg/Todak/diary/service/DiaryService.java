@@ -10,6 +10,9 @@ import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.notification.service.NotificationService;
+import com.gdg.Todak.point.PointType;
+import com.gdg.Todak.point.dto.PointRequest;
+import com.gdg.Todak.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,7 @@ public class DiaryService {
     private final ImageService imageService;
     private final NotificationService notificationService;
     private final FriendCheckService friendCheckService;
+    private final PointService pointService;
 
     @Transactional
     public void writeDiary(String userId, DiaryRequest diaryRequest) {
@@ -53,6 +57,8 @@ public class DiaryService {
                 .build();
 
         Diary saveDiary = diaryRepository.save(diary);
+
+        pointService.earnPointByType(new PointRequest(member, PointType.DIARY));
 
         // 알림 전송
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

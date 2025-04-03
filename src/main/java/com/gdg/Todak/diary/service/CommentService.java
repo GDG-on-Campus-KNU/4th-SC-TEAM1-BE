@@ -13,6 +13,9 @@ import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.notification.service.NotificationService;
+import com.gdg.Todak.point.PointType;
+import com.gdg.Todak.point.dto.PointRequest;
+import com.gdg.Todak.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +37,7 @@ public class CommentService {
     private final DiaryRepository diaryRepository;
     private final FriendCheckService friendCheckService;
     private final NotificationService notificationService;
+    private final PointService pointService;
 
     public Page<CommentResponse> getComments(String userId, Long diaryId, Pageable pageable) {
         Member member = getMember(userId);
@@ -75,6 +79,8 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+
+        pointService.earnPointByType(new PointRequest(member, PointType.COMMENT));
 
         String senderId = userId;
         String receiverId = diary.getMember().getUserId();

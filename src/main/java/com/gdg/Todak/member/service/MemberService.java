@@ -11,7 +11,7 @@ import com.gdg.Todak.member.service.response.MeResponse;
 import com.gdg.Todak.member.service.response.MemberResponse;
 import com.gdg.Todak.member.util.JwtProvider;
 import com.gdg.Todak.member.util.PasswordEncoder;
-import com.gdg.Todak.point.service.PointCreateService;
+import com.gdg.Todak.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -32,7 +32,7 @@ public class MemberService {
     private final MemberRoleRepository memberRoleRepository;
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
-    private final PointCreateService pointCreateService;
+    private final PointService pointService;
 
     @Value("${DEFAULT_PROFILE_IMAGE_URL}")
     private String defaultProfileImageUrl;
@@ -61,11 +61,12 @@ public class MemberService {
 
         memberRoleRepository.save(role);
 
-        pointCreateService.createPoint(member);
+        pointService.createPoint(member);
 
         return MemberResponse.of(member.getUserId());
     }
 
+    @Transactional
     public Jwt login(LoginServiceRequest request) {
 
         Member member = findMember(request.getUserId());
@@ -80,6 +81,8 @@ public class MemberService {
         String refreshToken = jwtProvider.createRefreshToken();
 
         saveRefreshToken(refreshToken, member);
+
+        pointService.earnAttendancePointPerDay(member);
 
         return Jwt.of(accessToken, refreshToken);
     }
