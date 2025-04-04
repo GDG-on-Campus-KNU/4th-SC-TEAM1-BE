@@ -95,9 +95,11 @@ public class PointService {
                     point.earnPoint(totalPoints);
                 }
             } else {
+                pointLogService.saveLockErrorLogToServer(member, "Failed to acquire lock within 5 seconds");
                 throw new IllegalStateException("포인트 적립 락 획득 실패");
             }
         } catch (InterruptedException e) {
+            pointLogService.saveLockErrorLogToServer(member, "Interrupted while trying to acquire lock");
             throw new ConflictException("포인트 적립 중 락 에러");
         } finally {
             if (lock.isHeldByCurrentThread()) {

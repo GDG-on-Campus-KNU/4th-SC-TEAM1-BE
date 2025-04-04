@@ -93,6 +93,32 @@ public class PointLogService {
         }
     }
 
+    public void saveLockErrorLogToServer(Member member, String message) {
+        String subDirectory = "lockErrorLogs/" + member.getUserId();
+        Path directoryPath = Paths.get(uploadFolder, subDirectory);
+        Path logFilePath = directoryPath.resolve("lock-errors.txt");
+
+        try {
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath);
+            }
+
+            String logEntry = String.format(
+                    "[%s] UserId: %s - %s%n",
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    member.getUserId(),
+                    message
+            );
+
+            Files.writeString(logFilePath, logEntry,
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+        } catch (IOException e) {
+            throw new FileException("락 에러 로그 업로드를 실패했습니다.");
+
+        }
+    }
+
     private Member getMember(String userId) {
         return memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("userId에 해당하는 멤버가 없습니다."));
