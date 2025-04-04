@@ -29,6 +29,8 @@ public class WebConfig implements WebMvcConfigurer {
     String uploadPath;
     @Value("${image.url}")
     String imageUrl;
+    @Value("${file.url}")
+    String fileUrl;
 
     private final LoginCheckInterceptor loginCheckInterceptor;
     private final LoginMemberArgumentResolver loginMemberArgumentResolver;
@@ -88,6 +90,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler(imageUrl + "**")
+                .addResourceLocations("file://" + uploadPath);
+
+        registry.addResourceHandler(fileUrl + "**")
                 .addResourceLocations("file://" + uploadPath);
     }
 }

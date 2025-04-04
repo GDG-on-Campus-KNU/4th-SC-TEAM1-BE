@@ -33,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CommentControllerTest {
 
     private final String token = "testToken";
-    private final String storageUUID = "testUUID";
 
     @MockitoBean
     private CommentService commentService;
