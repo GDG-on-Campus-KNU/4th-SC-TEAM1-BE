@@ -14,6 +14,8 @@ import com.gdg.Todak.point.exception.NotFoundException;
 import com.gdg.Todak.point.repository.PointLogRepository;
 import com.gdg.Todak.point.repository.PointRepository;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional(readOnly = true)
@@ -47,6 +50,7 @@ public class PointService {
     private final MemberRepository memberRepository;
     private final PointLogRepository pointLogRepository;
     private final PointLogService pointLogService;
+    private final RedissonClient redissonClient;
 
     @Transactional
     public void createPoint(Member member) {
@@ -67,23 +71,38 @@ public class PointService {
 
     @Transactional
     public void earnAttendancePointPerDay(Member member) {
-        Point point = getPoint(member);
+        String lockKey = "pointLock:" + member.getId();
+        RLock lock = redissonClient.getLock(lockKey);
 
-        ZoneId zone = ZoneId.systemDefault();
-        Instant now = Instant.now();
-        Instant startOfDay = now.atZone(zone).truncatedTo(ChronoUnit.DAYS).toInstant();
-        Instant endOfDay = startOfDay.plus(1, ChronoUnit.DAYS).minusMillis(1);
+        try {
+            if (lock.tryLock(5, 2, TimeUnit.SECONDS)) {
+                Point point = getPoint(member);
 
-        if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, member, ATTENDANCE_LISTS)) {
-            int consecutiveDays = calculateConsecutiveAttendanceDays(member);
+                ZoneId zone = ZoneId.systemDefault();
+                Instant now = Instant.now();
+                Instant startOfDay = now.atZone(zone).truncatedTo(ChronoUnit.DAYS).toInstant();
+                Instant endOfDay = startOfDay.plus(1, ChronoUnit.DAYS).minusMillis(1);
 
-            int totalPoints = ATTENDANCE_BASE_POINT + calculateBonusPoints(consecutiveDays);
+                if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, member, ATTENDANCE_LISTS)) {
+                    int consecutiveDays = calculateConsecutiveAttendanceDays(member);
+                    int totalPoints = ATTENDANCE_BASE_POINT + calculateBonusPoints(consecutiveDays);
+                    PointType attendanceType = getAttendanceType(consecutiveDays);
 
-            PointType attendanceType = getAttendanceType(consecutiveDays);
+                    pointLogService.createPointLog(
+                            new PointLogRequest(member, totalPoints, attendanceType, PointStatus.EARNED, LocalDateTime.now())
+                    );
 
-            pointLogService.createPointLog(new PointLogRequest(member, totalPoints, attendanceType, PointStatus.EARNED, LocalDateTime.now()));
-
-            point.earnPoint(totalPoints);
+                    point.earnPoint(totalPoints);
+                }
+            } else {
+                throw new IllegalStateException("포인트 적립 락 획득 실패");
+            }
+        } catch (InterruptedException e) {
+            throw new ConflictException("포인트 적립 중 락 에러");
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 
@@ -127,19 +146,36 @@ public class PointService {
 
     @Transactional
     public void earnPointByType(PointRequest pointRequest) {
-        Point point = getPoint(pointRequest.member());
+        String lockKey = "pointLock:" + pointRequest.member().getId();
+        RLock lock = redissonClient.getLock(lockKey);
 
-        ZoneId zone = ZoneId.systemDefault();
-        Instant now = Instant.now();
-        Instant startOfDay = now.atZone(zone).truncatedTo(ChronoUnit.DAYS).toInstant();
-        Instant endOfDay = startOfDay.plus(1, ChronoUnit.DAYS).minusMillis(1);
+        try {
+            if (lock.tryLock(5, 2, TimeUnit.SECONDS)) {
+                Point point = getPoint(pointRequest.member());
 
-        int pointByType = getPointByType(pointRequest.pointType());
+                ZoneId zone = ZoneId.systemDefault();
+                Instant now = Instant.now();
+                Instant startOfDay = now.atZone(zone).truncatedTo(ChronoUnit.DAYS).toInstant();
+                Instant endOfDay = startOfDay.plus(1, ChronoUnit.DAYS).minusMillis(1);
 
-        if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, pointRequest.member(), List.of(pointRequest.pointType()))) {
-            pointLogService.createPointLog(new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED, LocalDateTime.now()));
+                int pointByType = getPointByType(pointRequest.pointType());
 
-            point.earnPoint(pointByType);
+                if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, pointRequest.member(), List.of(pointRequest.pointType()))) {
+                    pointLogService.createPointLog(
+                            new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED, LocalDateTime.now())
+                    );
+
+                    point.earnPoint(pointByType);
+                }
+            } else {
+                throw new IllegalStateException("포인트 적립 락 획득 실패");
+            }
+        } catch (Exception e) {
+            throw new ConflictException("포인트 적립 중 락 에러");
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 

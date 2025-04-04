@@ -18,4 +18,6 @@ public interface PointLogRepository extends JpaRepository<PointLog, Long> {
     boolean existsByCreatedAtBetweenAndMemberAndPointTypeIn(Instant start, Instant end, Member member, List<PointType> pointTypes);
 
     boolean existsByMemberAndPointType(Member member, PointType pointType);
+
+    List<PointLog> findByMember(Member member);
 }
