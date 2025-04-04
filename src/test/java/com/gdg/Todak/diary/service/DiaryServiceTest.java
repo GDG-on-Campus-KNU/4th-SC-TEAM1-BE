@@ -15,11 +15,14 @@ import com.gdg.Todak.friend.entity.Friend;
 import com.gdg.Todak.friend.repository.FriendRepository;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
+import com.gdg.Todak.point.dto.PointRequest;
+import com.gdg.Todak.point.service.PointService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +33,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 @Transactional
@@ -47,6 +52,9 @@ class DiaryServiceTest {
     @Autowired
     private FriendRepository friendRepository;
 
+    @MockitoBean
+    private PointService pointService;
+
     private Member writer;
     private Member nonWriter;
 
@@ -63,6 +71,7 @@ class DiaryServiceTest {
     void writeDiarySuccessfullyTest() {
         // given
         DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY, "testUUID");
+        doNothing().when(pointService).earnPointByType(any(PointRequest.class));
 
         // when
         diaryService.writeDiary(writer.getUserId(), diaryRequest);
@@ -80,6 +89,7 @@ class DiaryServiceTest {
     void cannotWriteDiaryIfAlreadyExistsTest() {
         // given
         DiaryRequest diaryRequest = new DiaryRequest("오늘은 기분이 좋다.", Emotion.HAPPY, "testUUID");
+        doNothing().when(pointService).earnPointByType(any(PointRequest.class));
         diaryService.writeDiary(writer.getUserId(), diaryRequest);
 
         // when & then

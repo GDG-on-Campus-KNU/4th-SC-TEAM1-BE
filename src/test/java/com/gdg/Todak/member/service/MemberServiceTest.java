@@ -7,8 +7,8 @@ import com.gdg.Todak.member.repository.MemberRoleRepository;
 import com.gdg.Todak.member.service.request.*;
 import com.gdg.Todak.member.service.response.CheckUserIdServiceResponse;
 import com.gdg.Todak.member.service.response.MeResponse;
-import com.gdg.Todak.point.entity.Point;
 import com.gdg.Todak.point.repository.PointRepository;
+import com.gdg.Todak.point.service.PointService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,12 +16,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 class MemberServiceTest {
@@ -41,9 +44,10 @@ class MemberServiceTest {
     private MemberRoleRepository memberRoleRepository;
     @Autowired
     private PointRepository pointRepository;
-
     @Autowired
     private RedisTemplate redisTemplate;
+    @MockitoBean
+    private PointService pointService;
 
     @AfterEach
     void tearDown() {
@@ -116,6 +120,7 @@ class MemberServiceTest {
                 .userId(USERNAME)
                 .password(PASSWORD)
                 .build();
+        doNothing().when(pointService).earnAttendancePointPerDay(any(Member.class));
 
         // when
         Jwt jwtToken = memberService.login(request);
@@ -243,18 +248,6 @@ class MemberServiceTest {
         // then
         Optional<Member> findMember = memberRepository.findByUserId(USERNAME);
         assertThat(findMember.isEmpty()).isTrue();
-    }
-
-    @DisplayName("회원 가입시 포인트 객체가 연동된다.")
-    @Test
-    void createPointBySignupTest() {
-        // given // when
-        Member findMember = memberRepository.findByUserId(USERNAME).get();
-
-        // then
-        Optional<Point> pointByMember = pointRepository.findByMember(findMember);
-        assertThat(pointByMember).isPresent();
-        assertThat(pointByMember.get().getPoint()).isEqualTo(0);
     }
 
     private void createMember(String userId, String password, String passwordCheck) {

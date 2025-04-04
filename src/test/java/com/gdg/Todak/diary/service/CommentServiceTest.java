@@ -13,6 +13,8 @@ import com.gdg.Todak.friend.entity.Friend;
 import com.gdg.Todak.friend.repository.FriendRepository;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
+import com.gdg.Todak.point.dto.PointRequest;
+import com.gdg.Todak.point.service.PointService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,12 +22,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 @Transactional
@@ -45,6 +50,8 @@ class CommentServiceTest {
 
     @Autowired
     private DiaryRepository diaryRepository;
+    @MockitoBean
+    private PointService pointService;
 
     private Member member;
     private Member friendMember;
@@ -70,6 +77,7 @@ class CommentServiceTest {
         // given
         String testContent = "testContent";
         CommentRequest commentRequest = new CommentRequest(testContent);
+        doNothing().when(pointService).earnPointByType(any(PointRequest.class));
 
         // when
         commentService.saveComment(member.getUserId(), diary.getId(), commentRequest);
@@ -88,6 +96,7 @@ class CommentServiceTest {
         // given
         String testContent = "testContent";
         CommentRequest commentRequest = new CommentRequest(testContent);
+        doNothing().when(pointService).earnPointByType(any(PointRequest.class));
 
         // when
         commentService.saveComment(member.getUserId(), diaryWrittenByFriend.getId(), commentRequest);
@@ -136,7 +145,7 @@ class CommentServiceTest {
     }
 
     @DisplayName("친구가 쓴 일기에 달린 댓글 조회 테스트")
-    @Test
+    @Test 
     void readCommentsByDiaryWrittenByFriendTest() {
         // given
         Comment comment1 = commentRepository.save(Comment.builder().diary(diaryWrittenByFriend).member(member).content("내가 쓴 댓글").build());
