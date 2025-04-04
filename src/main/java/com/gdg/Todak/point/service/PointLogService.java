@@ -31,11 +31,10 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class PointLogService {
 
-    @Value("${file.path}")
-    private String uploadFolder;
-
     private final PointLogRepository pointLogRepository;
     private final MemberRepository memberRepository;
+    @Value("${file.path}")
+    private String uploadFolder;
 
     public Page<PointLogResponse> getPointLogList(String userId, Pageable pageable) {
         Member member = getMember(userId);

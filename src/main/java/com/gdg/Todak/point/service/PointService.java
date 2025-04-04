@@ -91,7 +91,7 @@ public class PointService {
         ZoneId zone = ZoneId.systemDefault();
         Instant now = Instant.now().atZone(zone).truncatedTo(ChronoUnit.DAYS).toInstant();
 
-        int consecutiveDays = 0;
+        int consecutiveDays = 1;
         for (int i = 1; i <= 5; i++) {
             Instant startOfDay = now.minus(i, ChronoUnit.DAYS);
             Instant endOfDay = startOfDay.plus(1, ChronoUnit.DAYS).minusMillis(1);
