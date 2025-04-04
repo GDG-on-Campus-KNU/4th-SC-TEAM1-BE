@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Jwt;
+import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.exception.UnauthorizedException;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.repository.MemberRoleRepository;
@@ -11,6 +12,7 @@ import com.gdg.Todak.member.service.request.LoginServiceRequest;
 import com.gdg.Todak.member.service.request.SignupServiceRequest;
 import com.gdg.Todak.member.service.request.UpdateAccessTokenServiceRequest;
 import com.gdg.Todak.member.util.JwtProvider;
+import com.gdg.Todak.point.service.PointService;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,9 +20,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 class AuthServiceTest {
@@ -47,6 +52,9 @@ class AuthServiceTest {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @MockitoBean
+    private PointService pointService;
+
     @AfterEach
     void tearDown() {
         memberRoleRepository.deleteAllInBatch();
@@ -64,6 +72,8 @@ class AuthServiceTest {
         String userId = "test_userId";
         String password = "test_password";
         String passwordCheck = "test_password";
+
+        doNothing().when(pointService).earnAttendancePointPerDay(any(Member.class));
 
         createMember(userId, password, passwordCheck);
 
