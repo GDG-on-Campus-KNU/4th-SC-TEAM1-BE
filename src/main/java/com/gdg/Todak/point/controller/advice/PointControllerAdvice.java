@@ -1,6 +1,7 @@
 package com.gdg.Todak.point.controller.advice;
 
 import com.gdg.Todak.common.domain.ApiResponse;
+import com.gdg.Todak.diary.exception.FileException;
 import com.gdg.Todak.point.exception.BadRequestException;
 import com.gdg.Todak.point.exception.ConflictException;
 import com.gdg.Todak.point.exception.NotFoundException;
@@ -66,6 +67,15 @@ public class PointControllerAdvice {
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
                 e.getBindingResult().getAllErrors().get(0).getDefaultMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(FileException.class)
+    public ApiResponse<Exception> handleFileUploadException(FileException e) {
+        return ApiResponse.of(
+                HttpStatus.CONFLICT,
+                e.getMessage()
         );
     }
 }

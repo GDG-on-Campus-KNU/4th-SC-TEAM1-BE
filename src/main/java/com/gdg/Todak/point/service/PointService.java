@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -80,7 +81,7 @@ public class PointService {
 
             PointType attendanceType = getAttendanceType(consecutiveDays);
 
-            pointLogService.createPointLog(new PointLogRequest(member, totalPoints, attendanceType, PointStatus.EARNED));
+            pointLogService.createPointLog(new PointLogRequest(member, totalPoints, attendanceType, PointStatus.EARNED, LocalDateTime.now()));
 
             point.earnPoint(totalPoints);
         }
@@ -136,7 +137,7 @@ public class PointService {
         int pointByType = getPointByType(pointRequest.pointType());
 
         if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, pointRequest.member(), List.of(pointRequest.pointType()))) {
-            pointLogService.createPointLog(new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED));
+            pointLogService.createPointLog(new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED, LocalDateTime.now()));
 
             point.earnPoint(pointByType);
         }
