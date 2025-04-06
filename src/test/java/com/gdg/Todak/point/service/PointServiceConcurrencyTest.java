@@ -1,5 +1,6 @@
 package com.gdg.Todak.point.service;
 
+import com.gdg.Todak.point.config.TestRedisLockWithMemberFactoryConfig;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.point.PointType;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Import({TestRedisLockWithMemberFactoryConfig.class})
 public class PointServiceConcurrencyTest {
 
     private static final int NUMBER_OF_THREADS = 10;
