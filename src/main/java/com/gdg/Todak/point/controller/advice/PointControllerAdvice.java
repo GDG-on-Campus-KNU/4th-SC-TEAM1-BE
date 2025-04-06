@@ -78,13 +78,4 @@ public class PointControllerAdvice {
                 e.getMessage()
         );
     }
-
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(IllegalStateException.class)
-    public ApiResponse<Exception> handleIllegalStateException(IllegalStateException e) {
-        return ApiResponse.of(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                e.getMessage()
-        );
-    }
 }

@@ -239,7 +239,8 @@ class PointServiceTest {
 
         // when & then
         assertThatThrownBy(() -> pointService.earnPointByType(pointRequest))
-                .isInstanceOf(ConflictException.class);
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("해당하는 pointType이 없습니다");
     }
 
     @Test
