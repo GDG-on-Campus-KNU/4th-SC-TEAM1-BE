@@ -20,4 +20,6 @@ public interface PointLogRepository extends JpaRepository<PointLog, Long> {
     boolean existsByMemberAndPointType(Member member, PointType pointType);
 
     List<PointLog> findByMember(Member member);
+
+    long countByMemberAndPointTypeIn(Member member1, List<PointType> attendanceLists);
 }
