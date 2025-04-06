@@ -6,12 +6,10 @@ import com.gdg.Todak.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
-@Component
 @RequiredArgsConstructor
 public class TestRedisLockWithMemberFactory implements LockWithMemberFactory {
 
