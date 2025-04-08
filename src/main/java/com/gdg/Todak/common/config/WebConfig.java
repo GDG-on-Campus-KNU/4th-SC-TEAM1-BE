@@ -47,7 +47,11 @@ public class WebConfig implements WebMvcConfigurer {
 
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/backend/**"
+            "/backend/**",
+
+            "/actuator/health",
+            "/actuator/prometheus",
+            "/actuator/info"
     );
 
     @Override
