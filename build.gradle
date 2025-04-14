@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '5.0.14'
 }
 
 group = 'com.gdg'
@@ -65,4 +67,51 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // 테스트 이후 자동으로 JaCoCo 리포트 생성
+}
+
+// JaCoCo 설정
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                "com/gdg/Todak/TodakApplication.class",
+                "**/dto/**",
+                "**/domain/**",
+                "**/exception/**"
+            ])
+        }))
+    }
+}
+
+// SpotBugs 설정
+spotbugs {
+    toolVersion = '4.7.3'
+    ignoreFailures = true  // PR에서 실패하지 않도록 설정
+    reportsDir = file("$buildDir/reports/spotbugs")
+    
+    excludeFilter = file("spotbugs-exclude.xml")
+}
+
+spotbugsMain {
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+// Gradle 버전 확인 작업
+task printGradleVersion {
+    doLast {
+        println "Gradle Version: ${gradle.gradleVersion}"
+    }
 }
