@@ -1,0 +1,85 @@
+name: 🧪 PR 테스트 및 품질 검사 🔍
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-analyze:
+    name: 테스트 및 코드 품질 분석
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 소스 코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: ☕ Java 설정 (JDK 21)
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: 🛠️ Gradle 검증
+        uses: gradle/wrapper-validation-action@v3
+      
+      - name: 🧪 단위 테스트 실행
+        run: ./gradlew test
+        env:
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MOUNT_PATH: ${{ secrets.MOUNT_PATH }}
+          DEFAULT_PROFILE_IMAGE_URL: ${{ secrets.DEFAULT_PROFILE_IMAGE_URL }}
+      
+      - name: 📊 JaCoCo 커버리지 리포트 생성
+        run: ./gradlew jacocoTestReport
+      
+      - name: 🔍 SonarQube 분석
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=gdg-todak
+            -Dsonar.organization=gdg-todak-org
+            -Dsonar.java.binaries=build/classes/java/main
+            -Dsonar.sources=src/main
+            -Dsonar.tests=src/test
+            -Dsonar.java.coveragePlugin=jacoco
+            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+      
+      - name: 🐛 SpotBugs 검사 실행
+        run: ./gradlew spotbugsMain spotbugsTest
+      
+      - name: 📝 테스트 결과 게시
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: build/test-results/**/*.xml
+      
+      - name: 📈 코드 커버리지 PR 코멘트 작성
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 60
+          min-coverage-changed-files: 80
+          title: 📊 코드 커버리지 리포트
+      
+      - name: 📊 SonarQube 품질 게이트 결과 PR 코멘트 작성
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          scanMetadataReportFile: .scannerwork/report-task.txt
