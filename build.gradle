@@ -95,11 +95,10 @@ jacocoTestReport {
 
 // SpotBugs 설정
 spotbugs {
-    toolVersion = '4.7.3'
+    toolVersion = '4.8.3'
     ignoreFailures = true  // PR에서 실패하지 않도록 설정
     reportsDir = file("$buildDir/reports/spotbugs")
-    
-    excludeFilter = file("spotbugs-exclude.xml")
+    excludeFilter = file("spotbugs-exclude.xml") 
 }
 
 spotbugsMain {
@@ -107,6 +106,11 @@ spotbugsMain {
         html.required = true
         xml.required = true
     }
+}
+
+// 테스트 코드는 SpotBugs 검사에서 제외
+spotbugsTest {
+    enabled = false
 }
 
 // Gradle 버전 확인 작업
