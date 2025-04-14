@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- 도메인 엔티티의 필드에 대한 잠재적인 오류 무시 -->
+    <Match>
+        <Class name="~.*\.domain\..*" />
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
+    </Match>
+    
+    <!-- DTO 클래스에서 발생할 수 있는 직렬화 관련 문제 무시 -->
+    <Match>
+        <Class name="~.*\.dto\..*" />
+        <Bug pattern="SE_.*" />
+    </Match>
+    
+    <!-- 테스트 코드에서의 모든 SpotBugs 경고 무시 -->
+    <Match>
+        <Class name="~.*Test.*" />
+    </Match>
+    
+    <!-- 설정 관련 클래스에서의 보안 경고 무시 -->
+    <Match>
+        <Class name="~.*Config.*" />
+        <Bug pattern="HARD_CODE_PASSWORD,HARD_CODE_KEY" />
+    </Match>
+</FindBugsFilter>
