@@ -68,24 +68,26 @@ jobs:
         with:
           files: build/test-results/**/*.xml
 
-      - name: 🧹 Get Previous Comments
+      - name: 🔍 Find Coverage Report Comments
         if: github.event_name == 'pull_request'
-        uses: octokit/request-action@v2.x
-        id: get_comments
+        uses: peter-evans/find-comment@v2
+        id: find_comment
         with:
-          route: GET /repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 🗑️ Delete Previous Coverage Comments
-        if: github.event_name == 'pull_request'
-        uses: octokit/request-action@v2.x
-        continue-on-error: true
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '## 📊 Code Coverage Report'
+          
+      - name: 🗑️ Delete Previous Coverage Comment
+        if: github.event_name == 'pull_request' && steps.find_comment.outputs.comment-id != ''
+        uses: actions/github-script@v6
         with:
-          route: DELETE /repos/${{ github.repository }}/issues/comments/{comment_id}
-          comment_id: ${{ fromJson(steps.get_comments.outputs.data)[?(@.body.startsWith('## 📊 Code Coverage Report'))].id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: ${{ steps.find_comment.outputs.comment-id }}
+            })
       
       - name: 📈 Add Code Coverage PR Comment
         uses: madrapps/jacoco-report@v1.6.1
