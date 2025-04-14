@@ -68,14 +68,52 @@ jobs:
         with:
           files: build/test-results/**/*.xml
       
-      - name: 📈 Add Code Coverage PR Comment
-        uses: madrapps/jacoco-report@v1.6.1
+      - name: 📝 Make Coverage Markdown
+        id: jacoco-coverage
+        run: |
+          REPORT_PATH="build/reports/jacoco/test/jacocoTestReport.xml"
+          if [ -f $REPORT_PATH ]; then
+            # Extract coverage data from XML report
+            INSTRUCTION_COVERED=$(grep -oP 'type="INSTRUCTION".*?covered="\K[0-9]+' $REPORT_PATH)
+            INSTRUCTION_MISSED=$(grep -oP 'type="INSTRUCTION".*?missed="\K[0-9]+' $REPORT_PATH)
+            BRANCH_COVERED=$(grep -oP 'type="BRANCH".*?covered="\K[0-9]+' $REPORT_PATH)
+            BRANCH_MISSED=$(grep -oP 'type="BRANCH".*?missed="\K[0-9]+' $REPORT_PATH)
+            
+            # Calculate percentages
+            if [ -n "$INSTRUCTION_COVERED" ] && [ -n "$INSTRUCTION_MISSED" ]; then
+              TOTAL_INSTRUCTIONS=$((INSTRUCTION_COVERED + INSTRUCTION_MISSED))
+              INSTRUCTION_COVERAGE=$(awk "BEGIN {printf \"%.2f\", ($INSTRUCTION_COVERED / $TOTAL_INSTRUCTIONS) * 100}")
+            else
+              INSTRUCTION_COVERAGE="N/A"
+            fi
+            
+            if [ -n "$BRANCH_COVERED" ] && [ -n "$BRANCH_MISSED" ]; then
+              TOTAL_BRANCHES=$((BRANCH_COVERED + BRANCH_MISSED))
+              BRANCH_COVERAGE=$(awk "BEGIN {printf \"%.2f\", ($BRANCH_COVERED / $TOTAL_BRANCHES) * 100}")
+            else
+              BRANCH_COVERAGE="N/A"
+            fi
+            
+            # Create markdown report
+            echo "coverage<<EOF" >> $GITHUB_OUTPUT
+            echo "## 📊 Code Coverage Report" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+            echo "| 유형 | 커버리지 |" >> $GITHUB_OUTPUT
+            echo "| --- | --- |" >> $GITHUB_OUTPUT
+            echo "| **Line Coverage** | ${INSTRUCTION_COVERAGE}% |" >> $GITHUB_OUTPUT
+            echo "| **Branch Coverage** | ${BRANCH_COVERAGE}% |" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+            echo "생성 시간: $(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "coverage=❌ JaCoCo report not found" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 📈 Add or Update Code Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          paths: build/reports/jacoco/test/jacocoTestReport.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 60
-          min-coverage-changed-files: 80
-          title: 📊 Code Coverage Report
+          header: jacoco-coverage
+          message: ${{ steps.jacoco-coverage.outputs.coverage }}
       
       - name: 📊 Add SonarQube Quality Gate PR Comment
         uses: sonarsource/sonarqube-quality-gate-action@master
