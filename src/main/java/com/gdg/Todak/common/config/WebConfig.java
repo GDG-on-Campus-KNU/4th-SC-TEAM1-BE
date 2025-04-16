@@ -44,6 +44,7 @@ public class WebConfig implements WebMvcConfigurer {
             "/api/v1/members/logout",
             "/api/v1/members/edit",
             "/api/v1/members/edit-password",
+            "/api/v1/make/uuid",
 
             "/swagger-ui/**",
             "/v3/api-docs/**",
