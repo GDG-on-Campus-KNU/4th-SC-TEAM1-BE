@@ -40,12 +40,6 @@ class LoginCheckInterceptorTest {
     @Mock
     JwtProvider jwtProvider;
 
-    @Mock
-    ObjectMapper objectMapper;
-
-    @Mock
-    MemberRepository memberRepository;
-
     @InjectMocks
     LoginCheckInterceptor loginCheckInterceptor;
 
@@ -78,10 +72,6 @@ class LoginCheckInterceptorTest {
         when(request.getHeader("Authorization")).thenReturn(accessToken);
 
         when(jwtProvider.getClaims(any(String.class))).thenReturn(mockClaims);
-
-        when(objectMapper.readValue(any(String.class), eq(AuthenticateUser.class))).thenReturn(user);
-
-        when(memberRepository.findByUserId(userId)).thenReturn(Optional.of(member));
 
         // when
         boolean result = loginCheckInterceptor.preHandle(request, response, null);
