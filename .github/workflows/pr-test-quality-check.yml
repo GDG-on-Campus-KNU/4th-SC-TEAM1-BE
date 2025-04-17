@@ -25,8 +25,8 @@ jobs:
       - name: 🛠️ Validate Gradle
         uses: gradle/wrapper-validation-action@v3
       
-      - name: 🧪 Run Unit Tests
-        run: ./gradlew test
+      - name: 🧪 Run Tests with Explicit Steps
+        run: ./gradlew compileJava processResources compileTestJava processTestResources test
         env:
           REDIS_HOST: ${{ secrets.REDIS_HOST }}
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
