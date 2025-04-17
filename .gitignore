@@ -38,3 +38,4 @@ out/
 
 ### dev ###
 application-dev.properties
+.DS_Store

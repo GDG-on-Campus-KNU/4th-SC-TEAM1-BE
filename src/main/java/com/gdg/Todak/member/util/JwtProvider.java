@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.gdg.Todak.member.util.JwtConstants.AUTHENTICATE_USER;
+
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
@@ -32,8 +34,6 @@ public class JwtProvider {
 
     private byte[] secretKeyBytes;
     private Key key;
-
-    public static final String AUTHENTICATE_USER = "authenticateUser";
 
     @PostConstruct
     public void init() {

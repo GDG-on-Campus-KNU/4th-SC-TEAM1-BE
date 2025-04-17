@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import static com.gdg.Todak.member.util.JwtConstants.AUTHENTICATE_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -93,7 +94,7 @@ class AuthServiceTest {
         Jwt newJwt = authService.updateAccessToken(updateAccessTokenServiceRequest);
 
         Claims claims = jwtProvider.getClaims(newJwt.getAccessToken());
-        String json = claims.get(jwtProvider.AUTHENTICATE_USER).toString();
+        String json = claims.get(AUTHENTICATE_USER).toString();
         AuthenticateUser authenticateUser = objectMapper.readValue(json, AuthenticateUser.class);
 
         // then
