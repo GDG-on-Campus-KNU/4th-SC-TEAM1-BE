@@ -5,6 +5,7 @@ import com.gdg.Todak.member.controller.request.*;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Jwt;
 import com.gdg.Todak.member.resolver.Login;
+import com.gdg.Todak.member.service.LoginResponse;
 import com.gdg.Todak.member.service.MemberService;
 import com.gdg.Todak.member.service.response.CheckUserIdServiceResponse;
 import com.gdg.Todak.member.service.response.LogoutResponse;
@@ -40,7 +41,7 @@ public class MemberController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "유저 아이디와 비밀번호로 로그인한다. 성공시 accessToken과 refreshToken이 반환된다.")
-    public ApiResponse<Jwt> login(@RequestBody LoginRequest request) {
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
         return ApiResponse.ok(memberService.login(request.toServiceRequest()));
     }
 

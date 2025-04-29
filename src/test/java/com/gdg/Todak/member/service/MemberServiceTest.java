@@ -123,8 +123,8 @@ class MemberServiceTest {
         doNothing().when(pointService).earnAttendancePointPerDay(any(Member.class));
 
         // when
-        Jwt jwtToken = memberService.login(request);
-        refreshToken = jwtToken.getRefreshToken();
+        LoginResponse loginResponse = memberService.login(request);
+        refreshToken = loginResponse.getRefreshToken();
 
         // then
         Long memberId = Long.valueOf((String) redisTemplate.opsForValue().get(refreshToken));
