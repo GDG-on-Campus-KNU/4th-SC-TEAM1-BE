@@ -9,11 +9,27 @@ jobs:
     name: Test and Code Quality Analysis
     runs-on: ubuntu-latest
     
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: todak_test
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    
     steps:
       - name: 📥 Checkout Source Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history needed for SonarQube analysis
+          fetch-depth: 0
       
       - name: ☕ Setup Java (JDK 21)
         uses: actions/setup-java@v3
@@ -24,7 +40,7 @@ jobs:
       
       - name: 🛠️ Validate Gradle
         uses: gradle/wrapper-validation-action@v3
-      
+
       - name: 🧪 Run Tests with Explicit Steps
         run: ./gradlew compileJava processResources compileTestJava processTestResources test
         env:
@@ -32,11 +48,11 @@ jobs:
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
-          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3306
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: todak_test
           MOUNT_PATH: ${{ secrets.MOUNT_PATH }}
           DEFAULT_PROFILE_IMAGE_URL: ${{ secrets.DEFAULT_PROFILE_IMAGE_URL }}
       
