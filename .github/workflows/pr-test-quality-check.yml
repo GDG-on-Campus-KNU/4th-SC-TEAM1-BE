@@ -10,16 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     
     services:
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-      
       mysql:
         image: mysql:8.0
         env:
@@ -39,7 +29,7 @@ jobs:
       - name: 📥 Checkout Source Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history needed for SonarQube analysis
+          fetch-depth: 0
       
       - name: ☕ Setup Java (JDK 21)
         uses: actions/setup-java@v3
@@ -50,26 +40,13 @@ jobs:
       
       - name: 🛠️ Validate Gradle
         uses: gradle/wrapper-validation-action@v3
-      
-      - name: 🔍 Verify Redis is running
-        run: |
-          sudo apt-get install -y redis-tools
-          for i in {1..10}; do
-            if redis-cli -h localhost -p 6379 ping; then
-              echo "Redis is up and running!"
-              break
-            fi
-            echo "Waiting for Redis to start... ($i/10)"
-            sleep 3
-          done
-          redis-cli -h localhost -p 6379 ping
 
       - name: 🧪 Run Tests with Explicit Steps
         run: ./gradlew compileJava processResources compileTestJava processTestResources test
         env:
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          REDIS_PASSWORD: ""
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           MYSQL_HOST: localhost
           MYSQL_PORT: 3306
