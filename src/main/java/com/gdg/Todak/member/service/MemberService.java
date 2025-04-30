@@ -1,6 +1,9 @@
 package com.gdg.Todak.member.service;
 
-import com.gdg.Todak.member.domain.*;
+import com.gdg.Todak.member.domain.AuthenticateUser;
+import com.gdg.Todak.member.domain.Member;
+import com.gdg.Todak.member.domain.MemberRole;
+import com.gdg.Todak.member.domain.Role;
 import com.gdg.Todak.member.exception.UnauthorizedException;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.repository.MemberRoleRepository;
@@ -67,7 +70,7 @@ public class MemberService {
     }
 
     @Transactional
-    public Jwt login(LoginServiceRequest request) {
+    public LoginResponse login(LoginServiceRequest request) {
 
         Member member = findMember(request.getUserId());
 
@@ -84,7 +87,7 @@ public class MemberService {
 
         pointService.earnAttendancePointPerDay(member);
 
-        return Jwt.of(accessToken, refreshToken);
+        return LoginResponse.of(member.getUserId(), member.getNickname(), accessToken, refreshToken);
     }
 
     public LogoutResponse logout(AuthenticateUser user, LogoutServiceRequest serviceRequest) {

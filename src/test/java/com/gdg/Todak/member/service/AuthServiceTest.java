@@ -83,7 +83,7 @@ class AuthServiceTest {
                 .password(password)
                 .build();
 
-        Jwt jwt = memberService.login(loginRequest);
+        LoginResponse jwt = memberService.login(loginRequest);
         refreshToken = jwt.getRefreshToken();
 
         // when

@@ -50,11 +50,15 @@ public class JwtProvider {
     }
 
     public Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith((SecretKey) key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith((SecretKey) key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public String createRefreshToken() {
