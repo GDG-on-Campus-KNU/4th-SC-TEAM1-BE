@@ -1,6 +1,7 @@
 package com.gdg.Todak.point.repository;
 
 import com.gdg.Todak.member.domain.Member;
+import com.gdg.Todak.point.PointStatus;
 import com.gdg.Todak.point.PointType;
 import com.gdg.Todak.point.entity.PointLog;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,11 @@ public interface PointLogRepository extends JpaRepository<PointLog, Long> {
 
     boolean existsByMemberAndPointType(Member member, PointType pointType);
 
-    List<PointLog> findByMember(Member member);
+    List<PointLog> findAllByMember_UserId(String userId);
 
-    long countByMemberAndPointTypeIn(Member member1, List<PointType> attendanceLists);
+    List<PointLog> findAllByPointType(PointType pointType);
+
+    List<PointLog> findAllByPointStatus(PointStatus pointStatus);
+
+    List<PointLog> findAllByCreatedAtBetween(Instant start, Instant end);
 }

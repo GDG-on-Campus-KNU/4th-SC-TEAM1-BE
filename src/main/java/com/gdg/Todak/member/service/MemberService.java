@@ -1,5 +1,6 @@
 package com.gdg.Todak.member.service;
 
+import com.gdg.Todak.member.controller.dto.LoginForm;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.domain.MemberRole;
@@ -135,6 +136,28 @@ public class MemberService {
         Member member = findMember(user.getUserId());
         memberRepository.delete(member);
         return "회원이 삭제되었습니다.";
+    }
+
+    public Member adminLogin(LoginForm request) {
+
+        Optional<Member> findMemberOptional = memberRepository.findByUserId(request.getLoginId());
+        if (findMemberOptional.isEmpty()) {
+            return null;
+        }
+
+        Member member = findMemberOptional.get();
+        String encodedPassword = PasswordEncoder.getEncodedPassword(member.getSalt(),
+                request.getPassword());
+        if (!encodedPassword.equals(member.getPassword())) {
+            return null;
+        }
+
+        Set<Role> roles = member.getRoles();
+        if (!roles.contains(Role.ADMIN)) {
+            return null;
+        }
+
+        return member;
     }
 
     private Member findMember(String userId) {
