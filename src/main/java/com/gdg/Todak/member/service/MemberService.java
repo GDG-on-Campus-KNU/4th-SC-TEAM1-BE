@@ -138,7 +138,7 @@ public class MemberService {
         return "회원이 삭제되었습니다.";
     }
 
-    public Member adminLogin(LoginForm request) {
+    public String adminLogin(LoginForm request) {
 
         Optional<Member> findMemberOptional = memberRepository.findByUserId(request.getLoginId());
         if (findMemberOptional.isEmpty()) {
@@ -157,7 +157,7 @@ public class MemberService {
             return null;
         }
 
-        return member;
+        return member.getUserId();
     }
 
     private Member findMember(String userId) {

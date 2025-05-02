@@ -6,6 +6,8 @@ import com.gdg.Todak.point.PointType;
 import com.gdg.Todak.point.dto.PointFilterDateRange;
 import com.gdg.Todak.point.entity.PointLog;
 import com.gdg.Todak.point.repository.PointLogRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.gdg.Todak.member.util.SessionConst.ADMIN_LOGIN_MEMBER;
+
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 @Controller
@@ -31,7 +35,10 @@ public class AdminPageController {
     private final PointLogRepository pointLogRepository;
 
     @GetMapping
-    public String adminPage() {
+    public String adminPage(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession();
+        String userId = (String) session.getAttribute(ADMIN_LOGIN_MEMBER);
+        model.addAttribute("userId", userId);
         return "home";
     }
 

@@ -1,7 +1,6 @@
 package com.gdg.Todak.member.controller;
 
 import com.gdg.Todak.member.controller.dto.LoginForm;
-import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -31,21 +30,21 @@ public class LoginPageController {
     public String login(
             @Valid @ModelAttribute("loginForm") LoginForm form,
             BindingResult bindingResult,
-            @RequestParam(defaultValue = "/admin") String redirectURL,
+            @RequestParam(name = "redirectURL", defaultValue = "/admin") String redirectURL,
             HttpServletRequest request
     ) {
         if (bindingResult.hasErrors()) {
             return "/login";
         }
 
-        Member member = memberService.adminLogin(form);
-        if (member == null) {
+        String userId = memberService.adminLogin(form);
+        if (userId == null) {
             bindingResult.reject("loginFail", "관리자 로그인을 실패하였습니다.");
             return "/login";
         }
 
         HttpSession session = request.getSession();
-        session.setAttribute(ADMIN_LOGIN_MEMBER, member);
+        session.setAttribute(ADMIN_LOGIN_MEMBER, userId);
 
         return "redirect:" + redirectURL;
     }
