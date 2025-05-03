@@ -139,4 +139,39 @@ class PointTest {
         // then
         assertThat(pointType).isEqualTo(PointType.GROWTH_NUTRIENT);
     }
+
+    @DisplayName("잘못된 성장 버튼 타입으로 PointType 변환 시 예외가 발생해야 한다")
+    @Test
+    void convertPointTypeByInvalidGrowthButtonTest() {
+        GrowthButton invalidButton = null;
+
+        // when & then
+        assertThatThrownBy(() -> point.convertPointTypeByGrowthButton(invalidButton))
+                .isInstanceOf(NullPointerException.class);
+    }
+    
+    @DisplayName("getPoint 메소드는 현재 포인트를 반환해야 한다")
+    @Test
+    void getPointTest() {
+        // given
+        point.earnPoint(100);
+        
+        // when
+        int currentPoints = point.getPoint();
+        
+        // then
+        assertThat(currentPoints).isEqualTo(100);
+    }
+    
+    @DisplayName("잘못된 성장 버튼으로 포인트 소비 시 예외가 발생해야 한다")
+    @Test
+    void consumePointByInvalidGrowthButtonTest() {
+        // given
+        point.earnPoint(200);
+        GrowthButton invalidButton = null;
+        
+        // when & then
+        assertThatThrownBy(() -> point.consumePointByGrowthButton(invalidButton))
+                .isInstanceOf(NullPointerException.class);
+    }
 }

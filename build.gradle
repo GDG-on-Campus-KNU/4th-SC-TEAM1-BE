@@ -73,7 +73,7 @@ tasks.named('test') {
 
 // JaCoCo 설정
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.8"
 }
 
 jacocoTestReport {
@@ -85,10 +85,8 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
-                "com/gdg/Todak/TodakApplication.class",
-                "**/dto/**",
-                "**/domain/**",
-                "**/exception/**"
+                "**/controller/advice/**",
+                "**/*ControllerAdvice.*"
             ])
         }))
     }
