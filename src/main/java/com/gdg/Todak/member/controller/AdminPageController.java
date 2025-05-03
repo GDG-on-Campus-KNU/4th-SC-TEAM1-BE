@@ -95,7 +95,7 @@ public class AdminPageController {
     }
 
     private List<PointLog> getPointLogs(String filterCode, String filterValue) {
-        if (isNullOrempty(filterCode) || isNullOrempty(filterValue)) {
+        if (isNullOrEmpty(filterCode) || isNullOrEmpty(filterValue)) {
             return pointLogRepository.findAll();
         }
 
@@ -122,7 +122,7 @@ public class AdminPageController {
         return pointLogs;
     }
 
-    private static boolean isNullOrempty(String filterCode) {
+    private static boolean isNullOrEmpty(String filterCode) {
         return filterCode == null || filterCode.isEmpty();
     }
 
@@ -144,11 +144,14 @@ public class AdminPageController {
 
     private static PointFilterDateRange getDateRange(String filterValue) {
         List<Integer> date = Arrays.stream(filterValue.split("-"))
-                .map(value -> Integer.parseInt(value))
+                .map(Integer::parseInt)
                 .collect(Collectors.toList());
         LocalDate localDate = LocalDate.of(date.get(0), date.get(1), date.get(2));
-        Instant start = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Instant end = localDate.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        ZoneId zoneId = ZoneId.of("UTC");
+        Instant start = localDate.atStartOfDay(zoneId).toInstant();
+        Instant end = localDate.plusDays(1).atStartOfDay(zoneId).toInstant();
+
         return PointFilterDateRange.of(start, end);
     }
 }
