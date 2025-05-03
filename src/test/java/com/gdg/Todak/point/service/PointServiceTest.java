@@ -11,6 +11,8 @@ import com.gdg.Todak.point.exception.ConflictException;
 import com.gdg.Todak.point.exception.NotFoundException;
 import com.gdg.Todak.point.repository.PointLogRepository;
 import com.gdg.Todak.point.repository.PointRepository;
+import com.gdg.Todak.tree.domain.GrowthButton;
+import com.gdg.Todak.tree.domain.TreeConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -257,5 +259,59 @@ class PointServiceTest {
         // then
         Point point = pointRepository.findByMember(member).orElseThrow();
         assertThat(point.getPoint()).isEqualTo(DIARY_WRITE_POINT);
+    }
+
+    @Test
+    @DisplayName("성장 버튼을 통한 포인트 소비 성공")
+    void consumePointByGrowthButtonSuccessfullyTest() {
+        // given
+        pointService.createPoint(member);
+        Point point = pointRepository.findByMember(member).orElseThrow();
+        point.earnPoint(100);
+        pointRepository.save(point);
+
+        // when
+        pointService.consumePointByGrowthButton(member, GrowthButton.WATER);
+
+        // then
+        Point updatedPoint = pointRepository.findByMember(member).orElseThrow();
+        assertThat(updatedPoint.getPoint()).isEqualTo(100 - TreeConfig.WATER_SPEND.getValue());
+        assertThat(pointLogRepository.existsByMemberAndPointType(
+                member, PointType.GROWTH_WATER)).isTrue();
+    }
+
+    @Test
+    @DisplayName("포인트가 부족할 경우 성장 버튼을 통한 포인트 소비 실패")
+    void consumePointByGrowthButtonFailedByInsufficientPointsTest() {
+        // given
+        pointService.createPoint(member);
+        Point point = pointRepository.findByMember(member).orElseThrow();
+        point.earnPoint(5);
+        pointRepository.save(point);
+
+        // when & then
+        assertThatThrownBy(() -> pointService.consumePointByGrowthButton(member, GrowthButton.WATER))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("남은 포인트가 0 미만일 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("성장 버튼 타입에 따라 올바른 PointType으로 변환")
+    void convertPointTypeByGrowthButtonTest() {
+        // given
+        pointService.createPoint(member);
+        Point point = pointRepository.findByMember(member).orElseThrow();
+        point.earnPoint(200);
+        pointRepository.save(point);
+
+        // when
+        pointService.consumePointByGrowthButton(member, GrowthButton.WATER);
+        pointService.consumePointByGrowthButton(member, GrowthButton.SUN);
+        pointService.consumePointByGrowthButton(member, GrowthButton.NUTRIENT);
+
+        // then
+        assertThat(pointLogRepository.existsByMemberAndPointType(member, PointType.GROWTH_WATER)).isTrue();
+        assertThat(pointLogRepository.existsByMemberAndPointType(member, PointType.GROWTH_SUN)).isTrue();
+        assertThat(pointLogRepository.existsByMemberAndPointType(member, PointType.GROWTH_NUTRIENT)).isTrue();
     }
 }

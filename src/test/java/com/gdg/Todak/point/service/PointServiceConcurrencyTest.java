@@ -1,10 +1,13 @@
 package com.gdg.Todak.point.service;
 
-import com.gdg.Todak.point.config.TestRedisLockWithMemberFactoryConfig;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.point.PointType;
+import com.gdg.Todak.point.config.TestRedisLockWithMemberFactoryConfig;
 import com.gdg.Todak.point.dto.PointRequest;
+import com.gdg.Todak.point.repository.PointRepository;
+import com.gdg.Todak.tree.domain.GrowthButton;
+import com.gdg.Todak.tree.domain.TreeConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,8 @@ public class PointServiceConcurrencyTest {
     private PointService pointService;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private PointRepository pointRepository;
     private List<Member> usedMembers = new ArrayList<>();
 
     @AfterEach
@@ -109,7 +114,6 @@ public class PointServiceConcurrencyTest {
             for (int i = 0; i < NUMBER_OF_THREADS; i++) {
                 executorService.execute(() -> {
                     try {
-                        // 포인트 타입을 넘겨서 earnPointByType 호출
                         pointService.earnPointByType(new PointRequest(member, PointType.DIARY));
                     } finally {
                         latch.countDown();
@@ -126,6 +130,51 @@ public class PointServiceConcurrencyTest {
             Member member = members.get(i);
             int finalPoint = pointService.getPoint(member.getUserId()).point();
             assertThat(finalPoint).isEqualTo(initialPoints.get(i) + DIARY_WRITE_POINT);
+        }
+    }
+
+    @Test
+    @DisplayName("동시에 5명이 동일한 GrowthButton 포인트를 소비 요청해도 중복없이 정상 처리되는지 테스트")
+    public void consumePointByGrowthButton_whenConcurrency5Members_consumePointByTypeSuccessfully() throws InterruptedException {
+        // given
+        List<Member> members = new ArrayList<>();
+        for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
+            Member member = memberRepository.save(Member.builder().salt("test").userId("test" + i).nickname("test" + i).imageUrl("test").password("test").build());
+            pointService.createPoint(member);
+            pointService.earnPointByType(new PointRequest(member, PointType.DIARY));
+            members.add(member);
+            usedMembers.add(member);
+        }
+
+        List<Integer> initialPoints = new ArrayList<>();
+        for (Member member : members) {
+            initialPoints.add(pointService.getPoint(member.getUserId()).point());
+        }
+
+        ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        CountDownLatch latch = new CountDownLatch(NUMBER_OF_THREADS * NUMBER_OF_MEMBERS);
+
+        // when
+        for (Member member : members) {
+            for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+                executorService.execute(() -> {
+                    try {
+                        pointService.consumePointByGrowthButton(member, GrowthButton.WATER);
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+        }
+
+        latch.await();
+        executorService.shutdown();
+
+        // then
+        for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
+            Member member = members.get(i);
+            int finalPoint = pointService.getPoint(member.getUserId()).point();
+            assertThat(finalPoint).isEqualTo(initialPoints.get(i) - TreeConfig.WATER_SPEND.getValue());
         }
     }
 }
