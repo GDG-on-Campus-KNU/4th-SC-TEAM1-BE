@@ -14,6 +14,7 @@ import com.gdg.Todak.point.exception.ConflictException;
 import com.gdg.Todak.point.exception.NotFoundException;
 import com.gdg.Todak.point.repository.PointLogRepository;
 import com.gdg.Todak.point.repository.PointRepository;
+import com.gdg.Todak.tree.domain.GrowthButton;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -144,8 +145,8 @@ public class PointService {
         int pointByType = getPointByType(pointRequest.pointType());
 
         if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, pointRequest.member(), List.of(pointRequest.pointType()))) {
-            pointLogService.createPointLog(new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED, LocalDateTime.now()));
             point.earnPoint(pointByType);
+            pointLogService.createPointLog(new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED, LocalDateTime.now()));
         }
 
         lockWithMemberFactory.unlock(pointRequest.member(), lock);
@@ -157,6 +158,22 @@ public class PointService {
             case COMMENT -> COMMENT_WRITE_POINT;
             default -> throw new BadRequestException("해당하는 pointType이 없습니다");
         };
+    }
+
+    @Transactional
+    public void consumePointByGrowthButton(Member member, GrowthButton growthButton) {
+        String lockKey = "pointLock:" + member.getId();
+
+        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 30);
+
+        Point point = getPoint(member);
+        PointType pointType = point.convertPointTypeByGrowthButton(growthButton);
+
+        int consumedPoint = point.consumePointByGrowthButton(growthButton);
+
+        pointLogService.createPointLog(new PointLogRequest(member, consumedPoint, pointType, PointStatus.CONSUMED, LocalDateTime.now()));
+
+        lockWithMemberFactory.unlock(member, lock);
     }
 
     private Point getPoint(Member member) {

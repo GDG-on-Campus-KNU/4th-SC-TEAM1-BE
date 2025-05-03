@@ -1,7 +1,10 @@
 package com.gdg.Todak.point.entity;
 
 import com.gdg.Todak.member.domain.Member;
+import com.gdg.Todak.point.PointType;
 import com.gdg.Todak.point.exception.BadRequestException;
+import com.gdg.Todak.tree.domain.GrowthButton;
+import com.gdg.Todak.tree.domain.TreeConfig;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -39,5 +42,41 @@ public class Point {
             throw new BadRequestException("남은 포인트가 0 미만일 수 없습니다.");
         }
         this.point -= point;
+    }
+
+    public int consumePointByGrowthButton(GrowthButton growthButton) {
+        int pointToSpend = convertSpendPointByGrowthButton(growthButton);
+        consumePoint(pointToSpend);
+        return pointToSpend;
+    }
+
+    public PointType convertPointTypeByGrowthButton(GrowthButton growthButton) {
+        switch (growthButton) {
+            case GrowthButton.WATER -> {
+                return PointType.GROWTH_WATER;
+            }
+            case GrowthButton.SUN -> {
+                return PointType.GROWTH_SUN;
+            }
+            case GrowthButton.NUTRIENT -> {
+                return PointType.GROWTH_NUTRIENT;
+            }
+            default -> throw new BadRequestException("올바른 growthButton이 아닙니다.");
+        }
+    }
+
+    private int convertSpendPointByGrowthButton(GrowthButton growthButton) {
+        switch (growthButton) {
+            case GrowthButton.WATER -> {
+                return TreeConfig.WATER_SPEND.getValue();
+            }
+            case GrowthButton.SUN -> {
+                return TreeConfig.SUN_SPEND.getValue();
+            }
+            case GrowthButton.NUTRIENT -> {
+                return TreeConfig.NUTRIENT_SPEND.getValue();
+            }
+            default -> throw new BadRequestException("올바른 growthButton이 아닙니다.");
+        }
     }
 }
