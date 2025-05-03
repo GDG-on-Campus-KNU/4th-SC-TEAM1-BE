@@ -53,13 +53,13 @@ public class PointService {
     private final LockWithMemberFactory lockWithMemberFactory;
 
     @Transactional
-    public void createPoint(Member member) {
+    public Point createPoint(Member member) {
         if (pointRepository.existsByMember(member)) {
             throw new ConflictException("이미 해당 멤버의 point 객체가 존재합니다.");
         }
 
         Point point = Point.builder().member(member).build();
-        pointRepository.save(point);
+        return pointRepository.save(point);
     }
 
     public PointResponse getPoint(String userId) {
@@ -73,7 +73,7 @@ public class PointService {
     public void earnAttendancePointPerDay(Member member) {
         String lockKey = "pointLock:" + member.getId();
 
-        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 10);
+        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 2);
 
         Point point = getPoint(member);
 
@@ -135,7 +135,7 @@ public class PointService {
     public void earnPointByType(PointRequest pointRequest) {
         String lockKey = "pointLock:" + pointRequest.member().getId();
 
-        Lock lock = lockWithMemberFactory.tryLock(pointRequest.member(), lockKey, 10, 10);
+        Lock lock = lockWithMemberFactory.tryLock(pointRequest.member(), lockKey, 10, 2);
 
         Point point = getPoint(pointRequest.member());
 
@@ -164,7 +164,7 @@ public class PointService {
     public void consumePointByGrowthButton(Member member, GrowthButton growthButton) {
         String lockKey = "pointLock:" + member.getId();
 
-        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 10);
+        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 2);
 
         Point point = getPoint(member);
         PointType pointType = point.convertPointTypeByGrowthButton(growthButton);
