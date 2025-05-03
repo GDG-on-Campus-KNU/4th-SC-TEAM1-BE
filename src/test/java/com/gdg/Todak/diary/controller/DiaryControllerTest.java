@@ -7,9 +7,11 @@ import com.gdg.Todak.diary.dto.DiaryRequest;
 import com.gdg.Todak.diary.dto.DiarySummaryResponse;
 import com.gdg.Todak.diary.dto.DiaryUpdateRequest;
 import com.gdg.Todak.diary.service.DiaryService;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Role;
+import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,6 +56,12 @@ class DiaryControllerTest {
 
     @MockitoBean
     private LoginMemberArgumentResolver loginMemberArgumentResolver;
+
+    @MockitoBean
+    private AdminLoginCheckInterceptor adminLoginCheckInterceptor;
+
+    @MockitoBean
+    private MemberRepository memberRepository;
 
     @BeforeEach
     void setUp() throws Exception {

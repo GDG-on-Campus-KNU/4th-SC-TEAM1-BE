@@ -1,6 +1,8 @@
 package com.gdg.Todak.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
+import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.service.AuthService;
 import com.gdg.Todak.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +29,11 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     AuthService authService;
+
+    @MockitoBean
+    AdminLoginCheckInterceptor adminLoginCheckInterceptor;
+
+    @MockitoBean
+    MemberRepository memberRepository;
 }
 

@@ -15,16 +15,16 @@ class RedissonConfigTest {
 
     @Autowired
     private RedissonClient redissonClient;
-    
+
     private final String TEST_PREFIX = "test:redisson:";
-    
+
     @BeforeEach
     void setUp() {
         redissonClient.getKeys().getKeysByPattern(TEST_PREFIX + "*").forEach(key -> {
             redissonClient.getBucket(key).delete();
         });
     }
-    
+
     @AfterEach
     void tearDown() {
         redissonClient.getKeys().getKeysByPattern(TEST_PREFIX + "*").forEach(key -> {
@@ -41,7 +41,7 @@ class RedissonConfigTest {
         // When
         RBucket<String> bucket = redissonClient.getBucket(key);
         bucket.set(value);
-        
+
         // Then
         assertThat(bucket.isExists()).isTrue();
         assertThat(bucket.get()).isEqualTo(value);
