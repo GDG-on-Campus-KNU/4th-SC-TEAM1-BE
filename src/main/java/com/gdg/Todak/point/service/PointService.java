@@ -135,7 +135,7 @@ public class PointService {
     public void earnPointByType(PointRequest pointRequest) {
         String lockKey = "pointLock:" + pointRequest.member().getId();
 
-        Lock lock = lockWithMemberFactory.tryLock(pointRequest.member(), lockKey, 10, 2);
+        Lock lock = lockWithMemberFactory.tryLock(pointRequest.member(), lockKey, 10, 10);
 
         Point point = getPoint(pointRequest.member());
 
@@ -164,7 +164,7 @@ public class PointService {
     public void consumePointByGrowthButton(Member member, GrowthButton growthButton) {
         String lockKey = "pointLock:" + member.getId();
 
-        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 30);
+        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 10);
 
         Point point = getPoint(member);
         PointType pointType = point.convertPointTypeByGrowthButton(growthButton);
