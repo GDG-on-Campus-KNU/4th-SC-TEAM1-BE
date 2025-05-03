@@ -1,6 +1,7 @@
 package com.gdg.Todak.tree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Role;
@@ -46,6 +47,9 @@ class TreeControllerTest {
 
     @MockitoBean
     private LoginCheckInterceptor loginCheckInterceptor;
+
+    @MockitoBean
+    private AdminLoginCheckInterceptor adminLoginCheckInterceptor;
 
     @MockitoBean
     private LoginMemberArgumentResolver loginMemberArgumentResolver;
