@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gdg.Todak.diary.dto.CommentRequest;
 import com.gdg.Todak.diary.dto.CommentResponse;
 import com.gdg.Todak.diary.service.CommentService;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
+import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +50,12 @@ class CommentControllerTest {
 
     @MockitoBean
     private LoginMemberArgumentResolver loginMemberArgumentResolver;
+
+    @MockitoBean
+    private AdminLoginCheckInterceptor adminLoginCheckInterceptor;
+
+    @MockitoBean
+    private MemberRepository memberRepository;
 
     @BeforeEach
     void setUp() {

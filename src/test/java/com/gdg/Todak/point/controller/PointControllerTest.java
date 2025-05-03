@@ -1,9 +1,11 @@
 package com.gdg.Todak.point.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Role;
+import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
 import com.gdg.Todak.point.PointStatus;
 import com.gdg.Todak.point.PointType;
@@ -56,6 +58,12 @@ class PointControllerTest {
 
     @MockitoBean
     private LoginMemberArgumentResolver loginMemberArgumentResolver;
+
+    @MockitoBean
+    private AdminLoginCheckInterceptor adminLoginCheckInterceptor;
+
+    @MockitoBean
+    private MemberRepository memberRepository;
 
     @BeforeEach
     void setUp() throws Exception {

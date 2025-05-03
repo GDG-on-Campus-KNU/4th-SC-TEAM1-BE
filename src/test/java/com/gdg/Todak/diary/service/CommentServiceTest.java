@@ -145,7 +145,7 @@ class CommentServiceTest {
     }
 
     @DisplayName("친구가 쓴 일기에 달린 댓글 조회 테스트")
-    @Test 
+    @Test
     void readCommentsByDiaryWrittenByFriendTest() {
         // given
         Comment comment1 = commentRepository.save(Comment.builder().diary(diaryWrittenByFriend).member(member).content("내가 쓴 댓글").build());

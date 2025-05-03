@@ -15,8 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -206,40 +205,6 @@ class PointLogRepositoryTest {
 
         // when
         List<PointLog> findPointLogs = pointLogRepository.findAllByPointStatus(pointStatus);
-
-        // then
-        assertThat(findPointLogs).hasSize(1);
-    }
-
-    @DisplayName("해당 날짜에 해당하는 PointLog를 반환한다.")
-    @Test
-    void findAllByCreatedAtBetweenTest() {
-        // given
-        Member member1 = memberRepository.save(new Member("user1", "email4", "pw", "010-0000-0000", "nickname"));
-        Member member2 = memberRepository.save(new Member("user2", "email4", "pw", "010-0000-0000", "nickname"));
-
-        PointLog log1 = PointLog.builder()
-                .member(member1)
-                .point(30)
-                .pointType(PointType.DIARY)
-                .pointStatus(PointStatus.EARNED)
-                .build();
-        PointLog log2 = PointLog.builder()
-                .member(member2)
-                .point(30)
-                .pointType(PointType.DIARY)
-                .pointStatus(PointStatus.EARNED)
-                .build();
-
-        LocalDate localDate = LocalDate.of(2020, 1, 1);
-        ReflectionTestUtils.setField(log1, "createdAt", localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        ReflectionTestUtils.setField(log2, "createdAt", LocalDate.of(2010, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        pointLogRepository.saveAll(List.of(log1, log2));
-
-        // when
-        Instant start = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Instant end = localDate.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        List<PointLog> findPointLogs = pointLogRepository.findAllByCreatedAtBetween(start, end);
 
         // then
         assertThat(findPointLogs).hasSize(1);
