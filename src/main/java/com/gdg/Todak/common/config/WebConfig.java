@@ -1,6 +1,7 @@
 package com.gdg.Todak.common.config;
 
 import com.gdg.Todak.common.filter.AuthenticationExceptionHandlingFilter;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
 import jakarta.servlet.Filter;
@@ -33,6 +34,8 @@ public class WebConfig implements WebMvcConfigurer {
     String fileUrl;
 
     private final LoginCheckInterceptor loginCheckInterceptor;
+    private final AdminLoginCheckInterceptor adminLoginCheckInterceptor;
+
     private final LoginMemberArgumentResolver loginMemberArgumentResolver;
 
     private final AuthenticationExceptionHandlingFilter authenticationExceptionHandlingFilter;
@@ -52,16 +55,47 @@ public class WebConfig implements WebMvcConfigurer {
 
             "/actuator/health",
             "/actuator/prometheus",
-            "/actuator/info"
+            "/actuator/info",
+
+            "/css/**",
+            "/favicon.ico",
+            "/error",
+
+            "/login",
+            "/logout",
+            "/admin/**"
+    );
+
+    List<String> adminWhiteList = List.of(
+            "/api/**",
+
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/backend/**",
+
+            "/actuator/health",
+            "/actuator/prometheus",
+            "/actuator/info",
+
+            "/css/**",
+            "/favicon.ico",
+            "/error",
+
+            "/login",
+            "/logout"
     );
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        log.info("caught by interceptor");
         registry.addInterceptor(loginCheckInterceptor)
                 .order(1)
                 .addPathPatterns("/**")
                 .excludePathPatterns(whiteList);
+
+        registry.addInterceptor(adminLoginCheckInterceptor)
+                .order(2)
+                .addPathPatterns("/**")
+                .excludePathPatterns(adminWhiteList);
     }
 
     @Bean

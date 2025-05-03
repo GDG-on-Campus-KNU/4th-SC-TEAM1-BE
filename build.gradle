@@ -42,6 +42,7 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.23.1'
+    implementation 'org.springframework.session:spring-session-data-redis'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'

@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}"
+          href="../css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="py-5 text-center">
+        <h1>Point administration</h1>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-start gap-3">
+        <form th:action="@{/admin/point}" method="get" class="d-flex align-items-center gap-2">
+            <span class="me-2">Filter:</span>
+
+            <select name="filterCode" class="form-select me-2" style="width: auto;">
+                <option value="">==필터 방식 선택==</option>
+                <option th:each="filterCode : ${filterCodes}"
+                        th:value="${filterCode.code}"
+                        th:text="${filterCode.displayName}">memberId
+                </option>
+            </select>
+
+            <input type="text" name="filterValue" class="form-control w-auto" placeholder="세부 필터 파라미터 입력">
+            <input type="submit" value="적용" class="btn btn-primary"/>
+        </form>
+        <form th:action="@{/admin/download}" method="get" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="filterCode" th:value="${param.filterCode}">
+            <input type="hidden" name="filterValue" th:value="${param.filterValue}">
+            <input type="submit" value="CSV 파일로 다운로드" class="btn btn-primary"/>
+        </form>
+    </div>
+
+    <hr class="my-4">
+    <div>
+        <table class="table">
+            <tr>
+                <th>pointId</th>
+                <th>userId</th>
+                <th>point</th>
+                <th>pointType</th>
+                <th>pointStatus</th>
+                <th>date</th>
+            </tr>
+            <tr th:each="pointLog : ${pointLogs}">
+                <td th:text="${pointLog.id}"></td>
+                <td th:text="${pointLog.member.userId}"></td>
+                <td th:text="${pointLog.point}"></td>
+                <td th:text="${pointLog.pointType}"></td>
+                <td th:text="${pointLog.pointStatus}"></td>
+                <td th:text="${pointLog.createdAt}"></td>
+            </tr>
+        </table>
+    </div>
+</div> <!-- /container -->
+</body>
+</html>
