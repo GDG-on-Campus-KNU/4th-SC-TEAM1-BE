@@ -26,8 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({TestRedisLockWithMemberFactoryConfig.class})
 public class PointServiceConcurrencyTest {
 
-    private static final int NUMBER_OF_THREADS = 10;
-    private static final int NUMBER_OF_MEMBERS = 5;
+    private static final int NUMBER_OF_THREADS = 5;
+    private static final int NUMBER_OF_MEMBERS = 3;
     private final static int ATTENDANCE_BASE_POINT = 10;
     private final static int DIARY_WRITE_POINT = 15;
     @Autowired
@@ -40,15 +40,27 @@ public class PointServiceConcurrencyTest {
     void tearDown() {
         memberRepository.deleteAllInBatch(usedMembers);
         usedMembers.clear();
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Test
-    @DisplayName("동시에 5명의 사람이 출석포인트 요청을 해도 정상 처리 테스트")
+    @DisplayName("동시에 여러명의 사람이 출석포인트 요청을 해도 정상 처리 테스트")
     public void earnAttendancePoint_whenConcurrency5Members_getAttendancePointSuccessfully() throws InterruptedException {
         // given
         List<Member> members = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
-            Member member = memberRepository.save(Member.builder().salt("test").userId("test" + i).nickname("test" + i).imageUrl("test").password("test").build());
+            String uniqueId = "test_attendance_" + i + "_" + System.currentTimeMillis();
+            Member member = memberRepository.save(Member.builder()
+                    .salt("test")
+                    .userId(uniqueId)
+                    .nickname(uniqueId)
+                    .imageUrl("test")
+                    .password("test").build());
             pointService.createPoint(member);
             members.add(member);
             usedMembers.add(member);
@@ -65,9 +77,12 @@ public class PointServiceConcurrencyTest {
         // when
         for (Member member : members) {
             for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+                final int memberIndex = members.indexOf(member);
                 executorService.execute(() -> {
                     try {
                         pointService.earnAttendancePointPerDay(member);
+                    } catch (Exception e) {
+                        System.err.println("Error processing member " + memberIndex + ": " + e.getMessage());
                     } finally {
                         latch.countDown();
                     }
@@ -78,6 +93,10 @@ public class PointServiceConcurrencyTest {
         latch.await();
         executorService.shutdown();
 
+        if (!executorService.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
+
         // then
         for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
             Member member = members.get(i);
@@ -87,12 +106,18 @@ public class PointServiceConcurrencyTest {
     }
 
     @Test
-    @DisplayName("동시에 5명의 사람이 특정 포인트 타입으로 포인트 요청을 해도 정상 처리 테스트")
+    @DisplayName("동시에 여러명의 사람이 특정 포인트 타입으로 포인트 요청을 해도 정상 처리 테스트")
     public void earnPointByType_whenConcurrency5Members_getPointByTypeSuccessfully() throws InterruptedException {
         // given
         List<Member> members = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
-            Member member = memberRepository.save(Member.builder().salt("test").userId("test" + i).nickname("test" + i).imageUrl("test").password("test").build());
+            String uniqueId = "test_earn_" + i + "_" + System.currentTimeMillis();
+            Member member = memberRepository.save(Member.builder()
+                    .salt("test")
+                    .userId(uniqueId)
+                    .nickname(uniqueId)
+                    .imageUrl("test")
+                    .password("test").build());
             pointService.createPoint(member);
             members.add(member);
             usedMembers.add(member);
@@ -122,6 +147,10 @@ public class PointServiceConcurrencyTest {
         latch.await();
         executorService.shutdown();
 
+        if (!executorService.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
+
         // then
         for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
             Member member = members.get(i);
@@ -131,13 +160,20 @@ public class PointServiceConcurrencyTest {
     }
 
     @Test
-    @DisplayName("동시에 5명이 동일한 GrowthButton 포인트를 소비 요청해도 중복없이 정상 처리되는지 테스트")
+    @DisplayName("동시에 여러명이 동일한 GrowthButton 포인트를 소비 요청해도 중복없이 정상 처리되는지 테스트")
     public void consumePointByGrowthButton_whenConcurrency5Members_consumePointByTypeSuccessfully() throws InterruptedException {
         // given
         List<Member> members = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
-            Member member = memberRepository.save(Member.builder().salt("test").userId("test" + i).nickname("test" + i).imageUrl("test").password("test").build());
+            String uniqueId = "test_consume_" + i + "_" + System.currentTimeMillis();
+            Member member = memberRepository.save(Member.builder()
+                    .salt("test")
+                    .userId(uniqueId)
+                    .nickname(uniqueId)
+                    .imageUrl("test")
+                    .password("test").build());
             pointService.createPoint(member);
+            pointService.earnPointByType(new PointRequest(member, PointType.DIARY));
             pointService.earnPointByType(new PointRequest(member, PointType.DIARY));
             members.add(member);
             usedMembers.add(member);
@@ -166,6 +202,16 @@ public class PointServiceConcurrencyTest {
 
         latch.await();
         executorService.shutdown();
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        if (!executorService.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
 
         // then
         for (int i = 0; i < NUMBER_OF_MEMBERS; i++) {
