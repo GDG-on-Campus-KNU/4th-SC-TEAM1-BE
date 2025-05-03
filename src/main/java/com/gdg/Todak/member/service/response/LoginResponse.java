@@ -1,4 +1,4 @@
-package com.gdg.Todak.member.service;
+package com.gdg.Todak.member.service.response;
 
 import lombok.Builder;
 import lombok.Getter;

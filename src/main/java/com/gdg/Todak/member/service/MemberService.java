@@ -1,5 +1,6 @@
 package com.gdg.Todak.member.service;
 
+import com.gdg.Todak.member.controller.dto.LoginForm;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.domain.MemberRole;
@@ -8,10 +9,7 @@ import com.gdg.Todak.member.exception.UnauthorizedException;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.repository.MemberRoleRepository;
 import com.gdg.Todak.member.service.request.*;
-import com.gdg.Todak.member.service.response.CheckUserIdServiceResponse;
-import com.gdg.Todak.member.service.response.LogoutResponse;
-import com.gdg.Todak.member.service.response.MeResponse;
-import com.gdg.Todak.member.service.response.MemberResponse;
+import com.gdg.Todak.member.service.response.*;
 import com.gdg.Todak.member.util.JwtProvider;
 import com.gdg.Todak.member.util.PasswordEncoder;
 import com.gdg.Todak.point.service.PointService;
@@ -138,6 +136,28 @@ public class MemberService {
         Member member = findMember(user.getUserId());
         memberRepository.delete(member);
         return "회원이 삭제되었습니다.";
+    }
+
+    public String adminLogin(LoginForm request) {
+
+        Optional<Member> findMemberOptional = memberRepository.findByUserId(request.getLoginId());
+        if (findMemberOptional.isEmpty()) {
+            return null;
+        }
+
+        Member member = findMemberOptional.get();
+        String encodedPassword = PasswordEncoder.getEncodedPassword(member.getSalt(),
+                request.getPassword());
+        if (!encodedPassword.equals(member.getPassword())) {
+            return null;
+        }
+
+        Set<Role> roles = member.getRoles();
+        if (!roles.contains(Role.ADMIN)) {
+            return null;
+        }
+
+        return member.getUserId();
     }
 
     private Member findMember(String userId) {

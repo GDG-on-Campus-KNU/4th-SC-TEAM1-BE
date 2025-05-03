@@ -11,6 +11,7 @@ import com.gdg.Todak.member.repository.MemberRoleRepository;
 import com.gdg.Todak.member.service.request.LoginServiceRequest;
 import com.gdg.Todak.member.service.request.SignupServiceRequest;
 import com.gdg.Todak.member.service.request.UpdateAccessTokenServiceRequest;
+import com.gdg.Todak.member.service.response.LoginResponse;
 import com.gdg.Todak.member.util.JwtProvider;
 import com.gdg.Todak.point.service.PointService;
 import io.jsonwebtoken.Claims;
