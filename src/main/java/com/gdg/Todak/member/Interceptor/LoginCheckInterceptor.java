@@ -1,7 +1,6 @@
 package com.gdg.Todak.member.Interceptor;
 
 import com.gdg.Todak.member.exception.UnauthorizedException;
-import com.gdg.Todak.member.util.JwtConstants;
 import com.gdg.Todak.member.util.JwtProvider;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import static com.gdg.Todak.member.util.JwtConstants.*;
+import static com.gdg.Todak.member.util.JwtConstants.AUTHORIZATION;
+import static com.gdg.Todak.member.util.JwtConstants.BEARER;
 
 @RequiredArgsConstructor
 @Component

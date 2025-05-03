@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gdg.Todak.diary.dto.ImageDeleteRequest;
 import com.gdg.Todak.diary.dto.UrlResponse;
 import com.gdg.Todak.diary.service.ImageService;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Role;
+import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,6 +50,12 @@ class ImageControllerTest {
 
     @MockitoBean
     private LoginMemberArgumentResolver loginMemberArgumentResolver;
+
+    @MockitoBean
+    private AdminLoginCheckInterceptor adminLoginCheckInterceptor;
+
+    @MockitoBean
+    private MemberRepository memberRepository;
 
     @BeforeEach
     void setUp() throws Exception {

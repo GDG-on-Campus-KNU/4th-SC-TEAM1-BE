@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}"
+          href="../css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 560px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="py-5 text-center">
+        <h1>Todak administration</h1>
+        <h2 th:text="'Hello ' + ${userId} + '!'">Hello admin!</h2>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <button class="w-100 btn btn-secondary btn-lg" type="button"
+                    th:onclick="|location.href='@{/admin/point}'|">
+                포인트 관리
+            </button>
+        </div>
+        <div class="col">
+            <form th:action="@{/logout}" method="post">
+                <button class="w-100 btn btn-dark btn-lg" onclick="location.href='login.html'" type="submit">
+                    로그아웃
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div> <!-- /container -->
+</body>
+</html>

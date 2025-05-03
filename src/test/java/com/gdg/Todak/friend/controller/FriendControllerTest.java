@@ -7,9 +7,11 @@ import com.gdg.Todak.friend.dto.FriendIdRequest;
 import com.gdg.Todak.friend.dto.FriendRequestResponse;
 import com.gdg.Todak.friend.dto.FriendResponse;
 import com.gdg.Todak.friend.service.FriendService;
+import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.domain.Role;
+import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.resolver.LoginMemberArgumentResolver;
 import com.gdg.Todak.member.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +50,12 @@ class FriendControllerTest {
     private LoginCheckInterceptor loginCheckInterceptor;
     @MockitoBean
     private LoginMemberArgumentResolver loginMemberArgumentResolver;
+
+    @MockitoBean
+    private AdminLoginCheckInterceptor adminLoginCheckInterceptor;
+
+    @MockitoBean
+    private MemberRepository memberRepository;
 
     @BeforeEach
     void setUp() throws Exception {

@@ -6,6 +6,7 @@ import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.member.repository.MemberRoleRepository;
 import com.gdg.Todak.member.service.request.*;
 import com.gdg.Todak.member.service.response.CheckUserIdServiceResponse;
+import com.gdg.Todak.member.service.response.LoginResponse;
 import com.gdg.Todak.member.service.response.MeResponse;
 import com.gdg.Todak.point.repository.PointRepository;
 import com.gdg.Todak.point.service.PointService;
