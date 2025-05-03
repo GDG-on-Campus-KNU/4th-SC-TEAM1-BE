@@ -11,6 +11,7 @@ import com.gdg.Todak.tree.domain.TreeConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -22,6 +23,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 @Import({TestRedisLockWithMemberFactoryConfig.class})
@@ -35,8 +39,8 @@ public class PointServiceConcurrencyTest {
     private PointService pointService;
     @Autowired
     private MemberRepository memberRepository;
-    @Autowired
-    private PointRepository pointRepository;
+    @Mock
+    private PointLogService pointLogService;
     private List<Member> usedMembers = new ArrayList<>();
 
     @AfterEach
@@ -56,6 +60,9 @@ public class PointServiceConcurrencyTest {
             members.add(member);
             usedMembers.add(member);
         }
+
+        doNothing().when(pointLogService).createPointLog(any());
+        doNothing().when(pointLogService).saveLockErrorLogToServer(any(), anyString());
 
         List<Integer> initialPoints = new ArrayList<>();
         for (Member member : members) {
@@ -101,6 +108,9 @@ public class PointServiceConcurrencyTest {
             usedMembers.add(member);
         }
 
+        doNothing().when(pointLogService).createPointLog(any());
+        doNothing().when(pointLogService).saveLockErrorLogToServer(any(), anyString());
+
         List<Integer> initialPoints = new ArrayList<>();
         for (Member member : members) {
             initialPoints.add(pointService.getPoint(member.getUserId()).point());
@@ -145,6 +155,9 @@ public class PointServiceConcurrencyTest {
             members.add(member);
             usedMembers.add(member);
         }
+
+        doNothing().when(pointLogService).createPointLog(any());
+        doNothing().when(pointLogService).saveLockErrorLogToServer(any(), anyString());
 
         List<Integer> initialPoints = new ArrayList<>();
         for (Member member : members) {
