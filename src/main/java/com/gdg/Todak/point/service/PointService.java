@@ -73,7 +73,7 @@ public class PointService {
     public void earnAttendancePointPerDay(Member member) {
         String lockKey = "pointLock:" + member.getId();
 
-        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 2);
+        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 10);
 
         Point point = getPoint(member);
 

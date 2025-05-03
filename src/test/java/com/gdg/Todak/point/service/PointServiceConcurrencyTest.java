@@ -5,7 +5,6 @@ import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.point.PointType;
 import com.gdg.Todak.point.config.TestRedisLockWithMemberFactoryConfig;
 import com.gdg.Todak.point.dto.PointRequest;
-import com.gdg.Todak.point.repository.PointRepository;
 import com.gdg.Todak.tree.domain.GrowthButton;
 import com.gdg.Todak.tree.domain.TreeConfig;
 import org.junit.jupiter.api.AfterEach;
