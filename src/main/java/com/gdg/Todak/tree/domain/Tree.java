@@ -29,26 +29,24 @@ public class Tree {
 
     public void earnExperience(GrowthButton growthButton) {
         int experienceToEarn = convertExperienceToEarnPointByGrowthButton(growthButton);
-        int experienceAfterEarned = this.experience + experienceToEarn;
+        int totalExperience = this.experience + experienceToEarn;
 
         while (!isMaxGrowth) {
-            int maxExperience = convertMaxExperienceByLevel(this.level);
+            int maxExperienceForCurrentLevel = convertMaxExperienceByLevel(this.level);
 
+            // 최대 레벨일 경우
             if (this.level == TreeExperiencePolicy.MAX_LEVEL.getValue()) {
-                if (experienceAfterEarned >= maxExperience) {
-                    this.experience = maxExperience;
-                    isMaxGrowth = true;
-                } else {
-                    this.experience = experienceAfterEarned;
-                }
+                this.experience = Math.min(totalExperience, maxExperienceForCurrentLevel);
+                isMaxGrowth = (this.experience == maxExperienceForCurrentLevel);
                 return;
             }
 
-            if (experienceAfterEarned >= maxExperience) {
-                experienceAfterEarned -= maxExperience;
+            // 레벨업 가능한 경우
+            if (totalExperience >= maxExperienceForCurrentLevel) {
+                totalExperience -= maxExperienceForCurrentLevel;
                 levelUp();
             } else {
-                this.experience = experienceAfterEarned;
+                this.experience = totalExperience;
                 return;
             }
         }
