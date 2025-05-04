@@ -22,9 +22,27 @@ public class TreeControllerAdvice {
         );
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(com.gdg.Todak.point.exception.NotFoundException.class)
+    public ApiResponse<Exception> handleNotFoundException(com.gdg.Todak.point.exception.NotFoundException e) {
+        return ApiResponse.of(
+                HttpStatus.NOT_FOUND,
+                e.getMessage()
+        );
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
     public ApiResponse<Object> handleBadRequestException(BadRequestException e) {
+        return ApiResponse.of(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(com.gdg.Todak.point.exception.BadRequestException.class)
+    public ApiResponse<Object> handleBadRequestException(com.gdg.Todak.point.exception.BadRequestException e) {
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
                 e.getMessage()
