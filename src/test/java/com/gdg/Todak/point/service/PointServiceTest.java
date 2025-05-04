@@ -12,7 +12,7 @@ import com.gdg.Todak.point.exception.NotFoundException;
 import com.gdg.Todak.point.repository.PointLogRepository;
 import com.gdg.Todak.point.repository.PointRepository;
 import com.gdg.Todak.tree.domain.GrowthButton;
-import com.gdg.Todak.tree.domain.TreeConfig;
+import com.gdg.Todak.tree.domain.TreeExperiencePolicy;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -275,7 +275,7 @@ class PointServiceTest {
 
         // then
         Point updatedPoint = pointRepository.findByMember(member).orElseThrow();
-        assertThat(updatedPoint.getPoint()).isEqualTo(100 - TreeConfig.WATER_SPEND.getValue());
+        assertThat(updatedPoint.getPoint()).isEqualTo(100 - TreeExperiencePolicy.WATER_SPEND.getValue());
         assertThat(pointLogRepository.existsByMemberAndPointType(
                 member, PointType.GROWTH_WATER)).isTrue();
     }

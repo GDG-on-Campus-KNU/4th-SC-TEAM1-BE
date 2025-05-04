@@ -18,8 +18,8 @@ class TreeTest {
     void setUp() {
         member = new Member("user1", "email1", "pw", "010-1234-5678", "nickname");
         tree = Tree.create(1L,
-                TreeConfig.INITIAL_LEVEL.getValue(),
-                TreeConfig.INITIAL_EXPERIENCE.getValue(),
+                TreeExperiencePolicy.INITIAL_LEVEL.getValue(),
+                TreeExperiencePolicy.INITIAL_EXPERIENCE.getValue(),
                 false,
                 member);
     }
@@ -30,8 +30,8 @@ class TreeTest {
         // then
         assertThat(tree).isNotNull();
         assertThat(tree.getId()).isEqualTo(1L);
-        assertThat(tree.getLevel()).isEqualTo(TreeConfig.INITIAL_LEVEL.getValue());
-        assertThat(tree.getExperience()).isEqualTo(TreeConfig.INITIAL_EXPERIENCE.getValue());
+        assertThat(tree.getLevel()).isEqualTo(TreeExperiencePolicy.INITIAL_LEVEL.getValue());
+        assertThat(tree.getExperience()).isEqualTo(TreeExperiencePolicy.INITIAL_EXPERIENCE.getValue());
         assertThat(tree.isMaxGrowth()).isFalse();
         assertThat(tree.getMember()).isEqualTo(member);
     }
@@ -43,8 +43,8 @@ class TreeTest {
         tree.earnExperience(GrowthButton.WATER);
 
         // then
-        assertThat(tree.getExperience()).isEqualTo(TreeConfig.WATER_PLUS_EXPERIENCE.getValue());
-        assertThat(tree.getLevel()).isEqualTo(TreeConfig.INITIAL_LEVEL.getValue());
+        assertThat(tree.getExperience()).isEqualTo(TreeExperiencePolicy.WATER_PLUS_EXPERIENCE.getValue());
+        assertThat(tree.getLevel()).isEqualTo(TreeExperiencePolicy.INITIAL_LEVEL.getValue());
         assertThat(tree.isMaxGrowth()).isFalse();
     }
 
@@ -55,8 +55,8 @@ class TreeTest {
         tree.earnExperience(GrowthButton.SUN);
 
         // then
-        assertThat(tree.getExperience()).isEqualTo(TreeConfig.SUN_PLUS_EXPERIENCE.getValue());
-        assertThat(tree.getLevel()).isEqualTo(TreeConfig.INITIAL_LEVEL.getValue());
+        assertThat(tree.getExperience()).isEqualTo(TreeExperiencePolicy.SUN_PLUS_EXPERIENCE.getValue());
+        assertThat(tree.getLevel()).isEqualTo(TreeExperiencePolicy.INITIAL_LEVEL.getValue());
         assertThat(tree.isMaxGrowth()).isFalse();
     }
 
@@ -67,8 +67,8 @@ class TreeTest {
         tree.earnExperience(GrowthButton.NUTRIENT);
 
         // then
-        assertThat(tree.getExperience()).isEqualTo(TreeConfig.NUTRIENT_PLUS_EXPERIENCE.getValue());
-        assertThat(tree.getLevel()).isEqualTo(TreeConfig.INITIAL_LEVEL.getValue());
+        assertThat(tree.getExperience()).isEqualTo(TreeExperiencePolicy.NUTRIENT_PLUS_EXPERIENCE.getValue());
+        assertThat(tree.getLevel()).isEqualTo(TreeExperiencePolicy.INITIAL_LEVEL.getValue());
         assertThat(tree.isMaxGrowth()).isFalse();
     }
 
@@ -76,11 +76,11 @@ class TreeTest {
     @Test
     void levelUpWhenExperienceReachesMaxTest() {
         // given
-        int numOfActions = TreeConfig.LEVEL_ONE_MAX_EXPERIENCE.getValue() /
-                TreeConfig.NUTRIENT_PLUS_EXPERIENCE.getValue();
+        int numOfActions = TreeExperiencePolicy.LEVEL_ONE_MAX_EXPERIENCE.getValue() /
+                TreeExperiencePolicy.NUTRIENT_PLUS_EXPERIENCE.getValue();
 
-        if (TreeConfig.LEVEL_ONE_MAX_EXPERIENCE.getValue() %
-                TreeConfig.NUTRIENT_PLUS_EXPERIENCE.getValue() != 0) {
+        if (TreeExperiencePolicy.LEVEL_ONE_MAX_EXPERIENCE.getValue() %
+                TreeExperiencePolicy.NUTRIENT_PLUS_EXPERIENCE.getValue() != 0) {
             numOfActions++;
         }
 
@@ -91,19 +91,19 @@ class TreeTest {
 
         // then
         assertThat(tree.getLevel()).isEqualTo(2);
-        assertThat(tree.getExperience()).isLessThan(TreeConfig.LEVEL_TWO_MAX_EXPERIENCE.getValue());
+        assertThat(tree.getExperience()).isLessThan(TreeExperiencePolicy.LEVEL_TWO_MAX_EXPERIENCE.getValue());
     }
 
     @DisplayName("여러번 레벨업을 할 수 있어야 한다")
     @Test
     void multipleConsecutiveLevelUpsTest() {
         // given
-        int totalExperienceNeeded = TreeConfig.LEVEL_ONE_MAX_EXPERIENCE.getValue() +
-                TreeConfig.LEVEL_TWO_MAX_EXPERIENCE.getValue() + 50;
+        int totalExperienceNeeded = TreeExperiencePolicy.LEVEL_ONE_MAX_EXPERIENCE.getValue() +
+                TreeExperiencePolicy.LEVEL_TWO_MAX_EXPERIENCE.getValue() + 50;
 
-        int numOfActions = totalExperienceNeeded / TreeConfig.NUTRIENT_PLUS_EXPERIENCE.getValue();
+        int numOfActions = totalExperienceNeeded / TreeExperiencePolicy.NUTRIENT_PLUS_EXPERIENCE.getValue();
 
-        if (totalExperienceNeeded % TreeConfig.NUTRIENT_PLUS_EXPERIENCE.getValue() != 0) {
+        if (totalExperienceNeeded % TreeExperiencePolicy.NUTRIENT_PLUS_EXPERIENCE.getValue() != 0) {
             numOfActions++;
         }
 
@@ -115,7 +115,7 @@ class TreeTest {
         // then
         assertThat(tree.getLevel()).isEqualTo(3);
         assertThat(tree.getExperience()).isGreaterThan(0);
-        assertThat(tree.getExperience()).isLessThan(TreeConfig.LEVEL_THREE_MAX_EXPERIENCE.getValue());
+        assertThat(tree.getExperience()).isLessThan(TreeExperiencePolicy.LEVEL_THREE_MAX_EXPERIENCE.getValue());
     }
 
     @DisplayName("최대 레벨에 도달하면 isMaxGrowth가 true가 되어야 한다")
@@ -123,17 +123,17 @@ class TreeTest {
     void maxGrowthWhenReachingMaxLevelTest() {
         // given
         int totalExperience = 0;
-        for (int i = 1; i <= TreeConfig.MAX_LEVEL.getValue(); i++) {
+        for (int i = 1; i <= TreeExperiencePolicy.MAX_LEVEL.getValue(); i++) {
             switch (i) {
-                case 1 -> totalExperience += TreeConfig.LEVEL_ONE_MAX_EXPERIENCE.getValue();
-                case 2 -> totalExperience += TreeConfig.LEVEL_TWO_MAX_EXPERIENCE.getValue();
-                case 3 -> totalExperience += TreeConfig.LEVEL_THREE_MAX_EXPERIENCE.getValue();
-                case 4 -> totalExperience += TreeConfig.LEVEL_FOUR_MAX_EXPERIENCE.getValue();
-                case 5 -> totalExperience += TreeConfig.LEVEL_FIVE_MAX_EXPERIENCE.getValue();
+                case 1 -> totalExperience += TreeExperiencePolicy.LEVEL_ONE_MAX_EXPERIENCE.getValue();
+                case 2 -> totalExperience += TreeExperiencePolicy.LEVEL_TWO_MAX_EXPERIENCE.getValue();
+                case 3 -> totalExperience += TreeExperiencePolicy.LEVEL_THREE_MAX_EXPERIENCE.getValue();
+                case 4 -> totalExperience += TreeExperiencePolicy.LEVEL_FOUR_MAX_EXPERIENCE.getValue();
+                case 5 -> totalExperience += TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue();
             }
         }
 
-        int numOfActions = totalExperience / TreeConfig.NUTRIENT_PLUS_EXPERIENCE.getValue() + 1;
+        int numOfActions = totalExperience / TreeExperiencePolicy.NUTRIENT_PLUS_EXPERIENCE.getValue() + 1;
 
         // when
         for (int i = 0; i < numOfActions; i++) {
@@ -141,24 +141,24 @@ class TreeTest {
         }
 
         // then
-        assertThat(tree.getLevel()).isEqualTo(TreeConfig.MAX_LEVEL.getValue());
+        assertThat(tree.getLevel()).isEqualTo(TreeExperiencePolicy.MAX_LEVEL.getValue());
         assertThat(tree.isMaxGrowth()).isTrue();
-        assertThat(tree.getExperience()).isEqualTo(TreeConfig.LEVEL_FIVE_MAX_EXPERIENCE.getValue());
+        assertThat(tree.getExperience()).isEqualTo(TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue());
     }
 
     @DisplayName("최대 성장에 도달한 후에는 경험치가 증가하지 않아야 한다")
     @Test
     void noMoreExperienceAfterMaxGrowthTest() {
         // given
-        tree = Tree.create(1L, TreeConfig.MAX_LEVEL.getValue(),
-                TreeConfig.LEVEL_FIVE_MAX_EXPERIENCE.getValue(), true, member);
+        tree = Tree.create(1L, TreeExperiencePolicy.MAX_LEVEL.getValue(),
+                TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue(), true, member);
 
         // when
         tree.earnExperience(GrowthButton.NUTRIENT);
 
         // then
-        assertThat(tree.getLevel()).isEqualTo(TreeConfig.MAX_LEVEL.getValue());
-        assertThat(tree.getExperience()).isEqualTo(TreeConfig.LEVEL_FIVE_MAX_EXPERIENCE.getValue());
+        assertThat(tree.getLevel()).isEqualTo(TreeExperiencePolicy.MAX_LEVEL.getValue());
+        assertThat(tree.getExperience()).isEqualTo(TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue());
         assertThat(tree.isMaxGrowth()).isTrue();
     }
 

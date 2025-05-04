@@ -3,7 +3,7 @@ package com.gdg.Todak.tree.repository.entity;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.tree.business.dto.TreeEntityDto;
 import com.gdg.Todak.tree.business.dto.TreeEntityUpdateRequest;
-import com.gdg.Todak.tree.domain.TreeConfig;
+import com.gdg.Todak.tree.domain.TreeExperiencePolicy;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -29,8 +29,8 @@ public class TreeEntity {
 
     public static TreeEntity createByMember(Member member) {
         return TreeEntity.builder()
-                .level(TreeConfig.INITIAL_LEVEL.getValue())
-                .experience(TreeConfig.INITIAL_EXPERIENCE.getValue())
+                .level(TreeExperiencePolicy.INITIAL_LEVEL.getValue())
+                .experience(TreeExperiencePolicy.INITIAL_EXPERIENCE.getValue())
                 .isMaxGrowth(false)
                 .member(member)
                 .build();

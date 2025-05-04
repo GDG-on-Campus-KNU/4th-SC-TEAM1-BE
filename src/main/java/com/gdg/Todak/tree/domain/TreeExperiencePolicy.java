@@ -3,7 +3,7 @@ package com.gdg.Todak.tree.domain;
 import lombok.Getter;
 
 @Getter
-public enum TreeConfig {
+public enum TreeExperiencePolicy {
     INITIAL_LEVEL(1),
     INITIAL_EXPERIENCE(0),
     LEVEL_ONE_MAX_EXPERIENCE(100),
@@ -21,7 +21,7 @@ public enum TreeConfig {
 
     private final int value;
 
-    TreeConfig(int value) {
+    TreeExperiencePolicy(int value) {
         this.value = value;
     }
 }

@@ -4,7 +4,7 @@ import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.point.PointType;
 import com.gdg.Todak.point.exception.BadRequestException;
 import com.gdg.Todak.tree.domain.GrowthButton;
-import com.gdg.Todak.tree.domain.TreeConfig;
+import com.gdg.Todak.tree.domain.TreeExperiencePolicy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,8 +78,8 @@ class PointTest {
         int consumedPoint = point.consumePointByGrowthButton(GrowthButton.WATER);
 
         // then
-        assertThat(consumedPoint).isEqualTo(TreeConfig.WATER_SPEND.getValue());
-        assertThat(point.getPoint()).isEqualTo(200 - TreeConfig.WATER_SPEND.getValue());
+        assertThat(consumedPoint).isEqualTo(TreeExperiencePolicy.WATER_SPEND.getValue());
+        assertThat(point.getPoint()).isEqualTo(200 - TreeExperiencePolicy.WATER_SPEND.getValue());
     }
 
     @DisplayName("햇빛 성장 버튼으로 포인트를 소비하면 해당 포인트가 차감되어야 한다")
@@ -92,8 +92,8 @@ class PointTest {
         int consumedPoint = point.consumePointByGrowthButton(GrowthButton.SUN);
 
         // then
-        assertThat(consumedPoint).isEqualTo(TreeConfig.SUN_SPEND.getValue());
-        assertThat(point.getPoint()).isEqualTo(200 - TreeConfig.SUN_SPEND.getValue());
+        assertThat(consumedPoint).isEqualTo(TreeExperiencePolicy.SUN_SPEND.getValue());
+        assertThat(point.getPoint()).isEqualTo(200 - TreeExperiencePolicy.SUN_SPEND.getValue());
     }
 
     @DisplayName("영양분 성장 버튼으로 포인트를 소비하면 해당 포인트가 차감되어야 한다")
@@ -106,8 +106,8 @@ class PointTest {
         int consumedPoint = point.consumePointByGrowthButton(GrowthButton.NUTRIENT);
 
         // then
-        assertThat(consumedPoint).isEqualTo(TreeConfig.NUTRIENT_SPEND.getValue());
-        assertThat(point.getPoint()).isEqualTo(200 - TreeConfig.NUTRIENT_SPEND.getValue());
+        assertThat(consumedPoint).isEqualTo(TreeExperiencePolicy.NUTRIENT_SPEND.getValue());
+        assertThat(point.getPoint()).isEqualTo(200 - TreeExperiencePolicy.NUTRIENT_SPEND.getValue());
     }
 
     @DisplayName("성장 버튼 타입에 따라 올바른 PointType으로 변환되어야 한다 - WATER")

@@ -4,7 +4,7 @@ import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.tree.business.dto.TreeEntityDto;
 import com.gdg.Todak.tree.business.dto.TreeEntityUpdateRequest;
-import com.gdg.Todak.tree.domain.TreeConfig;
+import com.gdg.Todak.tree.domain.TreeExperiencePolicy;
 import com.gdg.Todak.tree.exception.NotFoundException;
 import com.gdg.Todak.tree.repository.entity.TreeEntity;
 import com.gdg.Todak.tree.repository.repository.TreeJpaRepository;
@@ -52,8 +52,8 @@ class TreeRepositoryImplTest {
         assertThat(exists).isTrue();
 
         TreeEntity treeEntity = treeJpaRepository.findByMember(member).orElseThrow();
-        assertThat(treeEntity.getLevel()).isEqualTo(TreeConfig.INITIAL_LEVEL.getValue());
-        assertThat(treeEntity.getExperience()).isEqualTo(TreeConfig.INITIAL_EXPERIENCE.getValue());
+        assertThat(treeEntity.getLevel()).isEqualTo(TreeExperiencePolicy.INITIAL_LEVEL.getValue());
+        assertThat(treeEntity.getExperience()).isEqualTo(TreeExperiencePolicy.INITIAL_EXPERIENCE.getValue());
         assertThat(treeEntity.isMaxGrowth()).isFalse();
     }
 
@@ -68,8 +68,8 @@ class TreeRepositoryImplTest {
 
         // then
         assertThat(treeEntityDto).isNotNull();
-        assertThat(treeEntityDto.level()).isEqualTo(TreeConfig.INITIAL_LEVEL.getValue());
-        assertThat(treeEntityDto.experience()).isEqualTo(TreeConfig.INITIAL_EXPERIENCE.getValue());
+        assertThat(treeEntityDto.level()).isEqualTo(TreeExperiencePolicy.INITIAL_LEVEL.getValue());
+        assertThat(treeEntityDto.experience()).isEqualTo(TreeExperiencePolicy.INITIAL_EXPERIENCE.getValue());
         assertThat(treeEntityDto.isMaxGrowth()).isFalse();
         assertThat(treeEntityDto.member().getId()).isEqualTo(member.getId());
     }
@@ -110,8 +110,8 @@ class TreeRepositoryImplTest {
         // given
         treeRepository.saveTreeByMember(member);
         TreeEntityUpdateRequest maxGrowthRequest = TreeEntityUpdateRequest.create(
-                TreeConfig.MAX_LEVEL.getValue(),
-                TreeConfig.LEVEL_FIVE_MAX_EXPERIENCE.getValue(),
+                TreeExperiencePolicy.MAX_LEVEL.getValue(),
+                TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue(),
                 true
         );
 
@@ -120,8 +120,8 @@ class TreeRepositoryImplTest {
 
         // then
         TreeEntity updatedTree = treeJpaRepository.findByMember(member).orElseThrow();
-        assertThat(updatedTree.getLevel()).isEqualTo(TreeConfig.MAX_LEVEL.getValue());
-        assertThat(updatedTree.getExperience()).isEqualTo(TreeConfig.LEVEL_FIVE_MAX_EXPERIENCE.getValue());
+        assertThat(updatedTree.getLevel()).isEqualTo(TreeExperiencePolicy.MAX_LEVEL.getValue());
+        assertThat(updatedTree.getExperience()).isEqualTo(TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue());
         assertThat(updatedTree.isMaxGrowth()).isTrue();
     }
 

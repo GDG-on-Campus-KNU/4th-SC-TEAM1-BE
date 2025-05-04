@@ -7,7 +7,7 @@ import com.gdg.Todak.point.service.PointService;
 import com.gdg.Todak.tree.business.dto.TreeEntityDto;
 import com.gdg.Todak.tree.business.dto.TreeInfoResponse;
 import com.gdg.Todak.tree.domain.GrowthButton;
-import com.gdg.Todak.tree.domain.TreeConfig;
+import com.gdg.Todak.tree.domain.TreeExperiencePolicy;
 import com.gdg.Todak.tree.exception.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,8 +48,8 @@ class TreeServiceTest {
         testMember = Member.of("testId", "testUser", "testNick", "image.jpg", "test");
 
         treeEntityDto = TreeEntityDto.create(1L,
-                TreeConfig.INITIAL_LEVEL.getValue(),
-                TreeConfig.INITIAL_EXPERIENCE.getValue(),
+                TreeExperiencePolicy.INITIAL_LEVEL.getValue(),
+                TreeExperiencePolicy.INITIAL_EXPERIENCE.getValue(),
                 false,
                 testMember);
     }
@@ -141,8 +141,8 @@ class TreeServiceTest {
     void earnExperienceFailWhenTreeMaxedTest() {
         // given
         TreeEntityDto maxedTreeDto = TreeEntityDto.create(1L,
-                TreeConfig.MAX_LEVEL.getValue(),
-                TreeConfig.LEVEL_FIVE_MAX_EXPERIENCE.getValue(),
+                TreeExperiencePolicy.MAX_LEVEL.getValue(),
+                TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue(),
                 true,
                 testMember);
 
@@ -182,8 +182,8 @@ class TreeServiceTest {
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.level()).isEqualTo(TreeConfig.INITIAL_LEVEL.getValue());
-        assertThat(response.experience()).isEqualTo(TreeConfig.INITIAL_EXPERIENCE.getValue());
+        assertThat(response.level()).isEqualTo(TreeExperiencePolicy.INITIAL_LEVEL.getValue());
+        assertThat(response.experience()).isEqualTo(TreeExperiencePolicy.INITIAL_EXPERIENCE.getValue());
     }
 
     @Test
