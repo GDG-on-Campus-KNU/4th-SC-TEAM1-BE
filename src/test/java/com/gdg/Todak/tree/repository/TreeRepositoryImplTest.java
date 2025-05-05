@@ -78,8 +78,8 @@ class TreeRepositoryImplTest {
     @Test
     void findByMemberNotFoundExceptionTest() {
         // given
-        Member member = new Member("nonExistingUser", "non@email.com", "pwd", "010-0000-0000", "test");
-        Member nonExistingMember = memberRepository.save(member);
+        Member newMember = new Member("nonExistingUser", "non@email.com", "pwd", "010-0000-0000", "test");
+        Member nonExistingMember = memberRepository.save(newMember);
 
         // when & then
         assertThatThrownBy(() -> treeRepository.findByMember(nonExistingMember))
