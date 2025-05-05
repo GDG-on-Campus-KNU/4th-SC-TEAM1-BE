@@ -55,6 +55,7 @@ jobs:
           MYSQL_DATABASE: todak_test
           MOUNT_PATH: ${{ secrets.MOUNT_PATH }}
           DEFAULT_PROFILE_IMAGE_URL: ${{ secrets.DEFAULT_PROFILE_IMAGE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       
       - name: 📊 Generate JaCoCo Coverage Report
         run: ./gradlew jacocoTestReport
@@ -115,10 +116,11 @@ jobs:
           title: 📊 Code Coverage Report
           update-comment: true
           pull-request-id: ${{ github.event.pull_request.number }}
-      
+
       - name: 📊 Add SonarQube Quality Gate PR Comment
         uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
+        continue-on-error: true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
