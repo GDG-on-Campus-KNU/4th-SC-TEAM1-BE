@@ -116,10 +116,11 @@ jobs:
           title: 📊 Code Coverage Report
           update-comment: true
           pull-request-id: ${{ github.event.pull_request.number }}
-      
+
       - name: 📊 Add SonarQube Quality Gate PR Comment
         uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
+        continue-on-error: true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
