@@ -130,6 +130,7 @@ class TreeTest {
                 case 3 -> totalExperience += TreeExperiencePolicy.LEVEL_THREE_MAX_EXPERIENCE.getValue();
                 case 4 -> totalExperience += TreeExperiencePolicy.LEVEL_FOUR_MAX_EXPERIENCE.getValue();
                 case 5 -> totalExperience += TreeExperiencePolicy.LEVEL_FIVE_MAX_EXPERIENCE.getValue();
+                default -> totalExperience = 0;
             }
         }
 

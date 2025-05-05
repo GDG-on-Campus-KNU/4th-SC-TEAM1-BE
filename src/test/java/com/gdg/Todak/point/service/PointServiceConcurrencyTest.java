@@ -38,12 +38,6 @@ public class PointServiceConcurrencyTest {
     void tearDown() {
         memberRepository.deleteAllInBatch(usedMembers);
         usedMembers.clear();
-
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 
     @Test
