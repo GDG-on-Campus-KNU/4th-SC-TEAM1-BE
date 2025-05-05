@@ -14,6 +14,7 @@ import com.gdg.Todak.point.exception.ConflictException;
 import com.gdg.Todak.point.exception.NotFoundException;
 import com.gdg.Todak.point.repository.PointLogRepository;
 import com.gdg.Todak.point.repository.PointRepository;
+import com.gdg.Todak.tree.domain.GrowthButton;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,7 @@ public class PointService {
     private final static int ATTENDANCE_BONUS_5_DAYS = 30;
     private final static int DIARY_WRITE_POINT = 15;
     private final static int COMMENT_WRITE_POINT = 10;
+    private final static String LOCK_PREFIX = "pointLock:";
     private final static List<PointType> ATTENDANCE_LISTS = Arrays.asList(
             PointType.ATTENDANCE_DAY_1,
             PointType.ATTENDANCE_DAY_2,
@@ -52,13 +54,13 @@ public class PointService {
     private final LockWithMemberFactory lockWithMemberFactory;
 
     @Transactional
-    public void createPoint(Member member) {
+    public Point createPoint(Member member) {
         if (pointRepository.existsByMember(member)) {
             throw new ConflictException("이미 해당 멤버의 point 객체가 존재합니다.");
         }
 
         Point point = Point.builder().member(member).build();
-        pointRepository.save(point);
+        return pointRepository.save(point);
     }
 
     public PointResponse getPoint(String userId) {
@@ -70,7 +72,7 @@ public class PointService {
 
     @Transactional
     public void earnAttendancePointPerDay(Member member) {
-        String lockKey = "pointLock:" + member.getId();
+        String lockKey = LOCK_PREFIX + member.getId();
 
         Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 2);
 
@@ -132,7 +134,7 @@ public class PointService {
 
     @Transactional
     public void earnPointByType(PointRequest pointRequest) {
-        String lockKey = "pointLock:" + pointRequest.member().getId();
+        String lockKey = LOCK_PREFIX + pointRequest.member().getId();
 
         Lock lock = lockWithMemberFactory.tryLock(pointRequest.member(), lockKey, 10, 2);
 
@@ -144,8 +146,8 @@ public class PointService {
         int pointByType = getPointByType(pointRequest.pointType());
 
         if (!pointLogRepository.existsByCreatedAtBetweenAndMemberAndPointTypeIn(startOfDay, endOfDay, pointRequest.member(), List.of(pointRequest.pointType()))) {
-            pointLogService.createPointLog(new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED, LocalDateTime.now()));
             point.earnPoint(pointByType);
+            pointLogService.createPointLog(new PointLogRequest(pointRequest.member(), pointByType, pointRequest.pointType(), PointStatus.EARNED, LocalDateTime.now()));
         }
 
         lockWithMemberFactory.unlock(pointRequest.member(), lock);
@@ -157,6 +159,22 @@ public class PointService {
             case COMMENT -> COMMENT_WRITE_POINT;
             default -> throw new BadRequestException("해당하는 pointType이 없습니다");
         };
+    }
+
+    @Transactional
+    public void consumePointByGrowthButton(Member member, GrowthButton growthButton) {
+        String lockKey = LOCK_PREFIX + member.getId();
+
+        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 2);
+
+        Point point = getPoint(member);
+        PointType pointType = point.convertPointTypeByGrowthButton(growthButton);
+
+        int consumedPoint = point.consumePointByGrowthButton(growthButton);
+
+        pointLogService.createPointLog(new PointLogRequest(member, consumedPoint, pointType, PointStatus.CONSUMED, LocalDateTime.now()));
+
+        lockWithMemberFactory.unlock(member, lock);
     }
 
     private Point getPoint(Member member) {

@@ -13,6 +13,7 @@ import com.gdg.Todak.member.service.response.*;
 import com.gdg.Todak.member.util.JwtProvider;
 import com.gdg.Todak.member.util.PasswordEncoder;
 import com.gdg.Todak.point.service.PointService;
+import com.gdg.Todak.tree.business.TreeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,6 +35,7 @@ public class MemberService {
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
     private final PointService pointService;
+    private final TreeService treeService;
 
     @Value("${DEFAULT_PROFILE_IMAGE_URL}")
     private String defaultProfileImageUrl;
@@ -63,6 +65,8 @@ public class MemberService {
         memberRoleRepository.save(role);
 
         pointService.createPoint(member);
+
+        treeService.getTree(member);
 
         return MemberResponse.of(member.getUserId());
     }

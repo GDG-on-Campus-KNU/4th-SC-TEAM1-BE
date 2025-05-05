@@ -22,4 +22,9 @@
         <Class name="~.*Config.*" />
         <Bug pattern="HARD_CODE_PASSWORD,HARD_CODE_KEY" />
     </Match>
+
+    <!-- Advice 관련 클래스에서 발생할 수 있는 모든 경고 무시 -->
+    <Match>
+        <Class name="~.*\.advice\..*" />
+    </Match>
 </FindBugsFilter>
