@@ -125,3 +125,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           scanMetadataReportFile: .scannerwork/report-task.txt
+
+      - name: 📎 Upload SpotBugs Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: build/reports/spotbugs
