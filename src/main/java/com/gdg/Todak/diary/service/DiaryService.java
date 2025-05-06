@@ -36,6 +36,7 @@ public class DiaryService {
     private final NotificationService notificationService;
     private final FriendCheckService friendCheckService;
     private final PointService pointService;
+    private final SchedulerService schedulerService;
 
     @Transactional
     public void writeDiary(String userId, DiaryRequest diaryRequest) {
@@ -59,6 +60,9 @@ public class DiaryService {
         Diary saveDiary = diaryRepository.save(diary);
 
         pointService.earnPointByType(new PointRequest(member, PointType.DIARY));
+
+        // AI 댓글 작성 예약
+        schedulerService.scheduleSavingCommentByAI(saveDiary);
 
         // 알림 전송
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gdg.Todak.common.config.AiModelConfig;
 import com.gdg.Todak.diary.dto.AICommentByGeminiResponse;
-import com.gdg.Todak.diary.dto.AICommentRequest;
 import com.gdg.Todak.diary.dto.CommentRequest;
 import com.gdg.Todak.diary.dto.CommentResponse;
 import com.gdg.Todak.diary.entity.Comment;
@@ -14,6 +13,7 @@ import com.gdg.Todak.diary.exception.UnauthorizedException;
 import com.gdg.Todak.diary.repository.CommentRepository;
 import com.gdg.Todak.diary.repository.DiaryRepository;
 import com.gdg.Todak.diary.util.MBTISelector;
+import com.gdg.Todak.diary.util.OneTimeEventScheduler;
 import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
@@ -32,8 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Random;
 
 import static com.gdg.Todak.diary.util.AiCommentPrompt.*;
 
@@ -42,6 +44,7 @@ import static com.gdg.Todak.diary.util.AiCommentPrompt.*;
 @RequiredArgsConstructor
 public class CommentService {
 
+    public static final String AI_MEMBER_USER_ID = "ai_member";
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
@@ -157,11 +160,13 @@ public class CommentService {
     }
 
     @Transactional
-    public void saveCommentByAI(Diary diary, AICommentRequest aiCommentRequest) {
-        // AI 파트에서 사용할 댓글 저장용 메서드
+    public void saveCommentByAI(Diary diary) {
+        Member aiMember = getMember(AI_MEMBER_USER_ID);
+        String aiComment = createAIComment(diary.getContent());
+
         Comment commentByAI = Comment.builder()
-            .member(aiCommentRequest.member())
-            .content(aiCommentRequest.content())
+            .member(aiMember)
+            .content(aiComment)
             .diary(diary)
             .build();
 
