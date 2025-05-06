@@ -164,6 +164,20 @@ public class MemberService {
         return member.getUserId();
     }
 
+    @Transactional
+    public String enableAiComment(AuthenticateUser user) {
+        Member member = findMember(user.getUserId());
+        member.enableAiComment();
+        return "AI 댓글 기능이 활성화되었습니다.";
+    }
+
+    @Transactional
+    public String disableAiComment(AuthenticateUser user) {
+        Member member = findMember(user.getUserId());
+        member.disableAiComment();
+        return "AI 댓글 기능이 비활성화되었습니다.";
+    }
+
     private Member findMember(String userId) {
         return memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new UnauthorizedException("멤버가 존재하지 않습니다."));

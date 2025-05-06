@@ -30,8 +30,20 @@ public class Member {
 
     private String salt;
 
+    private boolean aiCommentEnabled;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<MemberRole> memberRoles = new HashSet<>();
+
+    @Builder
+    public Member(String userId, String password, String nickname, String imageUrl, String salt, boolean aiCommentEnabled) {
+        this.userId = userId;
+        this.password = password;
+        this.nickname = nickname;
+        this.imageUrl = imageUrl;
+        this.salt = salt;
+        this.aiCommentEnabled = aiCommentEnabled;
+    }
 
     @Builder
     public Member(String userId, String password, String nickname, String imageUrl, String salt) {
@@ -44,12 +56,13 @@ public class Member {
 
     public static Member of(String userId, String password, String nickname, String imageUrl, String salt) {
         return Member.builder()
-                .userId(userId)
-                .password(password)
-                .nickname(nickname)
-                .imageUrl(imageUrl)
-                .salt(salt)
-                .build();
+            .userId(userId)
+            .password(password)
+            .nickname(nickname)
+            .imageUrl(imageUrl)
+            .salt(salt)
+            .aiCommentEnabled(true)
+            .build();
     }
 
     public void addRole(MemberRole memberRole) {
@@ -58,7 +71,7 @@ public class Member {
 
     public Set<Role> getRoles() {
         return memberRoles.stream()
-                .map(MemberRole::getRole).collect(Collectors.toSet());
+            .map(MemberRole::getRole).collect(Collectors.toSet());
     }
 
     public void setImageUrl(String imageUrl) {
@@ -75,5 +88,13 @@ public class Member {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public void enableAiComment() {
+        this.aiCommentEnabled = true;
+    }
+
+    public void disableAiComment() {
+        this.aiCommentEnabled = false;
     }
 }
