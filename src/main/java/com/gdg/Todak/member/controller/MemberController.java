@@ -74,4 +74,16 @@ public class MemberController {
     public ApiResponse<Void> deleteMember(@Parameter(hidden = true) @Login AuthenticateUser user) {
         return ApiResponse.ok(memberService.deleteMember(user));
     }
+
+    @PostMapping("/ai-comment/enable")
+    @Operation(summary = "AI 댓글 기능 활성화", description = "AI 댓글 기능을 활성화한다.")
+    public ApiResponse<Void> enableAiComment(@Parameter(hidden = true) @Login AuthenticateUser user) {
+        return ApiResponse.ok(memberService.enableAiComment(user));
+    }
+
+    @PostMapping("/ai-comment/disable")
+    @Operation(summary = "AI 댓글 기능 비활성화", description = "AI 댓글 기능을 비활성화한다.")
+    public ApiResponse<Void> disableAiComment(@Parameter(hidden = true) @Login AuthenticateUser user) {
+        return ApiResponse.ok(memberService.disableAiComment(user));
+    }
 }

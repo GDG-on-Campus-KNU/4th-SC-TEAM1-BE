@@ -251,6 +251,46 @@ class MemberServiceTest {
         assertThat(findMember.isEmpty()).isTrue();
     }
 
+    @DisplayName("AI 댓글 기능이 활성화 된다.")
+    @Test
+    void enableAiCommentTest() {
+        // given
+        Set<Role> roles = Set.of(Role.USER);
+
+        AuthenticateUser user = AuthenticateUser.builder()
+            .userId(USERNAME)
+            .roles(roles)
+            .build();
+
+        // when
+        String result = memberService.enableAiComment(user);
+        Member findMember = memberRepository.findByUserId(USERNAME).get();
+
+        // then
+        assertThat(result).isEqualTo("AI 댓글 기능이 활성화되었습니다.");
+        assertThat(findMember.isAiCommentEnabled()).isEqualTo(true);
+    }
+
+    @DisplayName("AI 댓글 기능이 비활성화 된다.")
+    @Test
+    void disableAiCommentTest() {
+        // given
+        Set<Role> roles = Set.of(Role.USER);
+
+        AuthenticateUser user = AuthenticateUser.builder()
+            .userId(USERNAME)
+            .roles(roles)
+            .build();
+
+        // when
+        String result = memberService.disableAiComment(user);
+        Member findMember = memberRepository.findByUserId(USERNAME).get();
+
+        // then
+        assertThat(result).isEqualTo("AI 댓글 기능이 비활성화되었습니다.");
+        assertThat(findMember.isAiCommentEnabled()).isEqualTo(false);
+    }
+
     private void createMember(String userId, String password, String passwordCheck) {
         SignupServiceRequest request = SignupServiceRequest.builder()
                 .userId(userId)
