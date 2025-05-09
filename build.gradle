@@ -85,10 +85,14 @@ jacocoTestReport {
         xml.required = true
         html.required = true
     }
-    
+
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
+                "com/gdg/Todak/TodakApplication.class",
+                "**/dto/**",
+                "**/domain/**",
+                "**/exception/**",
                 "**/controller/advice/**",
                 "**/*ControllerAdvice.*"
             ])
@@ -101,7 +105,7 @@ spotbugs {
     toolVersion = '4.8.3'
     ignoreFailures = true  // PR에서 실패하지 않도록 설정
     reportsDir = file("$buildDir/reports/spotbugs")
-    excludeFilter = file("spotbugs-exclude.xml") 
+    excludeFilter = file("spotbugs-exclude.xml")
 }
 
 spotbugsMain {
