@@ -3,6 +3,7 @@ package com.gdg.Todak.tree.controller.advice;
 import com.gdg.Todak.common.domain.ApiResponse;
 import com.gdg.Todak.tree.exception.BadRequestException;
 import com.gdg.Todak.tree.exception.NotFoundException;
+import com.gdg.Todak.tree.exception.UnauthorizedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -12,6 +13,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(basePackages = "com.gdg.Todak.tree")
 public class TreeControllerAdvice {
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UnauthorizedException.class)
+    public ApiResponse<Exception> handleUnauthorizedException(UnauthorizedException e) {
+        return ApiResponse.of(
+                HttpStatus.UNAUTHORIZED,
+                e.getMessage()
+        );
+    }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
