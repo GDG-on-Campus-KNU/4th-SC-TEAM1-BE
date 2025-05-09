@@ -92,6 +92,10 @@ public class Tree {
         }
     }
 
+    public boolean isMyTree(Member member) {
+        return this.member.equals(member);
+    }
+
     public TreeEntityUpdateRequest toTreeEntityUpdateRequest() {
         return TreeEntityUpdateRequest.create(level, experience, isMaxGrowth);
     }

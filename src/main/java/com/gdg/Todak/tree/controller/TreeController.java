@@ -28,10 +28,18 @@ public class TreeController {
         return ApiResponse.ok(response);
     }
 
-    @Operation(summary = "트리 정보 조회", description = "트리의 레벨, 경험치를 조회합니다.")
+    @Operation(summary = "내 트리 정보 조회", description = "내 트리의 레벨, 경험치를 조회합니다.")
     @GetMapping
-    public ApiResponse<TreeInfoResponse> getTreeInfo(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
-        TreeInfoResponse treeInfoResponse = treeService.getTreeInfo(authenticateUser.getUserId());
+    public ApiResponse<TreeInfoResponse> getMyTreeInfo(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
+        TreeInfoResponse treeInfoResponse = treeService.getMyTreeInfo(authenticateUser.getUserId());
+        return ApiResponse.ok(treeInfoResponse);
+    }
+
+    @Operation(summary = "친구 트리 정보 조회", description = "친구 트리의 레벨, 경험치를 조회합니다.")
+    @GetMapping("/{friendId}")
+    public ApiResponse<TreeInfoResponse> getFriendTreeInfo(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser,
+                                                           @PathVariable("friendId") String friendId) {
+        TreeInfoResponse treeInfoResponse = treeService.getFriendTreeInfo(authenticateUser.getUserId(), friendId);
         return ApiResponse.ok(treeInfoResponse);
     }
 }
