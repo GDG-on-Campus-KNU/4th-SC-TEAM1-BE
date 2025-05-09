@@ -88,7 +88,7 @@ class TreeControllerTest {
     void getTreeInfoTest() throws Exception {
         // given
         TreeInfoResponse response = TreeInfoResponse.create(3, 150);
-        given(treeService.getTreeInfo(anyString())).willReturn(response);
+        given(treeService.getMyTreeInfo(anyString())).willReturn(response);
 
         // when & then
         mockMvc.perform(get("/api/v1/tree")
@@ -98,7 +98,26 @@ class TreeControllerTest {
                 .andExpect(jsonPath("$.data.level").value(3))
                 .andExpect(jsonPath("$.data.experience").value(150));
 
-        verify(treeService).getTreeInfo("testUser");
+        verify(treeService).getMyTreeInfo("testUser");
+    }
+
+    @Test
+    @DisplayName("친구 트리 정보 조회 API 테스트")
+    void getFriendTreeInfoTest() throws Exception {
+        // given
+        String friendId = "friendUserId";
+        TreeInfoResponse response = TreeInfoResponse.create(4, 200);
+        given(treeService.getFriendTreeInfo(anyString(), anyString())).willReturn(response);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/tree/" + friendId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data.level").value(4))
+                .andExpect(jsonPath("$.data.experience").value(200));
+
+        verify(treeService).getFriendTreeInfo("testUser", friendId);
     }
 
     @Test

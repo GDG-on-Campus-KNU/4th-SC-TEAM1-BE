@@ -185,4 +185,14 @@ class TreeTest {
         assertThat(response.level()).isEqualTo(tree.getLevel());
         assertThat(response.experience()).isEqualTo(tree.getExperience());
     }
+
+    @DisplayName("isMyTree 테스트")
+    @Test
+    void testIsMyTree() {
+        // given & when
+        Member newMember = new Member("new", "email1", "pw", "010-1234-5678", "nickname");
+
+        // then
+        assertThat(tree.isMyTree(newMember)).isFalse();
+    }
 }
