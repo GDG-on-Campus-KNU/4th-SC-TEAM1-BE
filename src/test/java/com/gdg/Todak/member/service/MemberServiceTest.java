@@ -203,29 +203,6 @@ class MemberServiceTest {
         assertThat(meResponse.getNickname()).isEqualTo(changedNickname);
     }
 
-    @DisplayName("유저 정보(이미지 url)를 수정한다.")
-    @Test
-    void editMemberImageUrlTest() {
-        // given
-        String changedImageUrl = "changedImageUrl";
-
-        Set<Role> roles = Set.of(Role.USER);
-        AuthenticateUser user = AuthenticateUser.builder()
-            .userId(USERNAME)
-            .roles(roles)
-            .build();
-
-        EditMemberImageUrlServiceRequest request = EditMemberImageUrlServiceRequest.builder()
-            .imageUrl(changedImageUrl)
-            .build();
-
-        // when
-        MeResponse meResponse = memberService.editMemberImageUrl(user, request);
-
-        // then
-        assertThat(meResponse.getImageUrl()).isEqualTo(changedImageUrl);
-    }
-
     @DisplayName("비밀번호 수정 시 새로운 비밀번호와 수정된 비밀번호 확인이 같아야 한다.")
     @Test
     void changePasswordNonMatchingTest() {

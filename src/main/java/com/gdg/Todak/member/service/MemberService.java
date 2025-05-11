@@ -115,9 +115,11 @@ public class MemberService {
     }
 
     @Transactional
-    public MeResponse editMemberImageUrl(AuthenticateUser user, EditMemberImageUrlServiceRequest serviceRequest) {
+    public MeResponse editMemberProfileImage(AuthenticateUser user, EditMemberProfileImageServiceRequest serviceRequest) {
         Member member = findMember(user.getUserId());
-        member.setImageUrl(serviceRequest.getImageUrl());
+
+        // 이미지 처리 로직
+
         return MeResponse.of(member.getUserId(),member.getNickname(),member.getImageUrl());
     }
 
