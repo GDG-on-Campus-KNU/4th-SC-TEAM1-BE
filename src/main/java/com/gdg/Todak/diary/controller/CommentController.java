@@ -28,7 +28,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/{diaryId}")
-    @Operation(summary = "댓글 조회", description = "특정 게시글의 댓글 페이지네이션 조회, 본인 또는 친구의 일기의 댓글만 조회 가능")
+    @Operation(summary = "댓글 조회", description = "특정 게시글의 댓글 페이지네이션 조회, 본인 또는 친구의 일기의 댓글만 조회 가능. 댓글은 기본적으로 익명으로 표시됩니다.")
     @Parameters({
             @Parameter(in = ParameterIn.QUERY, name = "page", description = "페이지 번호 (0부터 시작)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
             @Parameter(in = ParameterIn.QUERY, name = "size", description = "페이지 크기", example = "10", schema = @Schema(type = "integer", defaultValue = "10")),
@@ -64,5 +64,14 @@ public class CommentController {
                                            @Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
         commentService.deleteComment(authenticateUser.getUserId(), commentId);
         return ApiResponse.of(HttpStatus.OK, "삭제되었습니다.");
+    }
+
+    @PostMapping("/reveal/{commentId}")
+    @Operation(summary = "댓글 익명 해제", description = "포인트를 사용하여 댓글 작성자의 익명을 해제합니다. " +
+            "친구가 아니더라도 익명 해제는 가능 (친구의 일기에 친구가 아닌 사람이 댓글을 단 경우도 조회가 가능하기 때문에 익명해제가 가능)")
+    public ApiResponse<String> revealAnonymous(@PathVariable("commentId") Long commentId,
+                                               @Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
+        String result = commentService.revealAnonymous(authenticateUser.getUserId(), commentId);
+        return ApiResponse.ok(result);
     }
 }
