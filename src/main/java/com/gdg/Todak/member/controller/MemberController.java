@@ -1,6 +1,7 @@
 package com.gdg.Todak.member.controller;
 
 import com.gdg.Todak.common.domain.ApiResponse;
+import com.gdg.Todak.member.controller.request.ProfileRequest;
 import com.gdg.Todak.member.controller.request.*;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.resolver.Login;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,10 +65,16 @@ public class MemberController {
         return ApiResponse.ok(memberService.editMemberNickname(user, request.toServiceRequest()));
     }
 
-    @PutMapping("/edit/image-url")
-    @Operation(summary = "내 정보 수정 - 프로필 사진", description = "유저 프로필 사진을 수정한다.")
-    public ApiResponse<MeResponse> editMemberProfileImage(@Parameter(hidden = true) @Login AuthenticateUser user, @RequestBody EditMemberProfileImageRequest request) {
-        return ApiResponse.ok(memberService.editMemberProfileImage(user, request.toServiceRequest()));
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "내 정보 등록 및 수정 - 프로필 사진", description = "유저 프로필 사진을 등록하거나 수정한다.")
+    public ApiResponse<MeResponse> editMemberProfileImage(@Parameter(hidden = true) @Login AuthenticateUser user, @ModelAttribute ProfileRequest request) {
+        return ApiResponse.ok(memberService.editMemberProfileImage(user, request));
+    }
+
+    @DeleteMapping("/profile")
+    @Operation(summary = "내 정보 삭제 - 프로필 사진", description = "유저 프로필 사진을 삭제하고 기본 이미지로 변경한다.")
+    public ApiResponse<MeResponse> deleteMemberProfileImage(@Parameter(hidden = true) @Login AuthenticateUser user) {
+        return ApiResponse.ok(memberService.deleteMemberProfileImage(user));
     }
 
     @PutMapping("/edit-password")
