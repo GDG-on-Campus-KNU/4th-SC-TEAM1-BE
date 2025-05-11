@@ -58,9 +58,15 @@ public class MemberController {
     }
 
     @PutMapping("/edit")
-    @Operation(summary = "내 정보 수정", description = "유저 닉네임 혹은 프로필 사진 url을 수정한다.")
-    public ApiResponse<MeResponse> editMember(@Parameter(hidden = true) @Login AuthenticateUser user, @RequestBody EditMemberRequest request) {
-        return ApiResponse.ok(memberService.editMemberInfo(user, request.toServiceRequest()));
+    @Operation(summary = "내 정보 수정 - 닉네임", description = "유저 닉네임을 수정한다.")
+    public ApiResponse<MeResponse> editMemberNickname(@Parameter(hidden = true) @Login AuthenticateUser user, @RequestBody EditMemberNicknameRequest request) {
+        return ApiResponse.ok(memberService.editMemberNickname(user, request.toServiceRequest()));
+    }
+
+    @PutMapping("/edit/image-url")
+    @Operation(summary = "내 정보 수정 - 프로필 사진 url", description = "유저 프로필 사진 url을 수정한다.")
+    public ApiResponse<MeResponse> editMemberProfileUrl(@Parameter(hidden = true) @Login AuthenticateUser user, @RequestBody EditMemberImageUrlRequest request) {
+        return ApiResponse.ok(memberService.editMemberImageUrl(user, request.toServiceRequest()));
     }
 
     @PutMapping("/edit-password")

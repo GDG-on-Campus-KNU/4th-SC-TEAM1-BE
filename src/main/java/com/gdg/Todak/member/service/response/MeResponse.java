@@ -20,11 +20,15 @@ public class MeResponse {
         this.imageUrl = imageUrl;
     }
 
-    public static MeResponse of(Member member) {
+    public static MeResponse of(String userId, String nickname, String imageUrl) {
         return MeResponse.builder()
-                .userId(member.getUserId())
-                .nickname(member.getNickname())
-                .imageUrl(member.getImageUrl())
-                .build();
+            .userId(userId)
+            .nickname(nickname)
+            .imageUrl(imageUrl)
+            .build();
+    }
+
+    public static MeResponse from(Member member) {
+        return MeResponse.of(member.getUserId(), member.getNickname(), member.getImageUrl());
     }
 }
