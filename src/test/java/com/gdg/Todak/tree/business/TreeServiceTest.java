@@ -1,6 +1,5 @@
 package com.gdg.Todak.tree.business;
 
-import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
 import com.gdg.Todak.point.exception.NotFoundException;
@@ -10,7 +9,6 @@ import com.gdg.Todak.tree.business.dto.TreeInfoResponse;
 import com.gdg.Todak.tree.domain.GrowthButton;
 import com.gdg.Todak.tree.domain.TreeExperiencePolicy;
 import com.gdg.Todak.tree.exception.BadRequestException;
-import com.gdg.Todak.tree.exception.UnauthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,9 +36,6 @@ class TreeServiceTest {
 
     @Mock
     private PointService pointService;
-
-    @Mock
-    private FriendCheckService friendCheckService;
 
     @InjectMocks
     private TreeService treeService;
@@ -200,61 +194,6 @@ class TreeServiceTest {
 
         // when & then
         assertThatThrownBy(() -> treeService.getMyTreeInfo("nonExistingUser"))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessage("userId에 해당하는 멤버가 없습니다.");
-    }
-
-    @Test
-    @DisplayName("친구의 트리 정보 조회 성공")
-    void getFriendTreeInfoSuccessTest() {
-        // given
-        String userId = "testUserId";
-        String friendId = "friendUserId";
-        Member friendMember = Member.of("friendId", friendId, "friendNick", "friend.jpg", "test");
-        TreeEntityDto friendTreeDto = TreeEntityDto.create(2L, 3, 150, false, friendMember);
-
-        given(memberRepository.findByUserId(friendId)).willReturn(Optional.of(friendMember));
-        given(friendCheckService.getFriendMembers(userId)).willReturn(List.of(friendMember));
-        given(treeRepository.findByMember(friendMember)).willReturn(friendTreeDto);
-
-        // when
-        TreeInfoResponse response = treeService.getFriendTreeInfo(userId, friendId);
-
-        // then
-        assertThat(response).isNotNull();
-        assertThat(response.level()).isEqualTo(3);
-        assertThat(response.experience()).isEqualTo(150);
-        verify(friendCheckService).getFriendMembers(userId);
-    }
-
-    @Test
-    @DisplayName("친구가 아닌 사용자의 트리 정보 조회 시 예외 발생")
-    void getFriendTreeInfoFailWhenNotFriendTest() {
-        // given
-        String userId = "testUserId";
-        String friendId = "nonFriendUserId";
-        Member nonFriendMember = Member.of("nonFriendId", friendId, "nonFriendNick", "nonFriend.jpg", "test");
-
-        given(memberRepository.findByUserId(friendId)).willReturn(Optional.of(nonFriendMember));
-        given(friendCheckService.getFriendMembers(userId)).willReturn(List.of()); // 빈 친구 목록
-
-        // when & then
-        assertThatThrownBy(() -> treeService.getFriendTreeInfo(userId, friendId))
-                .isInstanceOf(UnauthorizedException.class)
-                .hasMessage("친구의 나무만 조회 가능합니다.");
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 친구ID로 트리 정보 조회 시 예외 발생")
-    void getFriendTreeInfoFailWhenFriendNotFoundTest() {
-        // given
-        String userId = "testUserId";
-        String friendId = "nonExistingUserId";
-
-        given(memberRepository.findByUserId(friendId)).willReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> treeService.getFriendTreeInfo(userId, friendId))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("userId에 해당하는 멤버가 없습니다.");
     }

@@ -97,4 +97,8 @@ public class Member {
     public void disableAiComment() {
         this.aiCommentEnabled = false;
     }
+
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

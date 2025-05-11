@@ -1,6 +1,8 @@
 package com.gdg.Todak.member.controller.advice;
 
 import com.gdg.Todak.common.domain.ApiResponse;
+import com.gdg.Todak.member.exception.BadRequestException;
+import com.gdg.Todak.member.exception.FileException;
 import com.gdg.Todak.member.exception.EncryptionException;
 import com.gdg.Todak.member.exception.UnauthorizedException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -55,6 +57,24 @@ public class MemberControllerAdvice {
         return ApiResponse.of(
                 HttpStatus.CONFLICT,
                 e.getMostSpecificCause().getMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(FileException.class)
+    public ApiResponse<Exception> handleFileUploadException(FileException e) {
+        return ApiResponse.of(
+                HttpStatus.CONFLICT,
+                e.getMessage()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public ApiResponse<Object> handleBadRequestException(BadRequestException e) {
+        return ApiResponse.of(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage()
         );
     }
 }
