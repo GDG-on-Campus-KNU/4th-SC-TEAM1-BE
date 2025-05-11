@@ -57,7 +57,7 @@ public class MemberService {
         String encodedPassword = PasswordEncoder.getEncodedPassword(salt, request.getPassword());
 
         Member member = memberRepository.save(
-                Member.of(request.getUserId(), encodedPassword, request.getNickname(), defaultProfileImageUrl, salt));
+            Member.of(request.getUserId(), encodedPassword, request.getNickname(), defaultProfileImageUrl, salt));
 
         MemberRole role = MemberRole.of(Role.USER, member);
         member.addRole(role);
@@ -104,16 +104,23 @@ public class MemberService {
 
     public MeResponse me(AuthenticateUser user) {
         Member member = findMember(user.getUserId());
-        return MeResponse.of(member);
+        return MeResponse.from(member);
     }
 
     @Transactional
-    public MeResponse editMemberInfo(AuthenticateUser user, EditMemberServiceRequest serviceRequest) {
+    public MeResponse editMemberNickname(AuthenticateUser user, EditMemberNicknameServiceRequest serviceRequest) {
         Member member = findMember(user.getUserId());
-        member.setUserId(serviceRequest.getUserId());
         member.setNickname(serviceRequest.getNickname());
-        member.setImageUrl(serviceRequest.getImageUrl());
-        return MeResponse.of(member);
+        return MeResponse.of(member.getUserId(),member.getNickname(),member.getImageUrl());
+    }
+
+    @Transactional
+    public MeResponse editMemberProfileImage(AuthenticateUser user, EditMemberProfileImageServiceRequest serviceRequest) {
+        Member member = findMember(user.getUserId());
+
+        // 이미지 처리 로직
+
+        return MeResponse.of(member.getUserId(),member.getNickname(),member.getImageUrl());
     }
 
     @Transactional
@@ -151,7 +158,7 @@ public class MemberService {
 
         Member member = findMemberOptional.get();
         String encodedPassword = PasswordEncoder.getEncodedPassword(member.getSalt(),
-                request.getPassword());
+            request.getPassword());
         if (!encodedPassword.equals(member.getPassword())) {
             return null;
         }
@@ -180,12 +187,12 @@ public class MemberService {
 
     private Member findMember(String userId) {
         return memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new UnauthorizedException("멤버가 존재하지 않습니다."));
+            .orElseThrow(() -> new UnauthorizedException("멤버가 존재하지 않습니다."));
     }
 
     private static void checkPassword(String password, Member member) {
         String encodedPassword = PasswordEncoder.getEncodedPassword(member.getSalt(),
-                password);
+            password);
         if (!encodedPassword.equals(member.getPassword())) {
             throw new UnauthorizedException("비밀번호가 올바르지 않습니다.");
         }

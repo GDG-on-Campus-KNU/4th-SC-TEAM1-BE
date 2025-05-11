@@ -180,12 +180,11 @@ class MemberServiceTest {
         assertThat(me.getUserId()).isEqualTo(USERNAME);
     }
 
-    @DisplayName("유저 정보(닉네임, 프로필 사진 url)을 수정한다.")
+    @DisplayName("유저 정보(닉네임)를 수정한다.")
     @Test
-    void editMemberInfoTest() {
+    void editMemberNicknameTest() {
         // given
         String changedNickname = "changedNickname";
-        String changedImageUrl = "changedImageUrl";
 
         Set<Role> roles = Set.of(Role.USER);
         AuthenticateUser user = AuthenticateUser.builder()
@@ -193,18 +192,15 @@ class MemberServiceTest {
                 .roles(roles)
                 .build();
 
-        EditMemberServiceRequest request = EditMemberServiceRequest.builder()
-                .userId(USERNAME)
+        EditMemberNicknameServiceRequest request = EditMemberNicknameServiceRequest.builder()
                 .nickname(changedNickname)
-                .imageUrl(changedImageUrl)
                 .build();
 
         // when
-        MeResponse meResponse = memberService.editMemberInfo(user, request);
+        MeResponse meResponse = memberService.editMemberNickname(user, request);
 
         // then
         assertThat(meResponse.getNickname()).isEqualTo(changedNickname);
-        assertThat(meResponse.getImageUrl()).isEqualTo(changedImageUrl);
     }
 
     @DisplayName("비밀번호 수정 시 새로운 비밀번호와 수정된 비밀번호 확인이 같아야 한다.")
