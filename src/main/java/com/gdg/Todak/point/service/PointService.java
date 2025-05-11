@@ -38,6 +38,7 @@ public class PointService {
     private final static int ATTENDANCE_BONUS_5_DAYS = 30;
     private final static int DIARY_WRITE_POINT = 15;
     private final static int COMMENT_WRITE_POINT = 10;
+    private final static int GET_COMMENT_WRITER_ID_POINT = 2;
     private final static String LOCK_PREFIX = "pointLock:";
     private final static List<PointType> ATTENDANCE_LISTS = Arrays.asList(
             PointType.ATTENDANCE_DAY_1,
@@ -171,6 +172,22 @@ public class PointService {
         PointType pointType = point.convertPointTypeByGrowthButton(growthButton);
 
         int consumedPoint = point.consumePointByGrowthButton(growthButton);
+
+        pointLogService.createPointLog(new PointLogRequest(member, consumedPoint, pointType, PointStatus.CONSUMED, LocalDateTime.now()));
+
+        lockWithMemberFactory.unlock(member, lock);
+    }
+
+    @Transactional
+    public void consumePointToGetCommentWriterId(Member member) {
+        String lockKey = LOCK_PREFIX + member.getId();
+
+        Lock lock = lockWithMemberFactory.tryLock(member, lockKey, 10, 2);
+
+        Point point = getPoint(member);
+        PointType pointType = PointType.GET_COMMENT_WRITER_ID;
+        
+        int consumedPoint = point.consumePointToGetCommentWriterId(GET_COMMENT_WRITER_ID_POINT);
 
         pointLogService.createPointLog(new PointLogRequest(member, consumedPoint, pointType, PointStatus.CONSUMED, LocalDateTime.now()));
 
