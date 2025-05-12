@@ -84,8 +84,8 @@ class CommentControllerTest {
     @Test
     void getCommentsTest() throws Exception {
         // given
-        CommentResponse comment1 = new CommentResponse(1L, LocalDateTime.of(2025, 3, 31, 0, 0, 0), LocalDateTime.of(2025, 3, 31, 0, 0, 0), "testMember1", "testContent1", true);
-        CommentResponse comment2 = new CommentResponse(2L, LocalDateTime.of(2025, 3, 31, 0, 0, 0), LocalDateTime.of(2025, 3, 31, 0, 0, 0), "testMember2", "testContent2", false);
+        CommentResponse comment1 = new CommentResponse(1L, LocalDateTime.of(2025, 3, 31, 0, 0, 0), LocalDateTime.of(2025, 3, 31, 0, 0, 0), "testMember1", "testMember1", "test", true, false);
+        CommentResponse comment2 = new CommentResponse(2L, LocalDateTime.of(2025, 3, 31, 0, 0, 0), LocalDateTime.of(2025, 3, 31, 0, 0, 0), "testMember2", "testMember2", "test", false, true);
         Page<CommentResponse> commentPage = new PageImpl<>(List.of(comment1, comment2), PageRequest.of(0, 10), 2);
 
         when(commentService.getComments(any(), anyLong(), any(Pageable.class)))
@@ -97,10 +97,10 @@ class CommentControllerTest {
 
                 // then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].commentId").value(1))
-                .andExpect(jsonPath("$.data.content[0].content").value("testContent1"))
-                .andExpect(jsonPath("$.data.content[1].commentId").value(2))
-                .andExpect(jsonPath("$.data.content[1].content").value("testContent2"));
+                .andExpect(jsonPath("$.data.content[0].id").value(1))
+                .andExpect(jsonPath("$.data.content[0].userId").value("testMember1"))
+                .andExpect(jsonPath("$.data.content[1].id").value(2))
+                .andExpect(jsonPath("$.data.content[1].userId").value("testMember2"));
     }
 
     @DisplayName("댓글 수정 테스트")

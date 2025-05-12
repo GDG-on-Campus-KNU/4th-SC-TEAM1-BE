@@ -10,5 +10,6 @@ public enum PointType {
     COMMENT,
     GROWTH_WATER,
     GROWTH_SUN,
-    GROWTH_NUTRIENT
+    GROWTH_NUTRIENT,
+    GET_COMMENT_WRITER_ID
 }

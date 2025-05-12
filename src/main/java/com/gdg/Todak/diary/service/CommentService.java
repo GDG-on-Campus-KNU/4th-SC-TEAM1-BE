@@ -7,13 +7,15 @@ import com.gdg.Todak.diary.dto.AICommentByGeminiResponse;
 import com.gdg.Todak.diary.dto.CommentRequest;
 import com.gdg.Todak.diary.dto.CommentResponse;
 import com.gdg.Todak.diary.entity.Comment;
+import com.gdg.Todak.diary.entity.CommentAnonymousReveal;
 import com.gdg.Todak.diary.entity.Diary;
+import com.gdg.Todak.diary.exception.BadRequestException;
 import com.gdg.Todak.diary.exception.NotFoundException;
 import com.gdg.Todak.diary.exception.UnauthorizedException;
+import com.gdg.Todak.diary.repository.CommentAnonymousRevealRepository;
 import com.gdg.Todak.diary.repository.CommentRepository;
 import com.gdg.Todak.diary.repository.DiaryRepository;
 import com.gdg.Todak.diary.util.MBTISelector;
-import com.gdg.Todak.diary.util.OneTimeEventScheduler;
 import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
@@ -26,16 +28,15 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Random;
 
 import static com.gdg.Todak.diary.util.AiCommentPrompt.*;
 
@@ -45,15 +46,15 @@ import static com.gdg.Todak.diary.util.AiCommentPrompt.*;
 public class CommentService {
 
     public static final String AI_MEMBER_USER_ID = "ai_member";
+
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
+    private final CommentAnonymousRevealRepository commentAnonymousRevealRepository;
     private final FriendCheckService friendCheckService;
     private final NotificationService notificationService;
     private final PointService pointService;
-
     private final MBTISelector mbtiSelector;
-
     private final AiModelConfig aiModelConfig;
     private final ObjectMapper objectMapper;
 
@@ -74,16 +75,43 @@ public class CommentService {
             throw new UnauthorizedException("해당 일기의 댓글을 조회할 권한이 없습니다. 일기 작성자가 본인이거나, 친구일 경우에만 조회가 가능합니다.");
         }
 
-        return commentRepository.findAllByDiary(diary, pageable)
-            .map(
-                Comment -> new CommentResponse(
-                    Comment.getId(),
-                    Comment.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                    Comment.getUpdatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                    Comment.getMember().getNickname(),
-                    Comment.getContent(),
-                    Comment.getMember().equals(member)
-                ));
+        Page<Comment> comments = commentRepository.findAllByDiary(diary, pageable);
+
+        List<CommentResponse> commentResponses = comments.getContent().stream()
+                .map(comment -> {
+                    boolean isWriter = !comment.isNotWriter(member);
+                    boolean isRevealed = isCommentRevealed(member, comment);
+
+                    String displayNickname;
+                    String displayUserId;
+                    boolean isAnonymous = true;
+
+                    if (isWriter || isRevealed) {
+                        displayNickname = comment.getMember().getNickname();
+                        displayUserId = comment.getMember().getUserId();
+                        isAnonymous = false;
+                    } else {
+                        displayNickname = "익명의 닉네임";
+                        displayUserId = "익명의 아이디";
+                    }
+
+                    return CommentResponse.of(
+                            comment.getId(),
+                            comment.getCreatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                            comment.getUpdatedAt().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                            displayNickname,
+                            displayUserId,
+                            comment.getContent(),
+                            isWriter,
+                            isAnonymous
+                    );
+                }).toList();
+
+        return new PageImpl<>(commentResponses, pageable, comments.getTotalElements());
+    }
+
+    private boolean isCommentRevealed(Member member, Comment comment) {
+        return commentAnonymousRevealRepository.existsByMemberAndComment(member, comment);
     }
 
     @Transactional
@@ -98,10 +126,10 @@ public class CommentService {
         }
 
         Comment comment = Comment.builder()
-            .member(member)
-            .content(commentRequest.content())
-            .diary(diary)
-            .build();
+                .member(member)
+                .content(commentRequest.content())
+                .diary(diary)
+                .build();
 
         commentRepository.save(comment);
 
@@ -144,19 +172,39 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    @Transactional
+    public String revealAnonymous(String userId, Long commentId) {
+        Member member = getMember(userId);
+        Comment comment = getComment(commentId);
+
+        if (commentAnonymousRevealRepository.existsByMemberAndComment(member, comment)) {
+            return "이미 해당 댓글의 익명을 해제했습니다.";
+        }
+
+        if (comment.getMember().equals(member)) {
+            throw new BadRequestException("본인이 작성한 댓글은 익명 해제가 필요하지 않습니다.");
+        }
+
+        pointService.consumePointToGetCommentWriterId(member);
+
+        commentAnonymousRevealRepository.save(CommentAnonymousReveal.of(member, comment));
+
+        return "[Comment id :" + comment.getId() + "]에 해당하는 댓글의 익명이 해제되었습니다.";
+    }
+
     private Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-            .orElseThrow(() -> new NotFoundException("commentId에 해당하는 댓글이 없습니다."));
+                .orElseThrow(() -> new NotFoundException("commentId에 해당하는 댓글이 없습니다."));
     }
 
     private Diary getDiary(Long diaryId) {
         return diaryRepository.findById(diaryId)
-            .orElseThrow(() -> new NotFoundException("diaryId에 해당하는 일기가 없습니다."));
+                .orElseThrow(() -> new NotFoundException("diaryId에 해당하는 일기가 없습니다."));
     }
 
     private Member getMember(String userId) {
         return memberRepository.findByUserId(userId)
-            .orElseThrow(() -> new NotFoundException("userId에 해당하는 멤버가 없습니다."));
+                .orElseThrow(() -> new NotFoundException("userId에 해당하는 멤버가 없습니다."));
     }
 
     @Transactional
@@ -165,10 +213,10 @@ public class CommentService {
         String aiComment = createAIComment(diary.getContent());
 
         Comment commentByAI = Comment.builder()
-            .member(aiMember)
-            .content(aiComment)
-            .diary(diary)
-            .build();
+                .member(aiMember)
+                .content(aiComment)
+                .diary(diary)
+                .build();
 
         commentRepository.save(commentByAI);
     }

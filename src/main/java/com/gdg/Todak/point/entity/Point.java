@@ -50,6 +50,11 @@ public class Point {
         return pointToSpend;
     }
 
+    public int consumePointToGetCommentWriterId(int pointToSpend) {
+        consumePoint(pointToSpend);
+        return pointToSpend;
+    }
+
     public PointType convertPointTypeByGrowthButton(GrowthButton growthButton) {
         switch (growthButton) {
             case GrowthButton.WATER -> {
