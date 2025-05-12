@@ -45,7 +45,7 @@ import static com.gdg.Todak.diary.util.AiCommentPrompt.*;
 @RequiredArgsConstructor
 public class CommentService {
 
-    public static final String AI_MEMBER_USER_ID = "ai_member";
+    public static final String AI_MEMBER_USER_ID = "토닥이";
 
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
