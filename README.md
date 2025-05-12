@@ -17,20 +17,15 @@ Our solution was developed for the APAC Solution Challenge to address this criti
 
 The name "토닥" in Korean means to gently pat someone to offer comfort or emotional support - perfectly capturing the essence of our service.
 
-## 🖼️ Use Case Diagram
-The following diagram illustrates the main interactions and relationships between users, AI friends, and the system
-
-![Use Case Diagram](images/Todak_USECASE_Diagram.png)
-
 ## 🏗️ System Architecture
 A web application architecture diagram showing a monolithic Spring Boot application deployed in multiple instances for rolling updates within a Kubernetes cluster, featuring client-side Vue.js and React, a shared MySQL database
 
 ![System Architecture Detailed](images/Todak_Web_Server_Architecture.png)
 
-## 🗃️ ERD
-Server Entity Relationship Diagram
+## 🖼️ Use Case Diagram
+The following diagram illustrates the main interactions and relationships between users, AI friends, and the system
 
-![ERD](images/Todak_ERD.png)
+![Use Case Diagram](images/Todak_USECASE_Diagram.png)
 
 ## 🎯 Key Features
 ### ✍️ 1. Private Diary Writing
@@ -72,6 +67,11 @@ The backend is monitored using Prometheus and Grafana, with error logs stored pe
 
 ### 📊 Monitoring
 ![Monitoring Technology Stack](images/Todak_Monitoring.png)
+
+## 🗃️ ERD
+Server Entity Relationship Diagram
+
+![ERD](images/Todak_ERD.png)
 
 ## 👥 Team Todak
 This project was developed by **Team Todak** to participate in the **APAC Solution Challenge**.
