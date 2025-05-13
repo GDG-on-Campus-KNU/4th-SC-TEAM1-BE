@@ -159,9 +159,9 @@ public class FriendService {
                 + friendRepository.countByAccepterAndStatusIn(member, List.of(FriendStatus.ACCEPTED));
 
         return List.of(
-                new FriendCountResponse(FriendStatus.PENDING, true, false, PendingFriendCountByAccepter),
-                new FriendCountResponse(FriendStatus.PENDING, false, true, PendingFriendCountByRequester),
-                new FriendCountResponse(FriendStatus.ACCEPTED, true, true, AcceptedFriendCount)
+                new FriendCountResponse(FriendStatus.PENDING, "Accepter", PendingFriendCountByAccepter),
+                new FriendCountResponse(FriendStatus.PENDING, "Requester", PendingFriendCountByRequester),
+                new FriendCountResponse(FriendStatus.ACCEPTED, "Accepter or Requester", AcceptedFriendCount)
         );
     }
 

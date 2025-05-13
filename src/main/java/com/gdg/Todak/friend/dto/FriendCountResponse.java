@@ -4,8 +4,7 @@ import com.gdg.Todak.friend.FriendStatus;
 
 public record FriendCountResponse(
         FriendStatus friendStatus,
-        boolean isAccepter,
-        boolean isRequester,
+        String info,
         long count
 ) {
 }

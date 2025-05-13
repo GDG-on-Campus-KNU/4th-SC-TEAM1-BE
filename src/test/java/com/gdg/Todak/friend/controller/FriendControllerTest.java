@@ -170,8 +170,8 @@ class FriendControllerTest {
         Long pendingCount = 5L;
         Long acceptedCount = 10L;
         List<FriendCountResponse> responses = Arrays.asList(
-                new FriendCountResponse(FriendStatus.PENDING, true, false, pendingCount),
-                new FriendCountResponse(FriendStatus.ACCEPTED, true, true, acceptedCount)
+                new FriendCountResponse(FriendStatus.PENDING, "Requester", pendingCount),
+                new FriendCountResponse(FriendStatus.ACCEPTED, "Accepter or Requester", acceptedCount)
         );
         when(friendService.getMyFriendCountByStatus(anyString())).thenReturn(responses);
 
