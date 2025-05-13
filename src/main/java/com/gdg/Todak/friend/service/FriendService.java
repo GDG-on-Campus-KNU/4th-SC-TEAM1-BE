@@ -153,13 +153,15 @@ public class FriendService {
     public List<FriendCountResponse> getMyFriendCountByStatus(String userId) {
         Member member = getMember(userId);
 
-        long PendingFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.PENDING));
+        long PendingFriendCountByAccepter = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.PENDING));
+        long PendingFriendCountByRequester = friendRepository.countByAccepterAndStatusIn(member, List.of(FriendStatus.PENDING));
         long AcceptedFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.ACCEPTED))
                 + friendRepository.countByAccepterAndStatusIn(member, List.of(FriendStatus.ACCEPTED));
 
         return List.of(
-                new FriendCountResponse(FriendStatus.PENDING, PendingFriendCount),
-                new FriendCountResponse(FriendStatus.ACCEPTED, AcceptedFriendCount)
+                new FriendCountResponse(FriendStatus.PENDING, true, false, PendingFriendCountByAccepter),
+                new FriendCountResponse(FriendStatus.PENDING, false, true, PendingFriendCountByRequester),
+                new FriendCountResponse(FriendStatus.ACCEPTED, true, true, AcceptedFriendCount)
         );
     }
 

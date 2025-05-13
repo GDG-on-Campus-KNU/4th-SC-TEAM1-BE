@@ -298,7 +298,7 @@ class FriendServiceTest {
         List<FriendCountResponse> friendCountResponses = friendService.getMyFriendCountByStatus(requester.getUserId());
 
         //then
-        assertThat(friendCountResponses).hasSize(2);
+        assertThat(friendCountResponses).hasSize(3);
         assertThat(friendCountResponses.stream()
                 .filter(resp -> resp.friendStatus() == FriendStatus.PENDING)
                 .findFirst()

@@ -79,7 +79,7 @@ public class FriendController {
         return ApiResponse.of(HttpStatus.OK, "친구/친구요청을 삭제하였습니다.");
     }
 
-    @Operation(summary = "친구요청수, 친구수 확인", description = "본인이 요청한 친구요청의 수, 본인의 친구의 수를 확인합니다.")
+    @Operation(summary = "대기중인 친구요청 및 수락된 친구요청의 수 확인", description = "본인이 요청한 친구요청 중 대기중, 본인이 받은 친구요청 중 대기중, 본인이 보내거나 받은 친구요청 중 수락된 친구요청의 수를 각각 표시합니다.")
     @GetMapping("/count")
     public ApiResponse<List<FriendCountResponse>> getMyFriendCount(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
         List<FriendCountResponse> friendCountResponses = friendService.getMyFriendCountByStatus(authenticateUser.getUserId());
