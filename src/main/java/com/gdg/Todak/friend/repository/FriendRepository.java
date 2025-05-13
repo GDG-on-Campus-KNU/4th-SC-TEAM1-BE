@@ -18,6 +18,10 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     List<Friend> findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus
             (String accepterName, FriendStatus friendStatus1, String requesterName, FriendStatus friendStatus2);
 
+    List<Friend> findAllByAccepterUserIdAndFriendStatusIn(String accepterName, List<FriendStatus> friendStatuses);
+
+    List<Friend> findAllByRequesterUserIdAndFriendStatusIn(String requesterName, List<FriendStatus> friendStatuses);
+
     @Query("SELECT COUNT(f) FROM Friend f WHERE f.requester = :member AND f.friendStatus IN :statuses")
     long countByRequesterAndStatusIn(@Param("member") Member member, @Param("statuses") List<FriendStatus> statuses);
 
