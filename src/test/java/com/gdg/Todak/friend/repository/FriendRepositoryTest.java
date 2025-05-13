@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -74,9 +75,9 @@ class FriendRepositoryTest {
     @Test
     void findAllByAccepterOrRequesterAndStatusTest() {
         // given
-        Member requester = memberRepository.save(new Member("user1", "test1","test1", "test1", "test1"));
-        Member accepter = memberRepository.save(new Member("user2", "test2", "test2","test2", "test2"));
-        Member other = memberRepository.save(new Member("user3", "test3", "test3","test3", "test3"));
+        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
+        Member accepter = memberRepository.save(new Member("user2", "test2", "test2", "test2", "test2"));
+        Member other = memberRepository.save(new Member("user3", "test3", "test3", "test3", "test3"));
 
         friendRepository.save(Friend.builder()
                 .requester(requester)
@@ -103,9 +104,9 @@ class FriendRepositoryTest {
     @Test
     void countByRequesterAndStatusInTest() {
         // given
-        Member requester = memberRepository.save(new Member("user1", "test1","test1", "test1", "test1"));
-        Member accepter1 = memberRepository.save(new Member("user2", "test2", "test2","test2", "test2"));
-        Member accepter2 = memberRepository.save(new Member("user3", "test3", "test3","test3", "test3"));
+        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
+        Member accepter1 = memberRepository.save(new Member("user2", "test2", "test2", "test2", "test2"));
+        Member accepter2 = memberRepository.save(new Member("user3", "test3", "test3", "test3", "test3"));
 
         friendRepository.save(Friend.builder()
                 .requester(requester)
@@ -130,9 +131,9 @@ class FriendRepositoryTest {
     @Test
     void countByAccepterAndStatusInTest() {
         // given
-        Member requester1 = memberRepository.save(new Member("user1", "test1", "test1","test1", "test1"));
-        Member requester2 = memberRepository.save(new Member("user2", "test2", "test2","test2", "test2"));
-        Member accepter = memberRepository.save(new Member("user3", "test3", "test3","test3", "test3"));
+        Member requester1 = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
+        Member requester2 = memberRepository.save(new Member("user2", "test2", "test2", "test2", "test2"));
+        Member accepter = memberRepository.save(new Member("user3", "test3", "test3", "test3", "test3"));
 
         friendRepository.save(Friend.builder()
                 .requester(requester1)
@@ -151,5 +152,104 @@ class FriendRepositoryTest {
 
         // then
         assertThat(count).isEqualTo(2);
+    }
+
+    @DisplayName("findAllByAccepterUserIdAndFriendStatusIn() 테스트 - accepter 기준으로 특정 상태의 친구요청 조회")
+    @Test
+    void findAllByAccepterUserIdAndFriendStatusInTest() {
+        // given
+        Member requester1 = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
+        Member requester2 = memberRepository.save(new Member("user2", "test2", "test2", "test2", "test2"));
+        Member accepter = memberRepository.save(new Member("user3", "test3", "test3", "test3", "test3"));
+
+        Friend pendingFriend = friendRepository.save(Friend.builder()
+                .requester(requester1)
+                .accepter(accepter)
+                .friendStatus(FriendStatus.PENDING)
+                .build());
+
+        Friend declinedFriend = friendRepository.save(Friend.builder()
+                .requester(requester2)
+                .accepter(accepter)
+                .friendStatus(FriendStatus.DECLINED)
+                .build());
+
+        // 다른 상태의 친구 요청도 추가
+        Member otherAccepter = memberRepository.save(new Member("user4", "test4", "test4", "test4", "test4"));
+        friendRepository.save(Friend.builder()
+                .requester(requester1)
+                .accepter(otherAccepter)
+                .friendStatus(FriendStatus.ACCEPTED)
+                .build());
+
+        // when
+        List<Friend> friends = friendRepository.findAllByAccepterUserIdAndFriendStatusIn("user3",
+                List.of(FriendStatus.PENDING, FriendStatus.DECLINED));
+
+        // then
+        assertThat(friends).hasSize(2);
+        assertThat(friends.stream().map(Friend::getFriendStatus))
+                .containsExactlyInAnyOrder(FriendStatus.PENDING, FriendStatus.DECLINED);
+    }
+
+    @DisplayName("findAllByRequesterUserIdAndFriendStatusIn() 테스트 - requester 기준으로 특정 상태의 친구요청 조회")
+    @Test
+    void findAllByRequesterUserIdAndFriendStatusInTest() {
+        // given
+        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
+        Member accepter1 = memberRepository.save(new Member("user2", "test2", "test2", "test2", "test2"));
+        Member accepter2 = memberRepository.save(new Member("user3", "test3", "test3", "test3", "test3"));
+
+        Friend pendingFriend = friendRepository.save(Friend.builder()
+                .requester(requester)
+                .accepter(accepter1)
+                .friendStatus(FriendStatus.PENDING)
+                .build());
+
+        Friend declinedFriend = friendRepository.save(Friend.builder()
+                .requester(requester)
+                .accepter(accepter2)
+                .friendStatus(FriendStatus.DECLINED)
+                .build());
+
+        // 다른 상태의 친구 요청도 추가
+        Member otherRequester = memberRepository.save(new Member("user4", "test4", "test4", "test4", "test4"));
+        friendRepository.save(Friend.builder()
+                .requester(otherRequester)
+                .accepter(accepter1)
+                .friendStatus(FriendStatus.ACCEPTED)
+                .build());
+
+        // when
+        List<Friend> friends = friendRepository.findAllByRequesterUserIdAndFriendStatusIn("user1",
+                List.of(FriendStatus.PENDING, FriendStatus.DECLINED));
+
+        // then
+        assertThat(friends).hasSize(2);
+        assertThat(friends.stream().map(Friend::getFriendStatus))
+                .containsExactlyInAnyOrder(FriendStatus.PENDING, FriendStatus.DECLINED);
+    }
+
+    @DisplayName("findByRequesterAndAccepter() 테스트 - 특정 requester와 accepter 사이의 친구 관계 조회")
+    @Test
+    void findByRequesterAndAccepterTest() {
+        // given
+        Member requester = memberRepository.save(new Member("user1", "test1", "test1", "test1", "test1"));
+        Member accepter = memberRepository.save(new Member("user2", "test2", "test2", "test2", "test2"));
+
+        Friend friend = friendRepository.save(Friend.builder()
+                .requester(requester)
+                .accepter(accepter)
+                .friendStatus(FriendStatus.PENDING)
+                .build());
+
+        // when
+        Optional<Friend> foundFriend = friendRepository.findByRequesterAndAccepter(requester, accepter);
+
+        // then
+        assertThat(foundFriend).isPresent();
+        assertThat(foundFriend.get().getRequester().getUserId()).isEqualTo("user1");
+        assertThat(foundFriend.get().getAccepter().getUserId()).isEqualTo("user2");
+        assertThat(foundFriend.get().getFriendStatus()).isEqualTo(FriendStatus.PENDING);
     }
 }

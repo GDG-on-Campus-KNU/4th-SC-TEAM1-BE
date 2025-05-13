@@ -1,10 +1,7 @@
 package com.gdg.Todak.friend.service;
 
 import com.gdg.Todak.friend.FriendStatus;
-import com.gdg.Todak.friend.dto.FriendCountResponse;
-import com.gdg.Todak.friend.dto.FriendIdRequest;
-import com.gdg.Todak.friend.dto.FriendRequestResponse;
-import com.gdg.Todak.friend.dto.FriendResponse;
+import com.gdg.Todak.friend.dto.*;
 import com.gdg.Todak.friend.entity.Friend;
 import com.gdg.Todak.friend.exception.BadRequestException;
 import com.gdg.Todak.friend.exception.NotFoundException;
@@ -76,15 +73,28 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-    public List<FriendRequestResponse> getAllDeclinedFriends(String userId) {
-        return friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(userId, FriendStatus.DECLINED, userId, FriendStatus.DECLINED)
+    public List<FriendRequestWithStatusResponse> getAllPendingAndDeclinedFriendRequestByRequester(String userId) {
+        return friendRepository.findAllByRequesterUserIdAndFriendStatusIn(userId, List.of(FriendStatus.PENDING, FriendStatus.DECLINED))
                 .stream().map(
-                        Friend -> new FriendRequestResponse(
+                        Friend -> new FriendRequestWithStatusResponse(
                                 Friend.getId(),
                                 Friend.getRequester().getUserId(),
-                                Friend.getAccepter().getUserId()
+                                Friend.getAccepter().getUserId(),
+                                Friend.getFriendStatus()
                         ))
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    public List<FriendRequestWithStatusResponse> getAllPendingAndDeclinedFriendRequestByAccepter(String userId) {
+        return friendRepository.findAllByAccepterUserIdAndFriendStatusIn(userId, List.of(FriendStatus.PENDING, FriendStatus.DECLINED))
+                .stream().map(
+                        Friend -> new FriendRequestWithStatusResponse(
+                                Friend.getId(),
+                                Friend.getRequester().getUserId(),
+                                Friend.getAccepter().getUserId(),
+                                Friend.getFriendStatus()
+                        ))
+                .toList();
     }
 
     public List<FriendRequestResponse> getAllFriendRequests(String userId) {
@@ -143,13 +153,15 @@ public class FriendService {
     public List<FriendCountResponse> getMyFriendCountByStatus(String userId) {
         Member member = getMember(userId);
 
-        long PendingFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.PENDING));
+        long PendingFriendCountByAccepter = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.PENDING));
+        long PendingFriendCountByRequester = friendRepository.countByAccepterAndStatusIn(member, List.of(FriendStatus.PENDING));
         long AcceptedFriendCount = friendRepository.countByRequesterAndStatusIn(member, List.of(FriendStatus.ACCEPTED))
                 + friendRepository.countByAccepterAndStatusIn(member, List.of(FriendStatus.ACCEPTED));
 
         return List.of(
-                new FriendCountResponse(FriendStatus.PENDING, PendingFriendCount),
-                new FriendCountResponse(FriendStatus.ACCEPTED, AcceptedFriendCount)
+                new FriendCountResponse(FriendStatus.PENDING, true, false, PendingFriendCountByAccepter),
+                new FriendCountResponse(FriendStatus.PENDING, false, true, PendingFriendCountByRequester),
+                new FriendCountResponse(FriendStatus.ACCEPTED, true, true, AcceptedFriendCount)
         );
     }
 
