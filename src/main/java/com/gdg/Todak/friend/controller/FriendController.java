@@ -1,10 +1,7 @@
 package com.gdg.Todak.friend.controller;
 
 import com.gdg.Todak.common.domain.ApiResponse;
-import com.gdg.Todak.friend.dto.FriendCountResponse;
-import com.gdg.Todak.friend.dto.FriendIdRequest;
-import com.gdg.Todak.friend.dto.FriendRequestResponse;
-import com.gdg.Todak.friend.dto.FriendResponse;
+import com.gdg.Todak.friend.dto.*;
 import com.gdg.Todak.friend.service.FriendService;
 import com.gdg.Todak.member.domain.AuthenticateUser;
 import com.gdg.Todak.member.resolver.Login;
@@ -40,17 +37,24 @@ public class FriendController {
         return ApiResponse.ok(friendResponses);
     }
 
-    @Operation(summary = "대기중인 친구 요청들 확인", description = "본인에게 온 친구 요청 대기 목록을 확인합니다.")
+    @Operation(summary = "대기중인 친구 요청들 확인", description = "친구 요청 대기 목록을 확인합니다.")
     @GetMapping("/pending")
     public ApiResponse<List<FriendRequestResponse>> getAllPendingFriendRequest(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
         List<FriendRequestResponse> friendRequestResponses = friendService.getAllFriendRequests(authenticateUser.getUserId());
         return ApiResponse.ok(friendRequestResponses);
     }
 
-    @Operation(summary = "거절한 친구 요청들 확인", description = "본인에게 온 친구 요청 중 거절한 요청 목록을 확인합니다.")
-    @GetMapping("/declined")
-    public ApiResponse<List<FriendRequestResponse>> getAllDeclinedFriendRequest(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
-        List<FriendRequestResponse> friendRequestResponses = friendService.getAllDeclinedFriends(authenticateUser.getUserId());
+    @Operation(summary = "보낸 친구 요청들 확인", description = "본인이 보낸 친구 요청들 중 대기중, 거절된 친구 요청들을 확인합니다.")
+    @GetMapping("/requester")
+    public ApiResponse<List<FriendRequestWithStatusResponse>> getAllPendingAndDeclinedFriendRequestByRequester(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
+        List<FriendRequestWithStatusResponse> friendRequestResponses = friendService.getAllPendingAndDeclinedFriendRequestByRequester(authenticateUser.getUserId());
+        return ApiResponse.ok(friendRequestResponses);
+    }
+
+    @Operation(summary = "받은 친구 요청들 확인", description = "본인이 받은 친구 요청들 중 대기중, 거절된 친구 요청들을 확인합니다.")
+    @GetMapping("/accepter")
+    public ApiResponse<List<FriendRequestWithStatusResponse>> getAllPendingAndDeclinedFriendRequestByAccepter(@Parameter(hidden = true) @Login AuthenticateUser authenticateUser) {
+        List<FriendRequestWithStatusResponse> friendRequestResponses = friendService.getAllPendingAndDeclinedFriendRequestByAccepter(authenticateUser.getUserId());
         return ApiResponse.ok(friendRequestResponses);
     }
 

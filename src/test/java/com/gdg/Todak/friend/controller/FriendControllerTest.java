@@ -2,10 +2,7 @@ package com.gdg.Todak.friend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gdg.Todak.friend.FriendStatus;
-import com.gdg.Todak.friend.dto.FriendCountResponse;
-import com.gdg.Todak.friend.dto.FriendIdRequest;
-import com.gdg.Todak.friend.dto.FriendRequestResponse;
-import com.gdg.Todak.friend.dto.FriendResponse;
+import com.gdg.Todak.friend.dto.*;
 import com.gdg.Todak.friend.service.FriendService;
 import com.gdg.Todak.member.Interceptor.AdminLoginCheckInterceptor;
 import com.gdg.Todak.member.Interceptor.LoginCheckInterceptor;
@@ -125,26 +122,6 @@ class FriendControllerTest {
     }
 
     @Test
-    @DisplayName("거절한 친구 요청 조회 테스트")
-    void getAllDeclinedFriendRequestTest() throws Exception {
-        // given
-        String decliner1Id = "decliner1";
-        String decliner2Id = "decliner2";
-        List<FriendRequestResponse> responses = Arrays.asList(
-                new FriendRequestResponse(1L, decliner1Id, "profile1"),
-                new FriendRequestResponse(2L, decliner2Id, "profile2")
-        );
-        when(friendService.getAllDeclinedFriends(anyString())).thenReturn(responses);
-
-        // when & then
-        mockMvc.perform(get("/api/v1/friends/declined")
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].requesterName").value(decliner1Id))
-                .andExpect(jsonPath("$.data[1].requesterName").value(decliner2Id));
-    }
-
-    @Test
     @DisplayName("친구 요청 수락 테스트")
     void acceptFriendRequestTest() throws Exception {
         // given
@@ -206,5 +183,49 @@ class FriendControllerTest {
                 .andExpect(jsonPath("$.data[0].count").value(pendingCount))
                 .andExpect(jsonPath("$.data[1].friendStatus").value("ACCEPTED"))
                 .andExpect(jsonPath("$.data[1].count").value(acceptedCount));
+    }
+
+    @Test
+    @DisplayName("보낸 친구 요청들 확인 테스트")
+    void getAllPendingAndDeclinedFriendRequestByRequesterTest() throws Exception {
+        // given
+        List<FriendRequestWithStatusResponse> responses = Arrays.asList(
+                new FriendRequestWithStatusResponse(1L, "testUser", "friend1", FriendStatus.PENDING),
+                new FriendRequestWithStatusResponse(2L, "testUser", "friend2", FriendStatus.DECLINED)
+        );
+        when(friendService.getAllPendingAndDeclinedFriendRequestByRequester(anyString())).thenReturn(responses);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/friends/requester")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].requesterName").value("testUser"))
+                .andExpect(jsonPath("$.data[0].accepterName").value("friend1"))
+                .andExpect(jsonPath("$.data[0].friendStatus").value("PENDING"))
+                .andExpect(jsonPath("$.data[1].requesterName").value("testUser"))
+                .andExpect(jsonPath("$.data[1].accepterName").value("friend2"))
+                .andExpect(jsonPath("$.data[1].friendStatus").value("DECLINED"));
+    }
+
+    @Test
+    @DisplayName("받은 친구 요청들 확인 테스트")
+    void getAllPendingAndDeclinedFriendRequestByAccepterTest() throws Exception {
+        // given
+        List<FriendRequestWithStatusResponse> responses = Arrays.asList(
+                new FriendRequestWithStatusResponse(1L, "friend1", "testUser", FriendStatus.PENDING),
+                new FriendRequestWithStatusResponse(2L, "friend2", "testUser", FriendStatus.DECLINED)
+        );
+        when(friendService.getAllPendingAndDeclinedFriendRequestByAccepter(anyString())).thenReturn(responses);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/friends/accepter")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].requesterName").value("friend1"))
+                .andExpect(jsonPath("$.data[0].accepterName").value("testUser"))
+                .andExpect(jsonPath("$.data[0].friendStatus").value("PENDING"))
+                .andExpect(jsonPath("$.data[1].requesterName").value("friend2"))
+                .andExpect(jsonPath("$.data[1].accepterName").value("testUser"))
+                .andExpect(jsonPath("$.data[1].friendStatus").value("DECLINED"));
     }
 }
