@@ -8,6 +8,7 @@ import com.gdg.Todak.notification.entity.Notification;
 import com.gdg.Todak.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/notifications")
 @RestController
+@Tag(name = "알림", description = "알림 관련 API")
 public class NotificationController {
 
     private final NotificationService notificationService;

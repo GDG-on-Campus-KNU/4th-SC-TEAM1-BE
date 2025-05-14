@@ -1,5 +1,6 @@
 package com.gdg.Todak.guestbook.service;
 
+import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.guestbook.controller.dto.AddGuestbookRequest;
 import com.gdg.Todak.guestbook.controller.dto.AddGuestbookResponse;
 import com.gdg.Todak.guestbook.controller.dto.DeleteGuestbookRequest;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -27,6 +29,8 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @Transactional
 @SpringBootTest
@@ -38,6 +42,8 @@ class GuestbookServiceTest {
     GuestbookRepository guestbookRepository;
     @Autowired
     MemberRepository memberRepository;
+    @MockitoBean
+    FriendCheckService friendCheckService;
 
     String testContent;
     String senderUserId;
@@ -74,8 +80,8 @@ class GuestbookServiceTest {
 
         // then
         assertThat(findGuestbooks).hasSize(1)
-            .extracting(GetGuestbookResponse::getContent)
-            .containsExactly(testContent);
+                .extracting(GetGuestbookResponse::getContent)
+                .containsExactly(testContent);
     }
 
     @DisplayName("방명록을 추가한다.")
@@ -84,7 +90,9 @@ class GuestbookServiceTest {
         // given
         AddGuestbookRequest request = AddGuestbookRequest.of(receiverUserId, testContent);
 
-        AuthenticateUser authenticateUser = AuthenticateUser.of(receiverUserId, Set.of(Role.USER));
+        AuthenticateUser authenticateUser = AuthenticateUser.of(senderUserId, Set.of(Role.USER));
+
+        when(friendCheckService.getFriendMembers(anyString())).thenReturn(List.of(sender));
 
         // when
         AddGuestbookResponse response = guestbookService.addGuestbook(authenticateUser, request);
@@ -123,7 +131,7 @@ class GuestbookServiceTest {
 
         // when // then
         assertThatThrownBy(() -> guestbookService.deleteGuestbook(authenticateUser, request))
-            .isInstanceOf(NotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @DisplayName("방명록 주인이 아닌 사람이 방명록을 삭제하면 예외가 발생한다.")
@@ -139,7 +147,7 @@ class GuestbookServiceTest {
 
         // when // then
         assertThatThrownBy(() -> guestbookService.deleteGuestbook(notOwnerAuthenticateUser, request))
-            .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(UnauthorizedException.class);
     }
 
 }

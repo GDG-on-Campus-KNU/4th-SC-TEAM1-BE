@@ -1,5 +1,6 @@
 package com.gdg.Todak.guestbook.service;
 
+import com.gdg.Todak.friend.service.FriendCheckService;
 import com.gdg.Todak.guestbook.controller.dto.AddGuestbookRequest;
 import com.gdg.Todak.guestbook.controller.dto.AddGuestbookResponse;
 import com.gdg.Todak.guestbook.controller.dto.DeleteGuestbookRequest;
@@ -19,7 +20,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -30,13 +30,14 @@ public class GuestbookService {
 
     private final GuestbookRepository guestbookRepository;
     private final MemberRepository memberRepository;
+    private final FriendCheckService friendCheckService;
 
     public List<GetGuestbookResponse> getGuestbook(AuthenticateUser user) {
         Member member = getMember(user.getUserId());
 
         return guestbookRepository.findValidGuestbooksByReceiverUserId(member.getUserId()).stream()
-            .map(guestbook -> GetGuestbookResponse.from(guestbook, member.getNickname()))
-            .collect(Collectors.toList());
+                .map(GetGuestbookResponse::from)
+                .toList();
     }
 
     @Transactional
@@ -45,6 +46,12 @@ public class GuestbookService {
         Member receiver = getMember(request.getUserId());
 
         Instant expiresAt = Instant.now().plus(EXPIRE_DAY, ChronoUnit.DAYS);
+
+        List<Member> acceptedMembers = friendCheckService.getFriendMembers(receiver.getUserId());
+
+        if (!acceptedMembers.contains(sender)) {
+            throw new UnauthorizedException("해당 방명록에 작성할 권한이 없습니다. 본인이거나 친구일 경우에만 작성이 가능합니다.");
+        }
 
         Guestbook guestbook = Guestbook.of(sender, receiver, request.getContent(), expiresAt);
 
@@ -87,6 +94,6 @@ public class GuestbookService {
 
     private Member getMember(String userId) {
         return memberRepository.findByUserId(userId)
-            .orElseThrow(() -> new NotFoundException("멤버가 존재하지 않습니다."));
+                .orElseThrow(() -> new NotFoundException("멤버가 존재하지 않습니다."));
     }
 }
