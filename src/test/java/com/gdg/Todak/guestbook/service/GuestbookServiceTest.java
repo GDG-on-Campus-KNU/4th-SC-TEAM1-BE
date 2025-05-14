@@ -76,7 +76,27 @@ class GuestbookServiceTest {
         AuthenticateUser authenticateUser = AuthenticateUser.of(receiverUserId, Set.of(Role.USER));
 
         // when
-        List<GetGuestbookResponse> findGuestbooks = guestbookService.getGuestbook(authenticateUser);
+        List<GetGuestbookResponse> findGuestbooks = guestbookService.getMyGuestbook(authenticateUser);
+
+        // then
+        assertThat(findGuestbooks).hasSize(1)
+                .extracting(GetGuestbookResponse::getContent)
+                .containsExactly(testContent);
+    }
+
+    @DisplayName("친구 방명록을 조회한다.")
+    @Test
+    void getFriendGuestbookTest() {
+        // given
+        Guestbook guestbook = new Guestbook(sender, receiver, testContent, Instant.now().plus(1, ChronoUnit.DAYS));
+        guestbookRepository.save(guestbook);
+
+        AuthenticateUser authenticateUser = AuthenticateUser.of(senderUserId, Set.of(Role.USER));
+
+        when(friendCheckService.getFriendMembers(anyString())).thenReturn(List.of(sender));
+
+        // when
+        List<GetGuestbookResponse> findGuestbooks = guestbookService.getFriendGuestbook(authenticateUser, receiverUserId);
 
         // then
         assertThat(findGuestbooks).hasSize(1)

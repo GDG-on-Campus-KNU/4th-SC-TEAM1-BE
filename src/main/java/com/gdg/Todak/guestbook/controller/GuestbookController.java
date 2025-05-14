@@ -25,9 +25,15 @@ public class GuestbookController {
     private final GuestbookService guestbookService;
 
     @GetMapping
-    @Operation(summary = "방명록 조회", description = "본인에게 작성된 방명록을 조회합니다. 작성한 방명록은 24시간동안만 유지됩니다.")
-    public ApiResponse<List<GetGuestbookResponse>> getGuestbook(@Parameter(hidden = true) @Login AuthenticateUser user) {
-        return ApiResponse.ok(guestbookService.getGuestbook(user));
+    @Operation(summary = "내 방명록 조회", description = "본인에게 작성된 방명록을 조회합니다. 작성한 방명록은 24시간동안만 유지됩니다.")
+    public ApiResponse<List<GetGuestbookResponse>> getNyGuestbook(@Parameter(hidden = true) @Login AuthenticateUser user) {
+        return ApiResponse.ok(guestbookService.getMyGuestbook(user));
+    }
+
+    @GetMapping("/{friendId}")
+    @Operation(summary = "친구 방명록 조회", description = "친구에게 작성된 방명록을 조회합니다. 작성한 방명록은 24시간동안만 유지됩니다.")
+    public ApiResponse<List<GetGuestbookResponse>> getFriendGuestbook(@Parameter(hidden = true) @Login AuthenticateUser user, @PathVariable("friendId") String friendId) {
+        return ApiResponse.ok(guestbookService.getFriendGuestbook(user, friendId));
     }
 
     @PostMapping

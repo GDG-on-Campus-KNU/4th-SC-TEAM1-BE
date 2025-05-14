@@ -32,10 +32,24 @@ public class GuestbookService {
     private final MemberRepository memberRepository;
     private final FriendCheckService friendCheckService;
 
-    public List<GetGuestbookResponse> getGuestbook(AuthenticateUser user) {
+    public List<GetGuestbookResponse> getMyGuestbook(AuthenticateUser user) {
         Member member = getMember(user.getUserId());
 
         return guestbookRepository.findValidGuestbooksByReceiverUserId(member.getUserId()).stream()
+                .map(GetGuestbookResponse::from)
+                .toList();
+    }
+
+    public List<GetGuestbookResponse> getFriendGuestbook(AuthenticateUser user, String friendId) {
+        Member member = getMember(user.getUserId());
+
+        List<Member> acceptedMembers = friendCheckService.getFriendMembers(friendId);
+
+        if (!acceptedMembers.contains(member)) {
+            throw new UnauthorizedException("해당 방명록을 조회할 권한이 없습니다. 본인이거나 친구일 경우에만 조회가 가능합니다.");
+        }
+
+        return guestbookRepository.findValidGuestbooksByReceiverUserId(friendId).stream()
                 .map(GetGuestbookResponse::from)
                 .toList();
     }
@@ -62,7 +76,7 @@ public class GuestbookService {
     public String deleteGuestbook(AuthenticateUser user, DeleteGuestbookRequest request) {
         Member member = getMember(user.getUserId());
 
-        Guestbook guestbook = getGuestbook(request);
+        Guestbook guestbook = getMyGuestbook(request);
 
         if (isNotGuestbookOwner(member, guestbook)) {
             throw new UnauthorizedException("방명록 주인이 아닙니다.");
@@ -82,7 +96,7 @@ public class GuestbookService {
         return !sender.getUserId().equals(guestbook.getReceiver().getUserId());
     }
 
-    private Guestbook getGuestbook(DeleteGuestbookRequest request) {
+    private Guestbook getMyGuestbook(DeleteGuestbookRequest request) {
         Optional<Guestbook> guestbookOptional = guestbookRepository.findById(request.getGuestbookId());
 
         if (guestbookOptional.isEmpty()) {
