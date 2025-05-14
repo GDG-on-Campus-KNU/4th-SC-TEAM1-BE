@@ -25,7 +25,7 @@ public class GetGuestbookResponse {
         this.createdAt = createdAt;
     }
 
-    public static GetGuestbookResponse of(Guestbook guestbook) {
+    public static GetGuestbookResponse from(Guestbook guestbook) {
         return GetGuestbookResponse.builder()
             .id(guestbook.getId())
             .senderNickname(guestbook.getSender().getNickname())

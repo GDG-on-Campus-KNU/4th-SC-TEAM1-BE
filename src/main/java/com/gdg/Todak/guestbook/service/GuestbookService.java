@@ -36,7 +36,7 @@ public class GuestbookService {
         Member member = getMember(user.getUserId());
 
         return guestbookRepository.findValidGuestbooksByReceiverUserId(member.getUserId()).stream()
-                .map(GetGuestbookResponse::of)
+                .map(GetGuestbookResponse::from)
                 .toList();
     }
 
@@ -50,7 +50,7 @@ public class GuestbookService {
         List<Member> acceptedMembers = friendCheckService.getFriendMembers(receiver.getUserId());
 
         if (!acceptedMembers.contains(sender)) {
-            throw new UnauthorizedException("해당 일기에 댓글을 작성할 권한이 없습니다. 본인이거나 친구일 경우에만 작성이 가능합니다.");
+            throw new UnauthorizedException("해당 방명록에 작성할 권한이 없습니다. 본인이거나 친구일 경우에만 작성이 가능합니다.");
         }
 
         Guestbook guestbook = Guestbook.of(sender, receiver, request.getContent(), expiresAt);
