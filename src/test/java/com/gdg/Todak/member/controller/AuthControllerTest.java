@@ -20,15 +20,17 @@ class AuthControllerTest extends ControllerTestSupport {
     @Test
     void updateRefreshTokenTest() throws Exception {
         // given
+        String accessToken = "access_token";
         String refreshToken = "refresh_token";
 
         UpdateAccessTokenRequest request = UpdateAccessTokenRequest.builder()
+                .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
 
         Jwt jwt = Jwt.builder()
                 .accessToken("new_access_token")
-                .refreshToken(refreshToken)
+                .refreshToken("new_refresh_token")
                 .build();
 
         // when
@@ -36,7 +38,7 @@ class AuthControllerTest extends ControllerTestSupport {
 
         // then
         mockMvc.perform(
-                        post("/api/v1/auth/refresh")
+                        post("/api/v1/auth/reissue")
                                 .content(objectMapper.writeValueAsString(request))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -23,32 +24,35 @@ public class AuthService {
     private final MemberRepository memberRepository;
 
     public Jwt updateAccessToken(UpdateAccessTokenServiceRequest request) {
-        String refreshToken = request.getRefreshToken();
+        String accessToken = request.getAccessToken();
 
-        Long memberId = getMemberId(refreshToken);
+        Member member = getMember(accessToken);
 
-        if (memberId == null) {
+        String memberId = member.getId().toString();
+        String refreshToken = (String) redisTemplate.opsForValue().get(memberId);
+
+        if (refreshToken == null) {
             throw new UnauthorizedException("리프레시 토큰이 만료되었습니다.");
         }
 
-        Member member = getMemberById(memberId);
-
-        String accessToken = createNewAccessToken(member);
-
-        return Jwt.of(accessToken, refreshToken);
-    }
-
-    private Long getMemberId(String refreshToken) {
-        String memberId = (String) redisTemplate.opsForValue().get(refreshToken);
-        if (memberId == null) {
-            return null;
+        if (!refreshToken.equals(request.getRefreshToken())) {
+            throw new UnauthorizedException("유효하지 않은 리프레시 토큰입니다.");
         }
-        return Long.valueOf(memberId);
+
+        String newAccessToken = createNewAccessToken(member);
+        String newRefreshToken = jwtProvider.createRefreshToken();
+
+        saveRefreshToken(newRefreshToken, member);
+
+        return Jwt.of(newAccessToken, newRefreshToken);
     }
 
-    private Member getMemberById(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new UnauthorizedException("멤버가 존재하지 않습니다."));
+    private Member getMember(String accessToken) {
+        String userId = jwtProvider.getUserIdForReissue(accessToken)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 유저정보 입니다."));
+        Member member = memberRepository.findByUserId(userId)
+            .orElseThrow(() -> new UnauthorizedException("존재하지 않는 유저정보 입니다."));
+        return member;
     }
 
     private String createNewAccessToken(Member member) {
@@ -56,5 +60,10 @@ public class AuthService {
 
         String accessToken = jwtProvider.createAccessToken(claims);
         return accessToken;
+    }
+
+    private void saveRefreshToken(String refreshToken, Member member) {
+        String memberId = member.getId().toString();
+        redisTemplate.opsForValue().set(memberId, refreshToken, 14, TimeUnit.DAYS);
     }
 }

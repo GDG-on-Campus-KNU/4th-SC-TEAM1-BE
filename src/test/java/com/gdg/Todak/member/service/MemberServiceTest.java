@@ -125,11 +125,13 @@ class MemberServiceTest {
 
         // when
         LoginResponse loginResponse = memberService.login(request);
-        refreshToken = loginResponse.getRefreshToken();
 
         // then
-        Long memberId = Long.valueOf((String) redisTemplate.opsForValue().get(refreshToken));
-        assertThat(memberId).isNotNull();
+        assertThat(loginResponse.getAccessToken()).isNotNull();
+        assertThat(loginResponse.getAccessToken()).isNotBlank();
+
+        assertThat(loginResponse.getRefreshToken()).isNotNull();
+        assertThat(loginResponse.getRefreshToken()).isNotBlank();
     }
 
     @DisplayName("이미 존재하는 userId이면 true를 반환한다.")

@@ -46,12 +46,12 @@ public class MemberService {
     private final TreeService treeService;
 
     private static final List<String> ALLOWED_MIME_TYPES = Arrays.asList(
-            "image/jpeg",   // JPG 이미지
-            "image/png",    // PNG 이미지
-            "image/gif",    // GIF 이미지
-            "image/bmp",    // BMP 이미지
-            "image/webp",   // WEBP 이미지
-            "image/svg+xml" // SVG 이미지
+        "image/jpeg",   // JPG 이미지
+        "image/png",    // PNG 이미지
+        "image/gif",    // GIF 이미지
+        "image/bmp",    // BMP 이미지
+        "image/webp",   // WEBP 이미지
+        "image/svg+xml" // SVG 이미지
     );
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -79,7 +79,7 @@ public class MemberService {
         String encodedPassword = PasswordEncoder.getEncodedPassword(salt, request.getPassword());
 
         Member member = memberRepository.save(
-                Member.of(request.getUserId(), encodedPassword, request.getNickname(), defaultProfileImageUrl, salt));
+            Member.of(request.getUserId(), encodedPassword, request.getNickname(), defaultProfileImageUrl, salt));
 
         MemberRole role = MemberRole.of(Role.USER, member);
         member.addRole(role);
@@ -114,9 +114,10 @@ public class MemberService {
         return LoginResponse.of(member.getUserId(), member.getNickname(), accessToken, refreshToken);
     }
 
-    public LogoutResponse logout(AuthenticateUser user, LogoutServiceRequest serviceRequest) {
+    public LogoutResponse logout(AuthenticateUser user) {
         if (user != null) {
-            redisTemplate.delete(serviceRequest.getRefreshToken());
+            Member member = findMember(user.getUserId());
+            redisTemplate.delete(member.getId());
         }
 
         String message = "성공적으로 로그아웃 되었습니다.";
@@ -232,7 +233,7 @@ public class MemberService {
 
         Member member = findMemberOptional.get();
         String encodedPassword = PasswordEncoder.getEncodedPassword(member.getSalt(),
-                request.getPassword());
+            request.getPassword());
         if (!encodedPassword.equals(member.getPassword())) {
             return null;
         }
@@ -261,18 +262,19 @@ public class MemberService {
 
     private Member findMember(String userId) {
         return memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new UnauthorizedException("멤버가 존재하지 않습니다."));
+            .orElseThrow(() -> new UnauthorizedException("멤버가 존재하지 않습니다."));
     }
 
     private static void checkPassword(String password, Member member) {
         String encodedPassword = PasswordEncoder.getEncodedPassword(member.getSalt(),
-                password);
+            password);
         if (!encodedPassword.equals(member.getPassword())) {
             throw new UnauthorizedException("비밀번호가 올바르지 않습니다.");
         }
     }
 
     private void saveRefreshToken(String refreshToken, Member member) {
-        redisTemplate.opsForValue().set(refreshToken, member.getId().toString(), 14, TimeUnit.DAYS);
+        String memberId = member.getId().toString();
+        redisTemplate.opsForValue().set(memberId, refreshToken, 14, TimeUnit.DAYS);
     }
 }
