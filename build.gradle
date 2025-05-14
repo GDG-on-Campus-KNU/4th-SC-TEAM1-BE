@@ -59,15 +59,17 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    // etc
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.7.0'
-
     // monitoring
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
     // AI / LangChain
     implementation 'dev.langchain4j:langchain4j:1.0.0-beta1'
     implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.0.0-beta1'
+
+    // etc
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.7.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:5.1.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.1.0'
 }
 
 tasks.named('test') {

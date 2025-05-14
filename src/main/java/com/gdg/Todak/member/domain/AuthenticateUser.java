@@ -18,4 +18,11 @@ public class AuthenticateUser {
         this.userId = userId;
         this.roles = roles;
     }
+
+    public static AuthenticateUser of(String userId, Set<Role> roles) {
+        return AuthenticateUser.builder()
+            .userId(userId)
+            .roles(roles)
+            .build();
+    }
 }
