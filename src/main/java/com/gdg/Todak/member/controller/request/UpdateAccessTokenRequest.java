@@ -10,16 +10,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateAccessTokenRequest {
 
+    private String accessToken;
     private String refreshToken;
 
     @Builder
-    public UpdateAccessTokenRequest(String refreshToken) {
+    public UpdateAccessTokenRequest(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
 
     public UpdateAccessTokenServiceRequest toServiceRequest() {
         return UpdateAccessTokenServiceRequest.builder()
-                .refreshToken(refreshToken)
-                .build();
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .build();
     }
 }

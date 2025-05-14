@@ -48,9 +48,8 @@ public class MemberController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "리프레시 토큰을 삭제하여 로그아웃한다.")
-    public ApiResponse<LogoutResponse> logout(@Parameter(hidden = true) @Login AuthenticateUser user,
-                                              @RequestBody LogoutRequest request) {
-        return ApiResponse.ok(memberService.logout(user, request.toServiceRequest()));
+    public ApiResponse<LogoutResponse> logout(@Parameter(hidden = true) @Login AuthenticateUser user) {
+        return ApiResponse.ok(memberService.logout(user));
     }
 
     @PostMapping("/me")

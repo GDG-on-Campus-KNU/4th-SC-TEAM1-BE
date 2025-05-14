@@ -44,15 +44,10 @@ class AuthServiceTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public String refreshToken;
-
     @Autowired
     private MemberRepository memberRepository;
     @Autowired
     private MemberRoleRepository memberRoleRepository;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @MockitoBean
     private PointService pointService;
@@ -61,10 +56,6 @@ class AuthServiceTest {
     void tearDown() {
         memberRoleRepository.deleteAllInBatch();
         memberRepository.deleteAllInBatch();
-
-        if (refreshToken != null) {
-            redisTemplate.delete(refreshToken);
-        }
     }
 
     @DisplayName("리프레시 토큰이 유효하면 새로운 액세스 토큰을 발급한다.")
@@ -85,10 +76,10 @@ class AuthServiceTest {
                 .build();
 
         LoginResponse jwt = memberService.login(loginRequest);
-        refreshToken = jwt.getRefreshToken();
 
         // when
         UpdateAccessTokenServiceRequest updateAccessTokenServiceRequest = UpdateAccessTokenServiceRequest.builder()
+                .accessToken(jwt.getAccessToken())
                 .refreshToken(jwt.getRefreshToken())
                 .build();
 
@@ -106,17 +97,31 @@ class AuthServiceTest {
     @Test
     void invalidRefreshTokenTest() {
         // given
-        String invalidRefreshToken = "invalid_refresh_token";
+        String userId = "test_userId";
+        String password = "test_password";
+        String passwordCheck = "test_password";
+
+        doNothing().when(pointService).earnAttendancePointPerDay(any(Member.class));
+
+        createMember(userId, password, passwordCheck);
+
+        LoginServiceRequest loginRequest = LoginServiceRequest.builder()
+            .userId(userId)
+            .password(password)
+            .build();
+
+        LoginResponse jwt = memberService.login(loginRequest);
 
         // when
         UpdateAccessTokenServiceRequest updateAccessTokenServiceRequest = UpdateAccessTokenServiceRequest.builder()
-                .refreshToken(invalidRefreshToken)
-                .build();
+            .accessToken(jwt.getAccessToken())
+            .refreshToken("invalid_refresh_token")
+            .build();
 
         // then
         assertThatThrownBy(() -> authService.updateAccessToken(updateAccessTokenServiceRequest))
-                .isInstanceOf(UnauthorizedException.class)
-                .hasMessage("리프레시 토큰이 만료되었습니다.");
+            .isInstanceOf(UnauthorizedException.class)
+            .hasMessage("유효하지 않은 리프레시 토큰입니다.");
     }
 
     private void createMember(String userId, String password, String passwordCheck) {
