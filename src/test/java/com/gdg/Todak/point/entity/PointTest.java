@@ -65,7 +65,7 @@ class PointTest {
         // when & then
         assertThatThrownBy(() -> point.consumePoint(50))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessage("남은 포인트가 0 미만일 수 없습니다.");
+                .hasMessageContaining("요청하신 포인트");
     }
 
     @DisplayName("물 성장 버튼으로 포인트를 소비하면 해당 포인트가 차감되어야 한다")
