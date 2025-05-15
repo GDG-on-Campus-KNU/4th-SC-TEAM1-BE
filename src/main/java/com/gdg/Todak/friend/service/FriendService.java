@@ -9,9 +9,12 @@ import com.gdg.Todak.friend.exception.UnauthorizedException;
 import com.gdg.Todak.friend.repository.FriendRepository;
 import com.gdg.Todak.member.domain.Member;
 import com.gdg.Todak.member.repository.MemberRepository;
+import com.gdg.Todak.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +26,7 @@ public class FriendService {
 
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void makeFriendRequest(String userId, FriendIdRequest friendIdRequest) {
@@ -53,6 +57,14 @@ public class FriendService {
                 .accepter(accepterMember)
                 .friendStatus(FriendStatus.PENDING)
                 .build());
+
+        // 알림 전송
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                notificationService.publishFriendAddRequestNotification(requesterMember.getUserId(), accepterMember.getUserId(), "friend");
+            }
+        });
     }
 
     public List<FriendResponse> getAllFriend(String userId) {

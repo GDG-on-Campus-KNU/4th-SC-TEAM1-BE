@@ -130,6 +130,10 @@ public class NotificationService {
         publishEventToRedis(objectId, senderId, receiverId, type, diaryCreatedAt);
     }
 
+    public void publishFriendAddRequestNotification(String senderId, String receiverId, String type) {
+        publishEventToRedis(null, senderId, receiverId, type, null);
+    }
+
     private void publishEventToRedis(Long objectId, String senderId, String receiverId, String type, Instant diaryCreatedAt) {
         String notificationKey = UUID.randomUUID().toString();
         Instant timestamp = Instant.now();
