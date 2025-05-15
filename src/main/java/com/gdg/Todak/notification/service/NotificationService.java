@@ -109,7 +109,7 @@ public class NotificationService {
      * @param objectId : postId
      * @param type     : "post" (새 글 알림)
      */
-    public void publishPostNotifications(String senderId, String type, Long objectId) {
+    public void publishPostNotifications(String senderId, String type, Long objectId, Instant diaryCreatedAt) {
         List<Friend> friends = friendRepository.findAllByAccepterUserIdAndFriendStatusOrRequesterUserIdAndFriendStatus(
                 senderId, FriendStatus.ACCEPTED, // requester
                 senderId, FriendStatus.ACCEPTED // acceptor
@@ -118,7 +118,7 @@ public class NotificationService {
         friends.stream()
                 .forEach(friend -> {
                     Member friendInfo = friend.getFriend(senderId);
-                    publishEventToRedis(objectId, senderId, friendInfo.getUserId(), type);
+                    publishEventToRedis(objectId, senderId, friendInfo.getUserId(), type, diaryCreatedAt);
                 });
     }
 
@@ -126,11 +126,11 @@ public class NotificationService {
      * @param objectId : postId
      * @param type     : "comment" (댓글 알림)
      */
-    public void publishCommentNotification(String senderId, String receiverId, String type, Long objectId) {
-        publishEventToRedis(objectId, senderId, receiverId, type);
+    public void publishCommentNotification(String senderId, String receiverId, String type, Long objectId, Instant diaryCreatedAt) {
+        publishEventToRedis(objectId, senderId, receiverId, type, diaryCreatedAt);
     }
 
-    private void publishEventToRedis(Long objectId, String senderId, String receiverId, String type) {
+    private void publishEventToRedis(Long objectId, String senderId, String receiverId, String type, Instant diaryCreatedAt) {
         String notificationKey = UUID.randomUUID().toString();
         Instant timestamp = Instant.now();
 
@@ -140,6 +140,7 @@ public class NotificationService {
                 .senderUserId(senderId)
                 .receiverUserId(receiverId)
                 .type(type)
+                .diaryCreatedAt(diaryCreatedAt)
                 .createdAt(timestamp)
                 .build();
 
