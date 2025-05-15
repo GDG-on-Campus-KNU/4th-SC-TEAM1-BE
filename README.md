@@ -7,6 +7,10 @@
 # AI-Powered Emotional Support Diary "Todak"
 Todak(토닥) is an innovative, private diary service (Closed-Type SNS) where users can freely express their emotions while receiving AI-powered empathetic responses.
 
+# [www.todak.site](https://www.todak.site)
+
+<img src="images/Todak_img.png" width="300"/>
+
 </div>
 <br>
 
@@ -16,6 +20,9 @@ In modern society, many people lack a safe and private space to express their em
 Our solution was developed for the APAC Solution Challenge to address this critical emotional well-being need.
 
 The name "토닥" in Korean means to gently pat someone to offer comfort or emotional support - perfectly capturing the essence of our service.
+
+## 🎥 Demo Video
+[![Demo Video](https://img.youtube.com/vi/jZ-gx8eNw50/0.jpg)](https://www.youtube.com/watch?v=jZ-gx8eNw50)
 
 ## 🏗️ System Architecture
 A web application architecture diagram showing a monolithic Spring Boot application deployed in multiple instances for rolling updates within a Kubernetes cluster, featuring client-side Vue.js and React, a shared MySQL database
@@ -57,6 +64,11 @@ Built with Thymeleaf, the admin dashboard offers dynamic filtering and managemen
 
 ### 📊 10. Monitoring and Logging
 The backend is monitored using Prometheus and Grafana, with error logs stored per user for analysis and stability improvement.
+
+## 📁 Repository
+
+### [👉 FE Github Repository](https://github.com/GDG-on-Campus-KNU/4th-SC-TEAM1-FE)
+### [👉 BE Github Repository](https://github.com/GDG-on-Campus-KNU/4th-SC-TEAM1-BE)
 
 ## 🛠️ Tech Spec
 ### 💻 Frontend
