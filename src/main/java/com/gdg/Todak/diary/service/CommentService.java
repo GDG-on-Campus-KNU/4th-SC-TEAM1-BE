@@ -142,7 +142,7 @@ public class CommentService {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    notificationService.publishCommentNotification(senderId, receiverId, "comment", diary.getId());
+                    notificationService.publishCommentNotification(senderId, receiverId, "comment", diary.getId(), diary.getCreatedAt());
                 }
             });
         }
