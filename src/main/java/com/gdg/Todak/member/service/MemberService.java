@@ -208,7 +208,7 @@ public class MemberService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        String salt = PasswordEncoder.getSalt();
+        String salt = member.getSalt();
 
         String encodedPassword = PasswordEncoder.getEncodedPassword(salt, request.getNewPassword());
 
