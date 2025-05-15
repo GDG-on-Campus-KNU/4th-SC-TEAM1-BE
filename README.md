@@ -22,6 +22,7 @@ Our solution was developed for the APAC Solution Challenge to address this criti
 The name "토닥" in Korean means to gently pat someone to offer comfort or emotional support - perfectly capturing the essence of our service.
 
 ## 🎥 Demo Video
+
 [![Demo Video](https://img.youtube.com/vi/jZ-gx8eNw50/0.jpg)](https://www.youtube.com/watch?v=jZ-gx8eNw50)
 
 ## 🏗️ System Architecture
@@ -35,35 +36,76 @@ The following diagram illustrates the main interactions and relationships betwee
 ![Use Case Diagram](images/Todak_USECASE_Diagram.png)
 
 ## 🎯 Key Features
-### ✍️ 1. Private Diary Writing
-Users can freely write and store their emotions in a closed, secure environment that encourages honest emotional expression without fear of judgment.
 
-### 🤖 2. AI Empathy Companion
-Our AI reads diary entries and generates personalized, empathetic comments that feel like support from a warm, understanding friend.
+### ✍️ 1. Private Diary Writing  
+Users can freely write and store their emotions in a closed, secure environment that encourages honest emotional expression without fear of judgment.  
 
-### 🧬 3. MBTI-Based AI Responses
-AI provides empathetic and comforting comments based on the diary written by the user, based on one of the 16 MBTI personality types.
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/4cb4d726-4619-45d2-8351-36716a105e74" />
 
-### 🕵️‍♀️ 4. Anonymous Comment Fuction
-Based on the diary written by the user, users registered as friends and AI can comment. All comments by users and AI are provided anonymously, and anonymity can be deactivated through points.
+---
 
-### 🌱 5. Emotion Growth Visualization
-A virtual tree on the main screen grows as users consistently write in their diary, symbolizing emotional growth and encouraging continuous engagement through visual feedback.
+### 🤖 2. AI Empathy Companion  
+Our AI, "토닥이" reads diary entries and generates personalized, empathetic comments that feel like support from a warm, understanding friend. 
 
-### 👫 6. Friend Features
-Users can access friends' diaries and guestbooks (with permission) and write comments to support each other, creating a community of emotional support.
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/1687996b-c9e1-4adc-81e4-fa5cc102693a" />
 
-### 💎 7. Points System
-Users can earn points by checking in daily, writing in a journal, and leaving comments, which can be used to grow the tree and unlock visual progress milestones. Anonymous comments can also be unlocked.
+---
 
-### 📡 8. Real-Time Notifications
-The system alerts users when someone comments on their diary or guestbook, implemented using lightweight Server-Sent Events (SSE) and Redis Streams for efficient real-time communication.
+### 🧬 3. MBTI-Based AI Responses  
+AI provides empathetic and comforting comments based on the diary written by the user, based on one of the 16 MBTI personality types.  
 
-### 🔧 9. Admin Dashboard
-Built with Thymeleaf, the admin dashboard offers dynamic filtering and management by user, date, and status for effective platform oversight.
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/fe8b1bbd-389f-4f2d-8e90-dce5f82e5d2b" />
 
-### 📊 10. Monitoring and Logging
-The backend is monitored using Prometheus and Grafana, with error logs stored per user for analysis and stability improvement.
+---
+
+### 🕵️‍♀️ 4. Anonymous Comment Function  
+Based on the diary written by the user, users registered as friends and AI can comment. All comments by users and AI are provided anonymously, and anonymity can be deactivated through points.  
+
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/127f414e-f5dc-499d-90d2-78d738817d42" />
+
+---
+
+### 🌱 5. Emotion Growth Visualization  
+A virtual tree on the main screen grows as users consistently write in their diary, symbolizing emotional growth and encouraging continuous engagement through visual feedback.  
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/88f0cc7d-002b-48d6-a792-53ab7a518155" />
+
+---
+
+### 👫 6. Friend Features  
+Users can access friends' diaries and guestbooks (with permission) and write comments to support each other, creating a community of emotional support.  
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/269ade79-80c3-4264-9f3f-8eae55a18041" />
+
+---
+
+### 💎 7. Points System  
+Users can earn points by checking in daily, writing in a journal, and leaving comments, which can be used to grow the tree and unlock visual progress milestones. Anonymous comments can also be unlocked.  
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/d48839da-a0ed-4dd7-a721-99a81cde47d0" />
+
+---
+
+### 📡 8. Real-Time Notifications  
+The system alerts users when someone comments on their diary or guestbook, implemented using lightweight Server-Sent Events (SSE) and Redis Streams for efficient real-time communication.  
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/75706544-4125-46a2-ad36-4a5c96cfba0d" />
+
+---
+
+### 🔧 9. Admin Dashboard  
+Built with Thymeleaf, the admin dashboard offers dynamic filtering and management by user, date, and status for effective platform oversight.  
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/f5867cdc-ba3e-47fd-a54d-94764f36ebef" />
+
+---
+
+### 📊 10. Monitoring and Logging  
+The backend is monitored using Prometheus and Grafana, with error logs stored per user for analysis and stability improvement.  
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/9cedadc1-733a-45f5-a9a5-a93629a78fb7" />
+
+---
 
 ## 📁 Repository
 
