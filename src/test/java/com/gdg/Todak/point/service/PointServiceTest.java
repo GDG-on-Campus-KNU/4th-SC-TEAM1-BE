@@ -292,7 +292,7 @@ class PointServiceTest {
         // when & then
         assertThatThrownBy(() -> pointService.consumePointByGrowthButton(member, GrowthButton.WATER))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessage("남은 포인트가 0 미만일 수 없습니다.");
+                .hasMessageContaining("요청하신 포인트");
     }
 
     @Test

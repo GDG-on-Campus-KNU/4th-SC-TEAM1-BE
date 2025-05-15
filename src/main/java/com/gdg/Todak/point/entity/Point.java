@@ -39,7 +39,9 @@ public class Point {
 
     public void consumePoint(int point) {
         if (this.point - point < 0) {
-            throw new BadRequestException("남은 포인트가 0 미만일 수 없습니다.");
+            throw new BadRequestException(
+                    String.format("요청하신 포인트(%dP)를 사용할 수 없습니다. 현재 보유 포인트는 %dP입니다.", point, this.point)
+            );
         }
         this.point -= point;
     }
